@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#define TAM_INICIAL 97
 
 uint32_t murmurhash (const char *key, uint32_t len, uint32_t seed) {
   uint32_t c1 = 0xcc9e2d51;
@@ -70,7 +71,7 @@ uint32_t funcion_hash(const char* clave,uint32_t largo){
 }
 
 
-typedef void hash_destruir_dato(void*);
+typedef void hash_destruir_dato_t(void*);
 
 typedef struct campo{
 	char* calve;
@@ -83,5 +84,22 @@ typedef struct hash{
 	size_t ocupados;
 	size_t vacios;
 	size_t borrados;
-	destruir_t destruir_dato;
+	hash_destruir_dato__t destruir_dato;
 } hash_t;
+
+
+hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
+	hash_t* hash = malloc(sizeof(hash_t));
+	if (hash == NULL ) return NULL;
+	campo_t** campos = malloc(sizeof(campo_t)*TAM_INICIAL);
+	if (campos == NULL){
+		free(hash);
+		return NULL;
+	}
+	hash->campos = campos;
+	hash->ocupados = 0;
+	hash->vacios = TAM_INICIAL;
+	hash->borrados = 0;
+	hash->destruir_dato = destruir_dato
+	return hash;
+}
