@@ -70,7 +70,7 @@ uint32_t funcion_hash(const char* clave,uint32_t largo){
 }
 
 
-typedef void destruir(void*) destruir_t;
+typedef void hash_destruir_dato(void*);
 
 typedef struct campo{
 	char* calve;
