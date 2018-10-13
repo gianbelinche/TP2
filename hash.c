@@ -90,9 +90,9 @@ typedef struct hash{
 
 hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 	hash_t* hash = malloc(sizeof(hash_t));
-	if (hash == NULL ) return NULL;
+	if (!hash) return NULL;
 	campo_t** campos = malloc(sizeof(campo_t)*TAM_INICIAL);
-	if (campos == NULL){
+	if (!campos){
 		free(hash);
 		return NULL;
 	}
@@ -101,5 +101,5 @@ hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 	hash->vacios = TAM_INICIAL;
 	hash->borrados = 0;
 	hash->destruir_dato = destruir_dato
-	return hash;
+	return hash;1
 }
