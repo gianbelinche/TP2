@@ -154,7 +154,9 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 	} 
 	int esta = hash_buscar(hash,clave);
 	if (esta != -1){
+		campo_t* a_eliminar = hash->campos[esta];
 		hash->campos[esta] = campo;
+		destruir_campo(a_eliminar);
 		return true;
 	}
 	uint32_t posicion = funcion_hash(clave,strlen(clave));
