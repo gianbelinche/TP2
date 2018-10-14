@@ -101,7 +101,7 @@ campo_t* campo_crear(char* clave, void* dato){
 hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 	hash_t* hash = malloc(sizeof(hash_t));
 	if (!hash) return NULL;
-	campo_t** campos = malloc(sizeof(campo_t)*TAM_INICIAL);
+	campo_t** campos = malloc(sizeof(campo_t*)*TAM_INICIAL);
 	if (!campos){
 		free(hash);
 		return NULL;
@@ -115,7 +115,29 @@ hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 	return hash;1
 }
 
+bool redimensionar(hash_t* hash,int portentaje){
+	campo_t** campos_nuevos = malloc(sizeof(campo_t*)*hash->capacidad*porcentaje);
+	if (!campos_nuevos) return false;
+	for (int i=0;i<hash->capacidad;i++){
+		campo_t* campo = hash->campos[i];
+		if (campo && campo->estado == OCUPADO){
+			uint32_t pos = funcion_hash(campo->clave,strlen(campo->clave));
+			pos %= (hash->capacidad*porcentaje);
+			campos_nuevos[pos] = campo;
+		}
+	} 
+	hash->campos = campos_nuevos;
+	hash->capacidad *= porcentaje;
+	hash->borrados = 0;
+	hash->vacios = hash->capacidad - hash->ocupados;
+	return true;
+
+}
 bool hash_guardar(hash_t* hash, const char* clave, void* dato){
+	if ((hash->ocupados + hash->borrados)/hash->capacidad > FACTOR_DE_REDIMENSION){
+		bool ok = redimensionar(hash,2);
+		if (!ok) return false;
+	}
 	uint32_t posicion = funcion_hash(clave,strlen(clave));
 	posicion %= hash->capacidad;
 	campo_t* campo = campo_crear(clave,dato);
@@ -125,5 +147,7 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 		posicion %= hash->capacidad;
 	}
 	hash->campos[posicion] = campo;
+	hash->ocupados ++;
+	hash->vacios --;
 	return true;
 }
