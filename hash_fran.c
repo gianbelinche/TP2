@@ -83,6 +83,6 @@ typedef struct hash{
 	size_t ocupados;
 	size_t vacios;
 	size_t borrados;
-  size_t cantidad;
+  size_t capacidad;
 	hash_destruir_dato__t destruir_dato;
 } hash_t;
