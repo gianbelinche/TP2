@@ -114,6 +114,18 @@ hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 	hash->destruir_dato = destruir_dato
 	return hash;1
 }
+//Busca un elemento en el hash, devuelve su posicion, si no esta devuelve -1.
+int _hash_buscar(hash_t* hash, char* clave){
+	uint32_t pos = funcion_hash(clave,strlen(clave));
+	pos %= hash->capacidad;
+	while (hash->campos[pos]){
+		campo_t* campo = hash->campos[pos];
+		if (campo->estado == OCUPADO && !strcmp(campo->clave,clave)) return pos;
+		pos++;
+		pos %= hash->capacidad;
+	}
+	return -1;
+}
 
 bool redimensionar(hash_t* hash,int portentaje){
 	campo_t** campos_nuevos = malloc(sizeof(campo_t*)*hash->capacidad*porcentaje);
