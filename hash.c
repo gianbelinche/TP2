@@ -74,7 +74,7 @@ uint32_t funcion_hash(const char* clave,uint32_t largo){
 typedef void hash_destruir_dato_t(void*);
 
 typedef struct campo{
-	char* calve;
+	char* clave;
 	void* dato;
 	short estado;
 } campo_t;
@@ -84,9 +84,19 @@ typedef struct hash{
 	size_t ocupados;
 	size_t vacios;
 	size_t borrados;
+	size_t capacidad;
 	hash_destruir_dato__t destruir_dato;
 } hash_t;
 
+
+campo_t* campo_crear(char* clave, void* dato){
+	campo_t* campo = malloc(sizeof(campo_t));
+	if (!campo) return NULL;
+	campo->clave = clave;
+	campo->dato = dato;
+	campo->estado = OCUPADO;
+	return campo;
+}
 
 hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 	hash_t* hash = malloc(sizeof(hash_t));
@@ -100,6 +110,20 @@ hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 	hash->ocupados = 0;
 	hash->vacios = TAM_INICIAL;
 	hash->borrados = 0;
+	hash->capacidad = TAM_INICIAL;
 	hash->destruir_dato = destruir_dato
 	return hash;1
+}
+
+bool hash_guardar(hash_t* hash, const char* clave, void* dato){
+	uint32_t posicion = funcion_hash(clave,strlen(clave));
+	posicion %= hash->capacidad;
+	campo_t* campo = campo_crear(clave,dato);
+	if (!campo) return false;
+	while(hash->campos[posicion]){
+		posicion++;
+		posicion %= hash->capacidad;
+	}
+	hash->campos[posicion] = campo;
+	return true;
 }
