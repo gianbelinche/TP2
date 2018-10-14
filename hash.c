@@ -169,3 +169,10 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 	hash->vacios --;
 	return true;
 }
+
+void* hash_obtener(const hash_t* hash, const char* clave){
+	int pos = _hash_buscar(hash,clave);
+	if (pos == -1) return NULL;
+	return (hash->campos[pos])->dato;
+}
+
