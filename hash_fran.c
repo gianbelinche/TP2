@@ -86,3 +86,5 @@ typedef struct hash{
   size_t capacidad;
 	hash_destruir_dato__t destruir_dato;
 } hash_t;
+
+//Agrega un ENUM ocupados borrados a ambos archivos que no me acuerdo como se hace (si estan vacios directamente valen NULL asi que no hace falta agregarlo al enum)
