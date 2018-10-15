@@ -178,3 +178,9 @@ void* hash_obtener(const hash_t* hash, const char* clave){
 	return (hash->campos[pos])->dato;
 }
 
+
+typedef struct hash_iter{ 
+	hash_t* hash;
+}hash_iter_t;
+
+
