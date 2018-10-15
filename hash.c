@@ -181,13 +181,23 @@ void* hash_obtener(const hash_t* hash, const char* clave){
 
 typedef struct hash_iter{ 
 	hash_t* hash;
+	int actual;
 }hash_iter_t;
 
 hash_iter_t* hash_iter_crear(const hash_t* hash){
 	hash_iter_t* iter = malloc(sizeof(hash_iter_t));
 	if (!iter) return NULL;
 	iter->hash = hash;
+	iter->actual = 0;
 	return iter;
 }
 
-
+bool hash_iter_avanzar(hash_iter_t* iter){
+	hash_t* hash = iter->hash;
+	iter->actual++;
+	if (iter->actual >= hash->capacidad) return false;
+	while(hash[iter->actual] || hash[iter->actual]->estado == BORRADO){
+		iter->actual++;
+	}
+	return !(iter->actual >= hash->capacidad);
+}
