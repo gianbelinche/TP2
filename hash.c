@@ -146,7 +146,7 @@ bool redimensionar(hash_t* hash,int portentaje){
 
 }
 bool hash_guardar(hash_t* hash, const char* clave, void* dato){
-	campo_t* campo = campo_crear(clave,dato);
+	campo_t* campo = campo_crear(strdup(clave),dato);
 	if (!campo) return false;
 	if ((hash->ocupados + hash->borrados)/hash->capacidad > FACTOR_DE_REDIMENSION){
 		bool ok = redimensionar(hash,2);
