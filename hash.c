@@ -57,7 +57,10 @@ campo_t* campo_crear(const char* clave, void* dato){
 void campo_destruir(campo_t* campo, hash_destruir_dato_t destruir_dato)
 {
 	free(campo -> clave);
-	destruir_dato(campo -> dato);
+
+	if(destruir_dato)
+		destruir_dato(campo -> dato);
+
 	free(campo);
 }
 
@@ -179,10 +182,8 @@ void hash_destruir(hash_t *hash)
 {
 	for(size_t i = 0; i < hash -> capacidad; i++)
 	{
-		if(hash-> campos[i] -> estado == OCUPADO)
+		if(hash-> campos[i] && hash-> campos[i] -> estado == OCUPADO)
 			campo_destruir(hash-> campos[i],hash -> destruir_dato);
-
-		free(hash-> campos[i]);
 	}
 
 	free(hash -> campos);
@@ -201,13 +202,13 @@ hash_iter_t* hash_iter_crear(const hash_t* hash){
 }
 
 bool hash_iter_avanzar(hash_iter_t* iter){
-	campos_t** campos = iter->hash->campos;
+	campo_t** campos = iter->hash->campos;
 	iter->actual++;
-	if (iter->actual >= hash->capacidad) return false;
+	if (iter->actual >= iter->hash->capacidad) return false;
 	while(campos[iter->actual] || campos[iter->actual]->estado == BORRADO){
 		iter->actual++;
 	}
-	return !(iter->actual >= hash->capacidad);
+	return !(iter->actual >= iter->hash->capacidad);
 }	
 
 bool hash_iter_al_final(const hash_iter_t* iter)
