@@ -105,7 +105,7 @@ hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 	hash_t* hash = malloc(sizeof(hash_t));
 	if (!hash) return NULL;
 
-	campo_t** campos = malloc(sizeof(campo_t*)*TAM_INICIAL);
+	campo_t** campos = calloc(TAM_INICIAL,sizeof(campo_t*));
 	if (!campos){
 		free(hash);
 		return NULL;
