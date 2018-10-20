@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -g -std=c99 -Wall -Wconversion -Wno-sign-conversion -Werror 
-VFLAGS = --leak-check=full --track-origins=yes --show-reachable=yes
+CFLAGS = -g -std=c99 -Wall -Wconversion -Wno-sign-conversion -Wbad-function-cast -Wshadow -Wpointer-arith -Wunreachable-code -Wformat=2 -Werror
+VFLAGS = --leak-check=full --track-origins=yes --show-reachable=yes --error-exitcode=2
 
 CFILES = *.c
 HFILES = *.h
