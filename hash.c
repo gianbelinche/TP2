@@ -45,10 +45,10 @@ uint32_t funcion_hash(const char* clave,uint32_t largo){
 	return murmurhash (clave, largo,seed);
 }
 
-campo_t* campo_crear(char* clave, void* dato){
+campo_t* campo_crear(const char* clave, void* dato){
 	campo_t* campo = malloc(sizeof(campo_t));
 	if (!campo) return NULL;
-	campo->clave = clave;
+	campo->clave = strdup(clave);
 	campo->dato = dato;
 	campo->estado = OCUPADO;
 	return campo;
@@ -121,7 +121,7 @@ hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 }
 
 bool hash_guardar(hash_t* hash, const char* clave, void* dato){
-	campo_t* campo = campo_crear(strdup(clave),dato);
+	campo_t* campo = campo_crear(clave,dato);
 	if (!campo) return false;
 
 	if ((hash->ocupados + hash->borrados)/hash->capacidad > FACTOR_DE_REDIMENSION){
