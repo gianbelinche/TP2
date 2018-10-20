@@ -200,6 +200,16 @@ hash_iter_t* hash_iter_crear(const hash_t* hash){
 	return iter;
 }
 
+bool hash_iter_avanzar(hash_iter_t* iter){
+	campos_t** campos = iter->hash->campos;
+	iter->actual++;
+	if (iter->actual >= hash->capacidad) return false;
+	while(campos[iter->actual] || campos[iter->actual]->estado == BORRADO){
+		iter->actual++;
+	}
+	return !(iter->actual >= hash->capacidad);
+}	
+
 bool hash_iter_al_final(const hash_iter_t* iter)
 {
 	return (iter->actual == iter->hash->capacidad);
