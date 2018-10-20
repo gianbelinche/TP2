@@ -45,10 +45,10 @@ uint32_t funcion_hash(const char* clave,uint32_t largo){
 	return murmurhash (clave, largo,seed);
 }
 
-campo_t* campo_crear(const char* clave, void* dato){
+campo_t* campo_crear(char* clave, void* dato){
 	campo_t* campo = malloc(sizeof(campo_t));
 	if (!campo) return NULL;
-	campo->clave = strdup(clave);
+	campo->clave = clave;
 	campo->dato = dato;
 	campo->estado = OCUPADO;
 	return campo;
