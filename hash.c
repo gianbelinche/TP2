@@ -118,7 +118,7 @@ hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 }
 
 bool hash_guardar(hash_t* hash, const char* clave, void* dato){
-	campo_t* campo = campo_crear(clave,dato);
+	campo_t* campo = campo_crear(strdup(clave),dato);
 	if (!campo) return false;
 
 	if ((hash->ocupados + hash->borrados)/hash->capacidad > FACTOR_DE_REDIMENSION){
