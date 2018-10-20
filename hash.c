@@ -11,7 +11,8 @@
 #define NO_ENCONTRADO -1
 #define OCUPADO 1
 #define BORRADO -1
-#define FACTOR_DE_REDIMENSION 2
+#define FACTOR_DE_REDIMENSION  0.8
+#define ESCALAR_DE_REDIMENSION 2
 // -_-_-_-_-_-_-_-_  DEFINICION DE  TIPOS DE DATO  _-_-_-_-_-_-_-_-_- //
 
 typedef void (*hash_destruir_dato_t)(void *);
@@ -81,8 +82,10 @@ int hash_buscar(const hash_t* hash, const char* clave){
 }
 
 bool redimensionar(hash_t* hash,int porcentaje){
+
 	campo_t** campos_nuevos = malloc(sizeof(campo_t*)*hash->capacidad*porcentaje);
 	if (!campos_nuevos) return false;
+
 	for (int i=0;i<hash->capacidad;i++){
 		campo_t* campo = hash->campos[i];
 		if (campo && campo->estado == OCUPADO){
@@ -125,7 +128,7 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 	if (!campo) return false;
 
 	if ((hash->ocupados + hash->borrados)/hash->capacidad > FACTOR_DE_REDIMENSION){
-		bool ok = redimensionar(hash,2);
+		bool ok = redimensionar(hash,ESCALAR_DE_REDIMENSION);
 		if (!ok) return false;
 	} 
 
