@@ -1,7 +1,222 @@
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+
+// -_-_-_-_-_-_-_-_-_-_-_      CONSTANTES     -_-_-_-_-_-_-_-_-_-_-_- //
+
 #define TAM_INICIAL 97
+#define NO_ENCONTRADO -1
+#define OCUPADO 1
+#define BORRADO -1
+#define FACTOR_DE_REDIMENSION 2
+// -_-_-_-_-_-_-_-_  DEFINICION DE  TIPOS DE DATO  _-_-_-_-_-_-_-_-_- //
+
+typedef void (*hash_destruir_dato_t)(void *);
+
+typedef struct campo{
+	char* clave;
+	void* dato;
+	short estado;
+} campo_t;
+
+typedef struct hash{
+	campo_t** campos;
+	size_t ocupados;
+	size_t vacios;
+	size_t borrados;
+	size_t capacidad;
+	hash_destruir_dato_t destruir_dato;
+} hash_t;
+
+typedef struct hash_iter{ 
+	const hash_t* hash;
+	int actual;
+}hash_iter_t;
+
+
+// -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
+uint32_t murmurhash (const char *key, uint32_t len, uint32_t seed);
+
+uint32_t funcion_hash(const char* clave,uint32_t largo){
+	uint32_t seed = 1548786; //Número random que debe respetarse en cada llamada
+	return murmurhash (clave, largo,seed);
+}
+
+campo_t* campo_crear(const char* clave, void* dato){
+	campo_t* campo = malloc(sizeof(campo_t));
+	if (!campo) return NULL;
+	campo->clave = strdup(clave);
+	campo->dato = dato;
+	campo->estado = OCUPADO;
+	return campo;
+}
+
+void campo_destruir(campo_t* campo, hash_destruir_dato_t destruir_dato)
+{
+	free(campo -> clave);
+	destruir_dato(campo -> dato);
+	free(campo);
+}
+
+int hash_buscar(const hash_t* hash, const char* clave){
+	uint32_t pos = funcion_hash(clave,strlen(clave)) % hash->capacidad;
+
+	while (hash->campos[pos]){
+		campo_t* campo = hash->campos[pos];
+
+		if (campo->estado == OCUPADO && !strcmp(campo->clave,clave))
+			return pos;
+
+		pos++;
+		pos %= hash->capacidad;
+	}
+
+	return NO_ENCONTRADO;
+}
+
+bool redimensionar(hash_t* hash,int porcentaje){
+	campo_t** campos_nuevos = malloc(sizeof(campo_t*)*hash->capacidad*porcentaje);
+	if (!campos_nuevos) return false;
+	for (int i=0;i<hash->capacidad;i++){
+		campo_t* campo = hash->campos[i];
+		if (campo && campo->estado == OCUPADO){
+			uint32_t pos = funcion_hash(campo->clave,strlen(campo->clave));
+			pos %= (hash->capacidad*porcentaje);
+			campos_nuevos[pos] = campo;
+		}
+	} 
+	hash->campos = campos_nuevos;
+	hash->capacidad *= porcentaje;
+	hash->borrados = 0;
+	hash->vacios = hash->capacidad - hash->ocupados;
+	return true;
+
+}
+
+// -_-_-_-_-_-_-_-_-_-_-  PRIMITIVAS DEL HUSH  -_-_-_-_-_-_-_-_-_-_- //
+
+hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
+	hash_t* hash = malloc(sizeof(hash_t));
+	if (!hash) return NULL;
+
+	campo_t** campos = malloc(sizeof(campo_t*)*TAM_INICIAL);
+	if (!campos){
+		free(hash);
+		return NULL;
+	}
+
+	hash->campos = campos;
+	hash->ocupados = 0;
+	hash->vacios = TAM_INICIAL;
+	hash->borrados = 0;
+	hash->capacidad = TAM_INICIAL;
+	hash->destruir_dato = destruir_dato;
+	return hash;
+}
+
+bool hash_guardar(hash_t* hash, const char* clave, void* dato){
+	campo_t* campo = campo_crear(clave,dato);
+	if (!campo) return false;
+
+	if ((hash->ocupados + hash->borrados)/hash->capacidad > FACTOR_DE_REDIMENSION){
+		bool ok = redimensionar(hash,2);
+		if (!ok) return false;
+	} 
+
+	int esta = hash_buscar(hash,clave);
+	if (esta != NO_ENCONTRADO){
+		campo_t* a_eliminar = hash->campos[esta];
+		hash->campos[esta] = campo;
+		campo_destruir(a_eliminar, hash -> destruir_dato);
+		return true;
+	}
+
+	uint32_t posicion = funcion_hash(clave,strlen(clave));
+	posicion %= hash->capacidad;
+	
+	while(hash->campos[posicion]){
+		posicion++;
+		posicion %= hash->capacidad;
+	}
+	hash->campos[posicion] = campo;
+	hash->ocupados++;
+	hash->vacios--;
+	return true;
+}
+
+void* hash_obtener(const hash_t* hash, const char* clave){
+	int pos = hash_buscar(hash,clave);
+	if (pos == NO_ENCONTRADO) return NULL;
+	return (hash->campos[pos])->dato;
+}
+
+bool hash_pertenece(const hash_t *hash, const char *clave){
+	int pos = hash_buscar(hash,clave);
+	if (pos == NO_ENCONTRADO) return false;
+	return true;
+}
+
+size_t hash_cantidad(const hash_t *hash)
+{
+	return hash -> ocupados;
+}
+void* hash_borrar(hash_t *hash, const char *clave)
+{
+	int pos = hash_buscar(hash,clave);
+	if (pos == NO_ENCONTRADO) return NULL;
+
+	hash-> campos[pos] -> estado = BORRADO;
+	(hash-> borrados)++;
+	(hash-> ocupados)--;
+
+	return hash-> campos[pos] -> dato;
+}
+
+void hash_destruir(hash_t *hash)
+{
+	for(size_t i = 0; i < hash -> capacidad; i++)
+	{
+		if(hash-> campos[i] -> estado == OCUPADO)
+			campo_destruir(hash-> campos[i],hash -> destruir_dato);
+
+		free(hash-> campos[i]);
+	}
+
+	free(hash -> campos);
+	free(hash);
+	
+}
+
+// -_-_-_-_-_-_-_-_-_-_-  ITERADOR DEL HUSH  -_-_-_-_-_-_-_-_-_-_- //
+
+hash_iter_t* hash_iter_crear(const hash_t* hash){
+	hash_iter_t* iter = malloc(sizeof(hash_iter_t));
+	if (!iter) return NULL;
+	iter->hash = hash;
+	iter->actual = 0;
+	return iter;
+}
+
+bool hash_iter_al_final(const hash_iter_t* iter)
+{
+	return (iter->actual == iter->hash->capacidad);
+}
+
+const char* hash_iter_ver_actual(const hash_iter_t *iter)
+{
+	return iter -> hash -> campos[iter -> actual] -> clave;
+}
+
+void hash_iter_destruir(hash_iter_t* iter)
+{
+	free(iter);
+}
+
+// -_-_-_-_-_-_-_-_-_-_-  FUNCION DE HASHING  -_-_-_-_-_-_-_-_-_-_- //
+// ACORDARSE DE MOVER ESTO A LA PARTE QUE LE CORRESPONDE BLA BLA BLA//
 
 uint32_t murmurhash (const char *key, uint32_t len, uint32_t seed) {
   uint32_t c1 = 0xcc9e2d51;
@@ -63,141 +278,4 @@ uint32_t murmurhash (const char *key, uint32_t len, uint32_t seed) {
   h ^= (h >> 16);
 
   return h;
-}
-
-uint32_t funcion_hash(const char* clave,uint32_t largo){
-	uint32_t seed = 1548786; //Número random que debe respetarse en cada llamada
-	return murmurhash (clave, largo,seed);
-}
-
-
-typedef void hash_destruir_dato_t(void*);
-
-typedef struct campo{
-	char* clave;
-	void* dato;
-	short estado;
-} campo_t;
-
-typedef struct hash{
-	campo_t** campos;
-	size_t ocupados;
-	size_t vacios;
-	size_t borrados;
-	size_t capacidad;
-	hash_destruir_dato__t destruir_dato;
-} hash_t;
-
-
-campo_t* campo_crear(char* clave, void* dato){
-	campo_t* campo = malloc(sizeof(campo_t));
-	if (!campo) return NULL;
-	campo->clave = clave;
-	campo->dato = dato;
-	campo->estado = OCUPADO;
-	return campo;
-}
-
-hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
-	hash_t* hash = malloc(sizeof(hash_t));
-	if (!hash) return NULL;
-	campo_t** campos = malloc(sizeof(campo_t*)*TAM_INICIAL);
-	if (!campos){
-		free(hash);
-		return NULL;
-	}
-	hash->campos = campos;
-	hash->ocupados = 0;
-	hash->vacios = TAM_INICIAL;
-	hash->borrados = 0;
-	hash->capacidad = TAM_INICIAL;
-	hash->destruir_dato = destruir_dato
-	return hash;1
-}
-//Busca un elemento en el hash, devuelve su posicion, si no esta devuelve -1.
-int _hash_buscar(hash_t* hash, char* clave){
-	uint32_t pos = funcion_hash(clave,strlen(clave));
-	pos %= hash->capacidad;
-	while (hash->campos[pos]){
-		campo_t* campo = hash->campos[pos];
-		if (campo->estado == OCUPADO && !strcmp(campo->clave,clave)) return pos;
-		pos++;
-		pos %= hash->capacidad;
-	}
-	return -1;
-}
-
-bool redimensionar(hash_t* hash,int portentaje){
-	campo_t** campos_nuevos = malloc(sizeof(campo_t*)*hash->capacidad*porcentaje);
-	if (!campos_nuevos) return false;
-	for (int i=0;i<hash->capacidad;i++){
-		campo_t* campo = hash->campos[i];
-		if (campo && campo->estado == OCUPADO){
-			uint32_t pos = funcion_hash(campo->clave,strlen(campo->clave));
-			pos %= (hash->capacidad*porcentaje);
-			campos_nuevos[pos] = campo;
-		}
-	} 
-	hash->campos = campos_nuevos;
-	hash->capacidad *= porcentaje;
-	hash->borrados = 0;
-	hash->vacios = hash->capacidad - hash->ocupados;
-	return true;
-
-}
-bool hash_guardar(hash_t* hash, const char* clave, void* dato){
-	campo_t* campo = campo_crear(clave,dato);
-	if (!campo) return false;
-	if ((hash->ocupados + hash->borrados)/hash->capacidad > FACTOR_DE_REDIMENSION){
-		bool ok = redimensionar(hash,2);
-		if (!ok) return false;
-	} 
-	int esta = hash_buscar(hash,clave);
-	if (esta != -1){
-		campo_t* a_eliminar = hash->campos[esta];
-		hash->campos[esta] = campo;
-		destruir_campo(a_eliminar);
-		return true;
-	}
-	uint32_t posicion = funcion_hash(clave,strlen(clave));
-	posicion %= hash->capacidad;
-	
-	while(hash->campos[posicion]){
-		posicion++;
-		posicion %= hash->capacidad;
-	}
-	hash->campos[posicion] = campo;
-	hash->ocupados ++;
-	hash->vacios --;
-	return true;
-}
-
-void* hash_obtener(const hash_t* hash, const char* clave){
-	int pos = _hash_buscar(hash,clave);
-	if (pos == -1) return NULL;
-	return (hash->campos[pos])->dato;
-}
-
-
-typedef struct hash_iter{ 
-	hash_t* hash;
-	int actual;
-}hash_iter_t;
-
-hash_iter_t* hash_iter_crear(const hash_t* hash){
-	hash_iter_t* iter = malloc(sizeof(hash_iter_t));
-	if (!iter) return NULL;
-	iter->hash = hash;
-	iter->actual = 0;
-	return iter;
-}
-
-bool hash_iter_avanzar(hash_iter_t* iter){
-	campos_t** campos = iter->hash->campos;
-	iter->actual++;
-	if (iter->actual >= hash->capacidad) return false;
-	while(campos[iter->actual] || campos[iter->actual]->estado == BORRADO){
-		iter->actual++;
-	}
-	return !(iter->actual >= hash->capacidad);
 }
