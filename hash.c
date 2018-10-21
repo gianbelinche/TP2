@@ -34,7 +34,7 @@ typedef struct hash{
 
 typedef struct hash_iter{ 
 	const hash_t* hash;
-	int actual;
+	long int actual;
 }hash_iter_t;
 
 
@@ -146,7 +146,7 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 		if (!ok) return false;
 	} 
 
-	int esta = hash_buscar(hash,clave);
+	long int esta = hash_buscar(hash,clave);
 	if (esta != NO_ENCONTRADO){
 		campo_t* a_eliminar = hash->campos[esta];
 		hash->campos[esta] = campo;
@@ -168,13 +168,13 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 }
 
 void* hash_obtener(const hash_t* hash, const char* clave){
-	int pos = hash_buscar(hash,clave);
+	long int pos = hash_buscar(hash,clave);
 	if (pos == NO_ENCONTRADO) return NULL;
 	return (hash->campos[pos])->dato;
 }
 
 bool hash_pertenece(const hash_t *hash, const char *clave){
-	int pos = hash_buscar(hash,clave);
+	long int pos = hash_buscar(hash,clave);
 	if (pos == NO_ENCONTRADO) return false;
 	return true;
 }
@@ -183,7 +183,7 @@ long int hash_cantidad(const hash_t *hash){
 	return hash -> ocupados;
 }
 void* hash_borrar(hash_t *hash, const char *clave){
-	int pos = hash_buscar(hash,clave);
+	long int pos = hash_buscar(hash,clave);
 	if (pos == NO_ENCONTRADO) return NULL;
 
 	hash-> campos[pos] -> estado = BORRADO;
