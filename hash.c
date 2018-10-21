@@ -91,7 +91,7 @@ bool redimensionar(hash_t* hash,int porcentaje){
 
 	for (int i=0;i<hash->capacidad;i++){
 		campo = hash->campos[i];
-		if (/campo){
+		if (campo){
 		
 			if(campo->estado == OCUPADO){
 			pos = funcion_hash(campo->clave,strlen(campo->clave));
@@ -212,15 +212,6 @@ void hash_destruir(hash_t *hash)
 
 // -_-_-_-_-_-_-_-_-_-_-  ITERADOR DEL HUSH  -_-_-_-_-_-_-_-_-_-_- //
 
-hash_iter_t* hash_iter_crear(const hash_t* hash){
-	hash_iter_t* iter = malloc(sizeof(hash_iter_t));
-	if (!iter) return NULL;
-	iter->hash = hash;
-	iter->actual = 0;
-	iter-> contador_ocupados = hash -> ocupados;
-	return iter;
-}
-
 bool hash_iter_al_final(const hash_iter_t* iter)
 {
 	return (iter -> contador_ocupados == 0);
@@ -241,6 +232,20 @@ bool hash_iter_avanzar(hash_iter_t* iter){
 	
 	return false;
 }
+
+hash_iter_t* hash_iter_crear(const hash_t* hash){
+	hash_iter_t* iter = malloc(sizeof(hash_iter_t));
+	if (!iter) return NULL;
+	iter->hash = hash;
+	iter->actual = 0;
+	iter-> contador_ocupados = hash -> ocupados;
+	hash_iter_avanzar(iter);
+	return iter;
+}
+
+
+
+
 
 const char* hash_iter_ver_actual(const hash_iter_t *iter)
 {
