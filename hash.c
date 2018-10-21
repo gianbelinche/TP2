@@ -201,8 +201,13 @@ void hash_destruir(hash_t *hash)
 {
 	for(size_t i = 0; i < hash -> capacidad; i++)
 	{
-		if(hash-> campos[i] && hash-> campos[i] -> estado == OCUPADO)
+		if(hash-> campos[i])
+		{
+			if(hash-> campos[i] -> estado == OCUPADO)
 			campo_destruir(hash-> campos[i],hash -> destruir_dato);
+			else
+			campo_destruir(hash-> campos[i],NULL);
+		}
 	}
 
 	free(hash -> campos);
@@ -251,9 +256,6 @@ hash_iter_t* hash_iter_crear(const hash_t* hash){
 	}
 	return iter;
 }
-
-
-
 
 
 const char* hash_iter_ver_actual(const hash_iter_t *iter)
