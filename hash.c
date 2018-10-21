@@ -7,7 +7,7 @@
 
 // -_-_-_-_-_-_-_-_-_-_-_      CONSTANTES     -_-_-_-_-_-_-_-_-_-_-_- //
 
-#define TAM_INICIAL 256
+#define TAM_INICIAL 257
 #define NO_ENCONTRADO -1
 #define OCUPADO 1
 #define BORRADO -1
@@ -116,7 +116,7 @@ bool redimensionar(hash_t* hash,int porcentaje){
 	return true;
 }
 
-// -_-_-_-_-_-_-_-_-_-_-  PRIMITIVAS DEL HUSH  -_-_-_-_-_-_-_-_-_-_- //
+// -_-_-_-_-_-_-_-_-_-_-  PRIMITIVAS DEL HASH  -_-_-_-_-_-_-_-_-_-_- //
 
 hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 	hash_t* hash = malloc(sizeof(hash_t));
@@ -208,7 +208,7 @@ void hash_destruir(hash_t *hash){
 	
 }
 
-// -_-_-_-_-_-_-_-_-_-_-  ITERADOR DEL HUSH  -_-_-_-_-_-_-_-_-_-_- //
+// -_-_-_-_-_-_-_-_-_-_-  ITERADOR DEL HASH  -_-_-_-_-_-_-_-_-_-_- //
 
 bool hash_iter_al_final(const hash_iter_t* iter){
 	return (iter->actual == -1);
