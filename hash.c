@@ -11,7 +11,7 @@
 #define NO_ENCONTRADO -1
 #define OCUPADO 1
 #define BORRADO -1
-#define FACTOR_DE_REDIMENSION  0.8
+#define FACTOR_DE_REDIMENSION  0.61
 #define ESCALAR_DE_REDIMENSION 2
 // -_-_-_-_-_-_-_-_  DEFINICION DE  TIPOS DE DATO  _-_-_-_-_-_-_-_-_- //
 
