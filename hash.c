@@ -219,7 +219,7 @@ bool hash_iter_al_final(const hash_iter_t* iter)
 
 bool hash_iter_avanzar(hash_iter_t* iter){
 	campo_t** campos = iter->hash->campos;
-	
+	iter->actual++;
 	while(!hash_iter_al_final(iter))
 	{
 	
@@ -228,8 +228,8 @@ bool hash_iter_avanzar(hash_iter_t* iter){
 			return true;
 		}
 		iter->actual++;	
+		if (iter->actual >= iter->hash->capacidad) iter->actual = -1;
 	}
-	if (iter->actual >= iter->hash->capacidad) iter->actual = -1;
 	
 	return false;
 }
