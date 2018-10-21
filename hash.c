@@ -7,7 +7,7 @@
 
 // -_-_-_-_-_-_-_-_-_-_-_      CONSTANTES     -_-_-_-_-_-_-_-_-_-_-_- //
 
-#define TAM_INICIAL 97
+#define TAM_INICIAL 256
 #define NO_ENCONTRADO -1
 #define OCUPADO 1
 #define BORRADO -1
@@ -35,7 +35,6 @@ typedef struct hash{
 typedef struct hash_iter{ 
 	const hash_t* hash;
 	int actual;
-	int contador_ocupados;
 }hash_iter_t;
 
 
@@ -197,12 +196,9 @@ void* hash_borrar(hash_t *hash, const char *clave)
 	return hash-> campos[pos] -> dato;
 }
 
-void hash_destruir(hash_t *hash)
-{
-	for(size_t i = 0; i < hash -> capacidad; i++)
-	{
-		if(hash-> campos[i])
-		{
+void hash_destruir(hash_t *hash){
+	for(size_t i = 0; i < hash -> capacidad; i++){
+		if(hash-> campos[i]){
 			if(hash-> campos[i] -> estado == OCUPADO)
 			campo_destruir(hash-> campos[i],hash -> destruir_dato);
 				else
@@ -217,8 +213,7 @@ void hash_destruir(hash_t *hash)
 
 // -_-_-_-_-_-_-_-_-_-_-  ITERADOR DEL HUSH  -_-_-_-_-_-_-_-_-_-_- //
 
-bool hash_iter_al_final(const hash_iter_t* iter)
-{
+bool hash_iter_al_final(const hash_iter_t* iter){
 	return (iter->actual == -1);
 }
 
@@ -265,14 +260,12 @@ hash_iter_t* hash_iter_crear(const hash_t* hash){
 }
 
 
-const char* hash_iter_ver_actual(const hash_iter_t *iter)
-{
+const char* hash_iter_ver_actual(const hash_iter_t *iter){
 	if (hash_iter_al_final(iter)) return NULL;
 	return iter -> hash -> campos[iter -> actual] -> clave;
 }
 
-void hash_iter_destruir(hash_iter_t* iter)
-{
+void hash_iter_destruir(hash_iter_t* iter){
 	free(iter);
 }
 
