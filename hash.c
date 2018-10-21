@@ -55,8 +55,7 @@ campo_t* campo_crear(const char* clave, void* dato){
 	return campo;
 }
 
-void campo_destruir(campo_t* campo, hash_destruir_dato_t destruir_dato)
-{
+void campo_destruir(campo_t* campo, hash_destruir_dato_t destruir_dato){
 	free(campo -> clave);
 
 	if(destruir_dato)
@@ -180,12 +179,10 @@ bool hash_pertenece(const hash_t *hash, const char *clave){
 	return true;
 }
 
-size_t hash_cantidad(const hash_t *hash)
-{
+size_t hash_cantidad(const hash_t *hash){
 	return hash -> ocupados;
 }
-void* hash_borrar(hash_t *hash, const char *clave)
-{
+void* hash_borrar(hash_t *hash, const char *clave){
 	int pos = hash_buscar(hash,clave);
 	if (pos == NO_ENCONTRADO) return NULL;
 
