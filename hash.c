@@ -84,29 +84,38 @@ int hash_buscar(const hash_t* hash, const char* clave){
 
 bool redimensionar(hash_t* hash,int porcentaje){
 
+	uint32_t pos;
+	campo_t* campo;
 	campo_t** campos_nuevos = calloc(hash->capacidad*porcentaje,sizeof(campo_t*));
 	if (!campos_nuevos) return false;
 
 	for (int i=0;i<hash->capacidad;i++){
-		campo_t* campo = hash->campos[i];
-		if (campo && campo->estado == OCUPADO){
-			uint32_t pos = funcion_hash(campo->clave,strlen(campo->clave));
+		campo = hash->campos[i];
+		if (/campo){
+		
+			if(campo->estado == OCUPADO){
+			pos = funcion_hash(campo->clave,strlen(campo->clave));
 			pos %= (hash->capacidad*porcentaje);
 
 			while(campos_nuevos[pos]){
 				pos++;
 				pos %= hash->capacidad*porcentaje;
 			}
+
 			campos_nuevos[pos] = campo;
+			}
+			else{
+				campo_destruir(campo,NULL);
+			}
 		}
 	}
 
+	free(hash -> campos);
 	hash->campos = campos_nuevos;
 	hash->capacidad *= porcentaje;
 	hash->borrados = 0;
 	hash->vacios = hash->capacidad - hash->ocupados;
 	return true;
-
 }
 
 // -_-_-_-_-_-_-_-_-_-_-  PRIMITIVAS DEL HUSH  -_-_-_-_-_-_-_-_-_-_- //
