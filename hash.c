@@ -224,16 +224,11 @@ bool hash_iter_avanzar(hash_iter_t* iter){
 			continue;
 		}
 
-		if(campos[iter->actual] && campos[iter->actual]->estado != BORRADO)
-		{
+		if(campos[iter->actual] && campos[iter->actual]->estado != BORRADO){
 			return true;
 		}
 		iter->actual++;	
 		
-		if (iter->actual >= iter->hash->capacidad) {
-			iter->actual = -1;
-			continue;
-		}
 	}
 	return false;
 }
