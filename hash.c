@@ -35,6 +35,7 @@ typedef struct hash{
 typedef struct hash_iter{ 
 	const hash_t* hash;
 	int actual;
+	int contador_ocupados;
 }hash_iter_t;
 
 
@@ -207,22 +208,29 @@ hash_iter_t* hash_iter_crear(const hash_t* hash){
 	if (!iter) return NULL;
 	iter->hash = hash;
 	iter->actual = 0;
+	iter-> contador_ocupados = hash -> ocupados;
 	return iter;
+}
+
+bool hash_iter_al_final(const hash_iter_t* iter)
+{
+	return (iter -> contador_ocupados == 0);
 }
 
 bool hash_iter_avanzar(hash_iter_t* iter){
 	campo_t** campos = iter->hash->campos;
-	iter->actual++;
-	if (iter->actual >= iter->hash->capacidad) return false;
-	while(campos[iter->actual] || campos[iter->actual]->estado == BORRADO){
+	
+	while(!hash_iter_al_final(iter))
+	{
 		iter->actual++;
+		if(campos[iter->actual] && campos[iter->actual]->estado != BORRADO)
+		{
+			(iter -> contador_ocupados)--;
+			return true;
+		}
 	}
-	return !(iter->actual >= iter->hash->capacidad);
-}	
-
-bool hash_iter_al_final(const hash_iter_t* iter)
-{
-	return (iter->actual == iter->hash->capacidad);
+	
+	return false;
 }
 
 const char* hash_iter_ver_actual(const hash_iter_t *iter)
