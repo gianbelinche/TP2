@@ -25,10 +25,10 @@ typedef struct campo{
 
 typedef struct hash{
 	campo_t** campos;
-	size_t ocupados;
-	size_t vacios;
-	size_t borrados;
-	size_t capacidad;
+	long int ocupados;
+	long int vacios;
+	long int borrados;
+	long int capacidad;
 	hash_destruir_dato_t destruir_dato;
 } hash_t;
 
@@ -39,10 +39,10 @@ typedef struct hash_iter{
 
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
-size_t murmurhash (const char *key, size_t len, size_t seed);
+long int murmurhash (const char *key, long int len, long int seed);
 
-size_t funcion_hash(const char* clave,size_t largo){
-	size_t seed = 1548786; //Número random que debe respetarse en cada llamada
+long int funcion_hash(const char* clave,long int largo){
+	long int seed = 1548786; //Número random que debe respetarse en cada llamada
 	return murmurhash (clave, largo,seed);
 }
 
@@ -64,8 +64,8 @@ void campo_destruir(campo_t* campo, hash_destruir_dato_t destruir_dato){
 	free(campo);
 }
 
-int hash_buscar(const hash_t* hash, const char* clave){
-	size_t pos = funcion_hash(clave,strlen(clave)) % hash->capacidad;
+long int hash_buscar(const hash_t* hash, const char* clave){
+	long int pos = funcion_hash(clave,strlen(clave)) % hash->capacidad;
 
 	while (hash->campos[pos]){
 		campo_t* campo = hash->campos[pos];
@@ -82,7 +82,7 @@ int hash_buscar(const hash_t* hash, const char* clave){
 
 bool redimensionar(hash_t* hash,int porcentaje){
 
-	size_t pos;
+	long int pos;
 	campo_t* campo;
 	campo_t** campos_nuevos = calloc(hash->capacidad*porcentaje,sizeof(campo_t*));
 	if (!campos_nuevos) return false;
@@ -154,7 +154,7 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 		return true;
 	}
 
-	size_t posicion = funcion_hash(clave,strlen(clave));
+	long int posicion = funcion_hash(clave,strlen(clave));
 	posicion %= hash->capacidad;
 	
 	while(hash->campos[posicion]){
@@ -179,7 +179,7 @@ bool hash_pertenece(const hash_t *hash, const char *clave){
 	return true;
 }
 
-size_t hash_cantidad(const hash_t *hash){
+long int hash_cantidad(const hash_t *hash){
 	return hash -> ocupados;
 }
 void* hash_borrar(hash_t *hash, const char *clave){
@@ -194,7 +194,7 @@ void* hash_borrar(hash_t *hash, const char *clave){
 }
 
 void hash_destruir(hash_t *hash){
-	for(size_t i = 0; i < hash -> capacidad; i++){
+	for(long int i = 0; i < hash -> capacidad; i++){
 		if(hash-> campos[i]){
 			if(hash-> campos[i] -> estado == OCUPADO)
 			campo_destruir(hash-> campos[i],hash -> destruir_dato);
@@ -263,24 +263,24 @@ void hash_iter_destruir(hash_iter_t* iter){
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCION DE HASHING  -_-_-_-_-_-_-_-_-_-_- //
 
-size_t murmurhash (const char *key, size_t len, size_t seed) {
-  size_t c1 = 0xcc9e2d51;
-  size_t c2 = 0x1b873593;
-  size_t r1 = 15;
-  size_t r2 = 13;
-  size_t m = 5;
-  size_t n = 0xe6546b64;
-  size_t h = 0;
-  size_t k = 0;
+long int murmurhash (const char *key, long int len, long int seed) {
+  long int c1 = 0xcc9e2d51;
+  long int c2 = 0x1b873593;
+  long int r1 = 15;
+  long int r2 = 13;
+  long int m = 5;
+  long int n = 0xe6546b64;
+  long int h = 0;
+  long int k = 0;
   uint8_t *d = (uint8_t *) key; // 32 bit extract from `key'
-  const size_t *chunks = NULL;
+  const long int *chunks = NULL;
   const uint8_t *tail = NULL; // tail - last 8 bytes
-  int i = 0;
-  int l = len / 4; // chunk length
+  long int i = 0;
+  long int l = len / 4; // chunk length
 
   h = seed;
 
-  chunks = (const size_t *) (d + l * 4); // body
+  chunks = (const long int *) (d + l * 4); // body
   tail = (const uint8_t *) (d + l * 4); // last 8 byte chunk of `key'
 
   // for each 4 byte chunk of `key'
