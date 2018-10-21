@@ -83,7 +83,7 @@ int hash_buscar(const hash_t* hash, const char* clave){
 
 bool redimensionar(hash_t* hash,int porcentaje){
 
-	campo_t** campos_nuevos = malloc(sizeof(campo_t*)*hash->capacidad*porcentaje);
+	campo_t** campos_nuevos = calloc(hash->capacidad*porcentaje,sizeof(campo_t*));
 	if (!campos_nuevos) return false;
 
 	for (int i=0;i<hash->capacidad;i++){
@@ -93,7 +93,8 @@ bool redimensionar(hash_t* hash,int porcentaje){
 			pos %= (hash->capacidad*porcentaje);
 			campos_nuevos[pos] = campo;
 		}
-	} 
+	}
+
 	hash->campos = campos_nuevos;
 	hash->capacidad *= porcentaje;
 	hash->borrados = 0;
@@ -127,7 +128,7 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 	campo_t* campo = campo_crear(clave,dato);
 	if (!campo) return false;
 
-	if ((hash->ocupados + hash->borrados)/hash->capacidad > FACTOR_DE_REDIMENSION){
+	if ( (hash->ocupados + hash->borrados) > hash->capacidad*FACTOR_DE_REDIMENSION){
 		bool ok = redimensionar(hash,ESCALAR_DE_REDIMENSION);
 		if (!ok) return false;
 	} 
