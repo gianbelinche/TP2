@@ -235,6 +235,7 @@ bool hash_iter_avanzar(hash_iter_t* iter){
 
 const char* hash_iter_ver_actual(const hash_iter_t *iter)
 {
+	if (hash_iter_al_final(iter)) return NULL;
 	return iter -> hash -> campos[iter -> actual] -> clave;
 }
 
