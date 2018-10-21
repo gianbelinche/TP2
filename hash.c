@@ -205,7 +205,7 @@ void hash_destruir(hash_t *hash)
 		{
 			if(hash-> campos[i] -> estado == OCUPADO)
 			campo_destruir(hash-> campos[i],hash -> destruir_dato);
-			else
+				else
 			campo_destruir(hash-> campos[i],NULL);
 		}
 	}
@@ -227,15 +227,22 @@ bool hash_iter_avanzar(hash_iter_t* iter){
 	if (!hash_iter_al_final(iter)) iter->actual++;
 	while(!hash_iter_al_final(iter))
 	{
-	
+		if (iter->actual >= iter->hash->capacidad) {
+			iter->actual = -1;
+			continue;
+		}
+
 		if(campos[iter->actual] && campos[iter->actual]->estado != BORRADO)
 		{
 			return true;
 		}
 		iter->actual++;	
-		if (iter->actual >= iter->hash->capacidad) iter->actual = -1;
+		
+		if (iter->actual >= iter->hash->capacidad) {
+			iter->actual = -1;
+			continue;
+		}
 	}
-	
 	return false;
 }
 
