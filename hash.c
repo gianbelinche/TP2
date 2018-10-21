@@ -262,7 +262,6 @@ void hash_iter_destruir(hash_iter_t* iter){
 }
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCION DE HASHING  -_-_-_-_-_-_-_-_-_-_- //
-// ACORDARSE DE MOVER ESTO A LA PARTE QUE LE CORRESPONDE BLA BLA BLA//
 
 uint32_t murmurhash (const char *key, uint32_t len, uint32_t seed) {
   uint32_t c1 = 0xcc9e2d51;
