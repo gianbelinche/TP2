@@ -91,6 +91,11 @@ bool redimensionar(hash_t* hash,int porcentaje){
 		if (campo && campo->estado == OCUPADO){
 			uint32_t pos = funcion_hash(campo->clave,strlen(campo->clave));
 			pos %= (hash->capacidad*porcentaje);
+
+			while(campos_nuevos[pos]){
+				pos++;
+				pos %= hash->capacidad*porcentaje;
+			}
 			campos_nuevos[pos] = campo;
 		}
 	}
