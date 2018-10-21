@@ -39,10 +39,10 @@ typedef struct hash_iter{
 
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
-uint32_t murmurhash (const char *key, uint32_t len, uint32_t seed);
+size_t murmurhash (const char *key, size_t len, size_t seed);
 
-uint32_t funcion_hash(const char* clave,uint32_t largo){
-	uint32_t seed = 1548786; //Número random que debe respetarse en cada llamada
+size_t funcion_hash(const char* clave,size_t largo){
+	size_t seed = 1548786; //Número random que debe respetarse en cada llamada
 	return murmurhash (clave, largo,seed);
 }
 
@@ -65,7 +65,7 @@ void campo_destruir(campo_t* campo, hash_destruir_dato_t destruir_dato){
 }
 
 int hash_buscar(const hash_t* hash, const char* clave){
-	uint32_t pos = funcion_hash(clave,strlen(clave)) % hash->capacidad;
+	size_t pos = funcion_hash(clave,strlen(clave)) % hash->capacidad;
 
 	while (hash->campos[pos]){
 		campo_t* campo = hash->campos[pos];
@@ -82,7 +82,7 @@ int hash_buscar(const hash_t* hash, const char* clave){
 
 bool redimensionar(hash_t* hash,int porcentaje){
 
-	uint32_t pos;
+	size_t pos;
 	campo_t* campo;
 	campo_t** campos_nuevos = calloc(hash->capacidad*porcentaje,sizeof(campo_t*));
 	if (!campos_nuevos) return false;
@@ -154,7 +154,7 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 		return true;
 	}
 
-	uint32_t posicion = funcion_hash(clave,strlen(clave));
+	size_t posicion = funcion_hash(clave,strlen(clave));
 	posicion %= hash->capacidad;
 	
 	while(hash->campos[posicion]){
@@ -263,24 +263,24 @@ void hash_iter_destruir(hash_iter_t* iter){
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCION DE HASHING  -_-_-_-_-_-_-_-_-_-_- //
 
-uint32_t murmurhash (const char *key, uint32_t len, uint32_t seed) {
-  uint32_t c1 = 0xcc9e2d51;
-  uint32_t c2 = 0x1b873593;
-  uint32_t r1 = 15;
-  uint32_t r2 = 13;
-  uint32_t m = 5;
-  uint32_t n = 0xe6546b64;
-  uint32_t h = 0;
-  uint32_t k = 0;
+size_t murmurhash (const char *key, size_t len, size_t seed) {
+  size_t c1 = 0xcc9e2d51;
+  size_t c2 = 0x1b873593;
+  size_t r1 = 15;
+  size_t r2 = 13;
+  size_t m = 5;
+  size_t n = 0xe6546b64;
+  size_t h = 0;
+  size_t k = 0;
   uint8_t *d = (uint8_t *) key; // 32 bit extract from `key'
-  const uint32_t *chunks = NULL;
+  const size_t *chunks = NULL;
   const uint8_t *tail = NULL; // tail - last 8 bytes
   int i = 0;
   int l = len / 4; // chunk length
 
   h = seed;
 
-  chunks = (const uint32_t *) (d + l * 4); // body
+  chunks = (const size_t *) (d + l * 4); // body
   tail = (const uint8_t *) (d + l * 4); // last 8 byte chunk of `key'
 
   // for each 4 byte chunk of `key'
