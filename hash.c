@@ -214,7 +214,7 @@ void hash_destruir(hash_t *hash)
 
 bool hash_iter_al_final(const hash_iter_t* iter)
 {
-	return (iter -> contador_ocupados == 0);
+	return (iter->actual == -1);
 }
 
 bool hash_iter_avanzar(hash_iter_t* iter){
@@ -222,13 +222,14 @@ bool hash_iter_avanzar(hash_iter_t* iter){
 	
 	while(!hash_iter_al_final(iter))
 	{
-		iter->actual++;
+	
 		if(campos[iter->actual] && campos[iter->actual]->estado != BORRADO)
 		{
-			(iter -> contador_ocupados)--;
 			return true;
 		}
+		iter->actual++;	
 	}
+	if (iter->actual >= iter->hash->capacidad) iter->actual = -1;
 	
 	return false;
 }
@@ -238,8 +239,16 @@ hash_iter_t* hash_iter_crear(const hash_t* hash){
 	if (!iter) return NULL;
 	iter->hash = hash;
 	iter->actual = 0;
-	iter-> contador_ocupados = hash -> ocupados;
-	hash_iter_avanzar(iter);
+	if (hash->ocupados == 0) iter->actual = -1;
+	else {
+		while((!hash->campos[iter->actual]) || hash->campos[iter->actual]->estado == BORRADO){
+			iter->actual++;
+			if (iter->actual >= hash->capacidad){
+				iter->actual = -1;
+				break;
+			}
+		}
+	}
 	return iter;
 }
 
