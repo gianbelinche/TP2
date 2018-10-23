@@ -8,13 +8,14 @@
 // -_-_-_-_-_-_-_-_-_-_-_      CONSTANTES     -_-_-_-_-_-_-_-_-_-_-_- //
 
 #define TAM_INICIAL 257
-#define NO_ENCONTRADO -1
-#define OCUPADO 1
-#define BORRADO -1
 #define FACTOR_DE_REDIMENSION  61
 #define ESCALAR_DE_REDIMENSION 2
-#define FNV_PRIME_32 16777619
-#define FNV_OFFSET_32 2166136261U 
+#define FNV_PRIME_32  16777619
+#define FNV_OFFSET_32 2166136261U
+#define NO_ENCONTRADO -1
+#define OCUPADO  1
+#define BORRADO -1 
+
 // -_-_-_-_-_-_-_-_  DEFINICION DE  TIPOS DE DATO  _-_-_-_-_-_-_-_-_- //
 
 typedef void (*hash_destruir_dato_t)(void *);
@@ -47,8 +48,8 @@ uint32_t FNV32(const char *s)
     uint32_t hash = FNV_OFFSET_32, i;
     for(i = 0; i < strlen(s); i++)
     {
-        hash = hash ^ (s[i]); // xor next byte into the bottom of the hash
-        hash = hash * FNV_PRIME_32; // Multiply by prime number found to work well
+        hash = hash ^ (s[i]);       // Xor al byte siguiente hasta el final del hash.
+        hash = hash * FNV_PRIME_32; // Multiplica por el número primo óptimo.
     }
     return hash;
 } 
@@ -59,7 +60,10 @@ uint32_t funcion_hash(const char* clave){
 
 campo_t* campo_crear(const char* clave, void* dato){
 	campo_t* campo = malloc(sizeof(campo_t));
-	if (!campo) return NULL;
+
+	if (!campo) 
+		return NULL;
+
 	campo->clave = strdup(clave);
 	campo->dato = dato;
 	campo->estado = OCUPADO;
@@ -97,20 +101,22 @@ bool redimensionar(hash_t* hash,uint32_t porcentaje){
 	uint32_t pos;
 	campo_t* campo;
 	campo_t** campos_nuevos = calloc(hash->capacidad*porcentaje,sizeof(campo_t*));
-	if (!campos_nuevos) return false;
+
+	if (!campos_nuevos)
+		return false;
 
 	for (int i=0;i<hash->capacidad;i++){
 		campo = hash->campos[i];
 		if (campo){
 		
 			if(campo->estado == OCUPADO){
-			pos = funcion_hash(campo->clave);
-			pos %= (hash->capacidad*porcentaje);
+				pos = funcion_hash(campo->clave);
+				pos %= (hash->capacidad*porcentaje);
 
-			while(campos_nuevos[pos]){
-				pos++;
-				pos %= hash->capacidad*porcentaje;
-			}
+				while(campos_nuevos[pos]){
+					pos++;
+					pos %= hash->capacidad*porcentaje;
+				}
 
 			campos_nuevos[pos] = campo;
 			}
@@ -132,7 +138,8 @@ bool redimensionar(hash_t* hash,uint32_t porcentaje){
 
 hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 	hash_t* hash = malloc(sizeof(hash_t));
-	if (!hash) return NULL;
+	if (!hash)
+		return NULL;
 
 	campo_t** campos = calloc(TAM_INICIAL,sizeof(campo_t*));
 	if (!campos){
@@ -151,11 +158,13 @@ hash_t* hash_crear(hash_destruir_dato_t destruir_dato){
 
 bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 	campo_t* campo = campo_crear(clave,dato);
-	if (!campo) return false;
+	if (!campo)
+		return false;
 
 	if ( (hash->ocupados + hash->borrados)*100/hash->capacidad > FACTOR_DE_REDIMENSION){
 		bool ok = redimensionar(hash,ESCALAR_DE_REDIMENSION);
-		if (!ok) return false;
+		if (!ok)
+			return false;
 	} 
 
 	ssize_t esta = hash_buscar(hash,clave);
@@ -181,22 +190,26 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 
 void* hash_obtener(const hash_t* hash, const char* clave){
 	ssize_t pos = hash_buscar(hash,clave);
-	if (pos == NO_ENCONTRADO) return NULL;
+	if (pos == NO_ENCONTRADO) 
+		return NULL;
 	return (hash->campos[pos])->dato;
 }
 
 bool hash_pertenece(const hash_t *hash, const char *clave){
 	ssize_t pos = hash_buscar(hash,clave);
-	if (pos == NO_ENCONTRADO) return false;
+	if (pos == NO_ENCONTRADO)
+		return false;
 	return true;
 }
 
 size_t hash_cantidad(const hash_t *hash){
 	return hash -> ocupados;
 }
+
 void* hash_borrar(hash_t *hash, const char *clave){
 	ssize_t pos = hash_buscar(hash,clave);
-	if (pos == NO_ENCONTRADO) return NULL;
+	if (pos == NO_ENCONTRADO)
+		return NULL;
 
 	hash-> campos[pos] -> estado = BORRADO;
 	(hash-> borrados)++;
@@ -209,9 +222,9 @@ void hash_destruir(hash_t *hash){
 	for(size_t i = 0; i < hash -> capacidad; i++){
 		if(hash-> campos[i]){
 			if(hash-> campos[i] -> estado == OCUPADO)
-			campo_destruir(hash-> campos[i],hash -> destruir_dato);
-				else
-			campo_destruir(hash-> campos[i],NULL);
+				campo_destruir(hash-> campos[i],hash -> destruir_dato);
+			else
+				campo_destruir(hash-> campos[i],NULL);
 		}
 	}
 
@@ -247,9 +260,12 @@ bool hash_iter_avanzar(hash_iter_t* iter){
 
 hash_iter_t* hash_iter_crear(const hash_t* hash){
 	hash_iter_t* iter = malloc(sizeof(hash_iter_t));
-	if (!iter) return NULL;
+	if (!iter)
+		return NULL;
+
 	iter->hash = hash;
 	iter->actual = 0;
+
 	if (hash->ocupados == 0) iter->actual = -1;
 	else {
 		while((!hash->campos[iter->actual]) || hash->campos[iter->actual]->estado == BORRADO){
@@ -265,7 +281,9 @@ hash_iter_t* hash_iter_crear(const hash_t* hash){
 
 
 const char* hash_iter_ver_actual(const hash_iter_t *iter){
-	if (hash_iter_al_final(iter)) return NULL;
+	if (hash_iter_al_final(iter))
+		return NULL;
+
 	return iter -> hash -> campos[iter -> actual] -> clave;
 }
 
