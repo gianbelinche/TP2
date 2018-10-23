@@ -7,14 +7,15 @@
 
 // -_-_-_-_-_-_-_-_-_-_-_      CONSTANTES     -_-_-_-_-_-_-_-_-_-_-_- //
 
-#define TAM_INICIAL 257
+#define TAM_INICIAL 128
 #define FACTOR_DE_REDIMENSION  61
 #define ESCALAR_DE_REDIMENSION 2
 #define FNV_PRIME_32  16777619
 #define FNV_OFFSET_32 2166136261U
 #define NO_ENCONTRADO -1
+#define AL_FINAL      -1
 #define OCUPADO  1
-#define BORRADO -1 
+#define BORRADO -1
 
 // -_-_-_-_-_-_-_-_  DEFINICION DE  TIPOS DE DATO  _-_-_-_-_-_-_-_-_- //
 
@@ -175,14 +176,14 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 		return true;
 	}
 
-	uint32_t posicion = funcion_hash(clave);
-	posicion %= hash->capacidad ;
+	uint32_t pos = funcion_hash(clave);
+	pos %= hash->capacidad ;
 	
-	while(hash->campos[posicion]){
-		posicion++;
-		posicion %= hash->capacidad;
+	while(hash->campos[pos]){
+		pos++;
+		pos %= hash->capacidad;
 	}
-	hash->campos[posicion] = campo;
+	hash->campos[pos] = campo;
 	hash->ocupados++;
 	hash->vacios--;
 	return true;
@@ -236,25 +237,23 @@ void hash_destruir(hash_t *hash){
 // -_-_-_-_-_-_-_-_-_-_-  ITERADOR DEL HASH  -_-_-_-_-_-_-_-_-_-_- //
 
 bool hash_iter_al_final(const hash_iter_t* iter){
-	return (iter->actual == -1);
+	return (iter->actual == AL_FINAL);
 }
 
 bool hash_iter_avanzar(hash_iter_t* iter){
 	campo_t** campos = iter->hash->campos;
-	if (!hash_iter_al_final(iter)) iter->actual++;
+
 	while(!hash_iter_al_final(iter))
 	{
-		if (iter->actual >= iter->hash->capacidad) {
-			iter->actual = -1;
-			continue;
-		}
+		iter->actual++;
 
-		if(campos[iter->actual] && campos[iter->actual]->estado != BORRADO){
+		if (iter->actual >= iter->hash->capacidad)
+			iter->actual = AL_FINAL;
+
+		else if (campos[iter->actual] && campos[iter->actual]->estado != BORRADO)
 			return true;
-		}
-		iter->actual++;	
-		
 	}
+
 	return false;
 }
 
@@ -264,21 +263,11 @@ hash_iter_t* hash_iter_crear(const hash_t* hash){
 		return NULL;
 
 	iter->hash = hash;
-	iter->actual = 0;
+	iter -> actual = (hash->ocupados) ?  0 : AL_FINAL;
 
-	if (hash->ocupados == 0) iter->actual = -1;
-	else {
-		while((!hash->campos[iter->actual]) || hash->campos[iter->actual]->estado == BORRADO){
-			iter->actual++;
-			if (iter->actual >= hash->capacidad){
-				iter->actual = -1;
-				break;
-			}
-		}
-	}
+	hash_iter_avanzar(iter);
 	return iter;
 }
-
 
 const char* hash_iter_ver_actual(const hash_iter_t *iter){
 	if (hash_iter_al_final(iter))
