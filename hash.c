@@ -11,8 +11,10 @@
 #define NO_ENCONTRADO -1
 #define OCUPADO 1
 #define BORRADO -1
-#define FACTOR_DE_REDIMENSION  0.61
+#define FACTOR_DE_REDIMENSION  61
 #define ESCALAR_DE_REDIMENSION 2
+#define FNV_PRIME_32 16777619
+#define FNV_OFFSET_32 2166136261U 
 // -_-_-_-_-_-_-_-_  DEFINICION DE  TIPOS DE DATO  _-_-_-_-_-_-_-_-_- //
 
 typedef void (*hash_destruir_dato_t)(void *);
@@ -25,25 +27,34 @@ typedef struct campo{
 
 typedef struct hash{
 	campo_t** campos;
-	long int ocupados;
-	long int vacios;
-	long int borrados;
-	long int capacidad;
+	size_t ocupados;
+	size_t vacios;
+	size_t borrados;
+	uint32_t capacidad;
 	hash_destruir_dato_t destruir_dato;
 } hash_t;
 
 typedef struct hash_iter{ 
 	const hash_t* hash;
-	long int actual;
+	int actual;
 }hash_iter_t;
 
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
-long int murmurhash (const char *key, long int len, long int seed);
 
-long int funcion_hash(const char* clave,long int largo){
-	long int seed = 1548786; //Número random que debe respetarse en cada llamada
-	return murmurhash (clave, largo,seed);
+uint32_t FNV32(const char *s)
+{
+    uint32_t hash = FNV_OFFSET_32, i;
+    for(i = 0; i < strlen(s); i++)
+    {
+        hash = hash ^ (s[i]); // xor next byte into the bottom of the hash
+        hash = hash * FNV_PRIME_32; // Multiply by prime number found to work well
+    }
+    return hash;
+} 
+
+uint32_t funcion_hash(const char* clave){
+	return FNV32(clave);
 }
 
 campo_t* campo_crear(const char* clave, void* dato){
@@ -64,8 +75,9 @@ void campo_destruir(campo_t* campo, hash_destruir_dato_t destruir_dato){
 	free(campo);
 }
 
-long int hash_buscar(const hash_t* hash, const char* clave){
-	long int pos = funcion_hash(clave,strlen(clave)) % hash->capacidad;
+ssize_t hash_buscar(const hash_t* hash, const char* clave){
+	uint32_t pos = funcion_hash(clave);
+	pos %= hash->capacidad;
 
 	while (hash->campos[pos]){
 		campo_t* campo = hash->campos[pos];
@@ -80,9 +92,9 @@ long int hash_buscar(const hash_t* hash, const char* clave){
 	return NO_ENCONTRADO;
 }
 
-bool redimensionar(hash_t* hash,int porcentaje){
+bool redimensionar(hash_t* hash,uint32_t porcentaje){
 
-	long int pos;
+	uint32_t pos;
 	campo_t* campo;
 	campo_t** campos_nuevos = calloc(hash->capacidad*porcentaje,sizeof(campo_t*));
 	if (!campos_nuevos) return false;
@@ -92,7 +104,7 @@ bool redimensionar(hash_t* hash,int porcentaje){
 		if (campo){
 		
 			if(campo->estado == OCUPADO){
-			pos = funcion_hash(campo->clave,strlen(campo->clave));
+			pos = funcion_hash(campo->clave);
 			pos %= (hash->capacidad*porcentaje);
 
 			while(campos_nuevos[pos]){
@@ -141,12 +153,12 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 	campo_t* campo = campo_crear(clave,dato);
 	if (!campo) return false;
 
-	if ( (hash->ocupados + hash->borrados) > hash->capacidad*FACTOR_DE_REDIMENSION){
+	if ( (hash->ocupados + hash->borrados)*100/hash->capacidad > FACTOR_DE_REDIMENSION){
 		bool ok = redimensionar(hash,ESCALAR_DE_REDIMENSION);
 		if (!ok) return false;
 	} 
 
-	long int esta = hash_buscar(hash,clave);
+	ssize_t esta = hash_buscar(hash,clave);
 	if (esta != NO_ENCONTRADO){
 		campo_t* a_eliminar = hash->campos[esta];
 		hash->campos[esta] = campo;
@@ -154,8 +166,8 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 		return true;
 	}
 
-	long int posicion = funcion_hash(clave,strlen(clave));
-	posicion %= hash->capacidad;
+	uint32_t posicion = funcion_hash(clave);
+	posicion %= hash->capacidad ;
 	
 	while(hash->campos[posicion]){
 		posicion++;
@@ -168,22 +180,22 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 }
 
 void* hash_obtener(const hash_t* hash, const char* clave){
-	long int pos = hash_buscar(hash,clave);
+	ssize_t pos = hash_buscar(hash,clave);
 	if (pos == NO_ENCONTRADO) return NULL;
 	return (hash->campos[pos])->dato;
 }
 
 bool hash_pertenece(const hash_t *hash, const char *clave){
-	long int pos = hash_buscar(hash,clave);
+	ssize_t pos = hash_buscar(hash,clave);
 	if (pos == NO_ENCONTRADO) return false;
 	return true;
 }
 
-long int hash_cantidad(const hash_t *hash){
+size_t hash_cantidad(const hash_t *hash){
 	return hash -> ocupados;
 }
 void* hash_borrar(hash_t *hash, const char *clave){
-	long int pos = hash_buscar(hash,clave);
+	ssize_t pos = hash_buscar(hash,clave);
 	if (pos == NO_ENCONTRADO) return NULL;
 
 	hash-> campos[pos] -> estado = BORRADO;
@@ -194,7 +206,7 @@ void* hash_borrar(hash_t *hash, const char *clave){
 }
 
 void hash_destruir(hash_t *hash){
-	for(long int i = 0; i < hash -> capacidad; i++){
+	for(size_t i = 0; i < hash -> capacidad; i++){
 		if(hash-> campos[i]){
 			if(hash-> campos[i] -> estado == OCUPADO)
 			campo_destruir(hash-> campos[i],hash -> destruir_dato);
@@ -261,66 +273,3 @@ void hash_iter_destruir(hash_iter_t* iter){
 	free(iter);
 }
 
-// -_-_-_-_-_-_-_-_-_-_-  FUNCION DE HASHING  -_-_-_-_-_-_-_-_-_-_- //
-
-long int murmurhash (const char *key, long int len, long int seed) {
-  long int c1 = 0xcc9e2d51;
-  long int c2 = 0x1b873593;
-  long int r1 = 15;
-  long int r2 = 13;
-  long int m = 5;
-  long int n = 0xe6546b64;
-  long int h = 0;
-  long int k = 0;
-  uint8_t *d = (uint8_t *) key; // 32 bit extract from `key'
-  const long int *chunks = NULL;
-  const uint8_t *tail = NULL; // tail - last 8 bytes
-  long int i = 0;
-  long int l = len / 4; // chunk length
-
-  h = seed;
-
-  chunks = (const long int *) (d + l * 4); // body
-  tail = (const uint8_t *) (d + l * 4); // last 8 byte chunk of `key'
-
-  // for each 4 byte chunk of `key'
-  for (i = -l; i != 0; ++i) {
-	// next 4 byte chunk of `key'
-	k = chunks[i];
-
-	// encode next 4 byte chunk of `key'
-	k *= c1;
-	k = (k << r1) | (k >> (32 - r1));
-	k *= c2;
-
-	// append to hash
-	h ^= k;
-	h = (h << r2) | (h >> (32 - r2));
-	h = h * m + n;
-  }
-
-  k = 0;
-
-  // remainder
-  switch (len & 3) { // `len % 4'
-	case 3: k ^= (tail[2] << 16);
-	case 2: k ^= (tail[1] << 8);
-
-	case 1:
-	  k ^= tail[0];
-	  k *= c1;
-	  k = (k << r1) | (k >> (32 - r1));
-	  k *= c2;
-	  h ^= k;
-  }
-
-  h ^= len;
-
-  h ^= (h >> 16);
-  h *= 0x85ebca6b;
-  h ^= (h >> 13);
-  h *= 0xc2b2ae35;
-  h ^= (h >> 16);
-
-  return h;
-}
