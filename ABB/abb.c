@@ -22,3 +22,13 @@ void abb_destruir(abb_t* abb){
 	free(abb);
 }
 
+bool abb_pertenece(const abb_t* abb,const char* clave){
+	abb_t* arbol = abb_buscar(abb,clave);
+	return !arbol==NULL;
+}
+
+void* abb_obtener(const abb_t* abb,const char* clave){
+	abb_t* arbol = abb_buscar(abb,clave);
+	if (!arbol) return NULL;
+	return arbol->dato;
+}
