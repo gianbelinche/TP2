@@ -33,6 +33,30 @@ void* abb_obtener(const abb_t* abb,const char* clave){
 	return arbol->dato;
 }
 
+void abb_borrar_sin_hijos(abb_t* padre,abb_t* hijo){
+	if (padre->izq == hijo) 
+		padre->izq = NULL;
+	else 
+		padre->der = NULL;
+	abb_destruir(hijo);
+}
+
+void abb_borrar_un_hijo(abb_t* padre,abb_t* hijo){
+	if (padre->izq == hijo){
+		if (hijo->izq)
+			padre->izq = hijo->izq;
+		else
+			padre->izq = hijo->der;
+	}
+	else{
+		if (hijo->izq)
+			padre->der = hijo->izq;
+		else
+			padre->der = hijo->der;
+	}
+	abb_destruir(hijo);
+}
+
 void* abb_borrar(abb_t* abb,const char* clave){
 	abb_t* arbol = abb_buscar(abb,clave);
 	if (!arbol) return NULL;
