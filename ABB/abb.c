@@ -57,6 +57,16 @@ void abb_borrar_un_hijo(abb_t* padre,abb_t* hijo){
 	abb_destruir(hijo);
 }
 
+void abb_borrar_dos_hijos(abb_t* arbol){
+	abb_t* remplazante = arbol->der;
+	while (remplazante->izq)
+		remplazante = remplazante->izq;
+	char* clave = remplazante->clave;
+	void* dato = abb_borrar(arbol,clave);
+	arbol->clave = clave;
+	arbol->dato = dato; 
+}
+
 void* abb_borrar(abb_t* abb,const char* clave){
 	abb_t* arbol = abb_buscar(abb,clave);
 	if (!arbol) return NULL;
