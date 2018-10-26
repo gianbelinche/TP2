@@ -84,8 +84,15 @@ abb_t* _abb_buscar(const abb_t* arbol,const char* clave,bool busco_padre)
 	abb_t* siguiente = abb_obtener_hijo(arbol,clave);
 	
 	if(busco_padre)
+	{
 		if(siguiente == arbol -> izq ||  siguiente == arbol -> der)
 			return (abb_t*) arbol;
+	}
+	else
+	{
+		if(siguiente == arbol)
+			return (abb_t*) arbol;
+	}
 
 	return _abb_buscar(siguiente,clave,busco_padre);
 }
