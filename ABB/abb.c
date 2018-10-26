@@ -1,9 +1,10 @@
 //Este va a ser el abb
 //Bueno
-
+#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "abb.h"
 // -_-_-_-_-_-_-_-_-_-_-_      CONSTANTES     -_-_-_-_-_-_-_-_-_-_-_- //
@@ -29,14 +30,16 @@ typedef struct abb{
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
 
-abb_t* _abb_buscar(abb_t* arbol,const char* clave,int* vinculo)
+/* Mis sueños y esperanzas rotos
+abb_t* _abb_buscar(const abb_t* arbol,const char* clave,int* vinculo)
 {
-	if(!arbol) return arbol;
+	int comparacion;
+	if(!arbol || !(arbol -> clave)) return (abb_t*) arbol;
 
-	int comparacion = arbol -> cmp(arbol -> clave,clave);
+	comparacion = arbol -> cmp(arbol -> clave,clave);
 
 	if (comparacion == 0) 
-		return arbol;
+		return (abb_t*) arbol;
 	
 	if (comparacion > 0)
 	{
@@ -51,17 +54,57 @@ abb_t* _abb_buscar(abb_t* arbol,const char* clave,int* vinculo)
 abb_t* abb_buscar(const abb_t* arbol,const char* clave,int* vinculo)
 {
 	*vinculo = RAIZ;
-	return _abb_buscar(arbol -> izq,clave,vinculo);
-}
-
-size_t abb_cantidad(abb_t *arbol)
-{
-	return arbol -> cantidad;
+	return _abb_buscar(arbol,clave,vinculo);
 }
 
 abb_t* abb_obtener_padre(abb_t* arbol,int vinculo)
 {
 	return arbol - vinculo;
+}
+
+*/
+abb_t* abb_obtener_hijo(const abb_t* arbol,const char* clave)
+{
+	if(!arbol) return NULL;
+
+	int comparacion = arbol -> cmp(arbol -> clave,clave);
+
+	if (comparacion == 0) 
+		return (abb_t*) arbol;
+	
+	if (comparacion > 0)
+		return arbol -> der;
+
+	return arbol -> izq;
+}
+
+abb_t* _abb_buscar(const abb_t* arbol,const char* clave,bool busco_padre)
+{
+	if(!arbol || !(arbol -> clave)) return (abb_t*) arbol;
+	abb_t* siguiente = abb_obtener_hijo(arbol,clave);
+	
+	if(busco_padre)
+		if(siguiente == arbol -> izq ||  siguiente == arbol -> der)
+			return (abb_t*) arbol;
+
+	return _abb_buscar(siguiente,clave,busco_padre);
+}
+
+abb_t* abb_buscar(const abb_t* arbol,const char* clave)
+{
+	return _abb_buscar(arbol,clave,false);
+}
+
+abb_t* abb_obtener_padre(const abb_t* arbol,const char* clave)
+{
+	return _abb_buscar(arbol,clave,true);
+}
+
+
+size_t abb_cantidad(abb_t *arbol)
+{
+	if(!arbol) return 0;
+	return arbol -> cantidad;//return abb_cantidad(arbol -> izq) + abb_cantidad(arbol -> der) + 1;
 }
 
 void abb_borrar_sin_hijos(abb_t* padre,abb_t* hijo){
@@ -112,39 +155,47 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato)
 
 bool abb_guardar(abb_t *arbol, const char *clave, void *dato)
 {
-	int vinculo;
-	abb_t* hijo = abb_buscar(arbol,clave,&vinculo);
+	abb_t* padre = abb_obtener_padre(arbol,clave);
+	abb_t* hijo;
 
-	if(!hijo)
+	if(padre -> clave)
 	{
+		if(arbol -> cmp(arbol -> clave,clave))
+			hijo = padre -> der;
+		else
+			hijo = padre -> izq;
+
 		hijo = abb_crear(arbol -> cmp,arbol -> destruir_dato);
 		if(!hijo) return false;
 	}
-	
+	else
+	{
+		hijo = padre;
+	}
+
+	(arbol -> cantidad)++;
+	hijo -> clave = strdup(clave);
 	hijo -> dato = dato;
 	return true;
 }
 
 bool abb_pertenece(const abb_t* abb,const char* clave){
-	int vinculo;
-	abb_t* arbol = abb_buscar(abb,clave,&vinculo);
+	abb_t* arbol = abb_buscar(abb,clave);
 	return arbol;
 }
 
 void* abb_obtener(const abb_t* abb,const char* clave){
-	int vinculo;
-	abb_t* arbol = abb_buscar(abb,clave,&vinculo);
+	abb_t* arbol = abb_buscar(abb,clave);
 	if (!arbol) return NULL;
 	return arbol->dato;
 }
 
 
 void* abb_borrar(abb_t* abb,const char* clave){
-	int vinculo;
-	abb_t* arbol = abb_buscar(abb,clave,&vinculo);
+	abb_t* arbol = abb_buscar(abb,clave);
 	if (!arbol) return NULL;
 	void* dato = arbol->dato;
-	abb_t* padre = abb_obtener_padre(abb,vinculo);
+	abb_t* padre = abb_obtener_padre(abb,clave);
 	if (!arbol->izq && !arbol->der)
 		abb_borrar_sin_hijos(padre,arbol);
 	else if (arbol->izq || arbol->der)
