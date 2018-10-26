@@ -173,11 +173,17 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato)
 	else
 	{
 		if(padre -> cmp(padre -> clave,clave) > 0)
+		{
+			padre -> der = abb_crear(padre -> cmp,padre -> destruir_dato);
 			hijo = padre -> der;
+		}
 		else
+		{
+			padre -> izq = abb_crear(padre -> cmp,padre -> destruir_dato);
 			hijo = padre -> izq;
+		}
 
-		hijo = abb_crear(arbol -> cmp,arbol -> destruir_dato);
+		//hijo = abb_crear(padre -> cmp,padre -> destruir_dato);
 		if(!hijo) return false;
 	}
 
