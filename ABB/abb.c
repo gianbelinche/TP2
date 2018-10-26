@@ -72,7 +72,7 @@ abb_t* abb_obtener_hijo(const abb_t* arbol,const char* clave)
 	if (comparacion == 0) 
 		return (abb_t*) arbol;
 	
-	if (comparacion > 0)
+	if (comparacion > 0) //Seria al revez
 		return arbol -> der;
 
 	return arbol -> izq;
@@ -80,12 +80,12 @@ abb_t* abb_obtener_hijo(const abb_t* arbol,const char* clave)
 
 abb_t* _abb_buscar(const abb_t* arbol,const char* clave,bool busco_padre)
 {
-	if(!arbol || !(arbol -> clave)) return (abb_t*) arbol;
+	if(!arbol || !(arbol -> clave)) return (abb_t*) arbol; //poner NULL directamente, sino falla en el caso no clave
 	abb_t* siguiente = abb_obtener_hijo(arbol,clave);
 	
 	if(busco_padre)
 	{
-		if(siguiente == arbol -> izq ||  siguiente == arbol -> der)
+		if(siguiente == arbol -> izq ||  siguiente == arbol -> der) //Y si ninguna de las claves coincide?
 			return (abb_t*) arbol;
 	}
 	else
@@ -155,7 +155,7 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato)
 	abb_t* arbol = calloc(1, sizeof(abb_t));
 	if(!arbol) return NULL;
 
-	arbol -> cmp = cmp;
+	arbol -> cmp = cmp; //falta abb->izq y der, clave y dato
 	arbol -> destruir_dato = destruir_dato;
 	return arbol;
 }
@@ -172,7 +172,7 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato)
 	}
 	else
 	{
-		if(padre -> cmp(padre -> clave,clave) > 0)
+		if(padre -> cmp(padre -> clave,clave) > 0) //tambien al revez
 		{
 			padre -> der = abb_crear(padre -> cmp,padre -> destruir_dato);
 			hijo = padre -> der;
