@@ -34,6 +34,11 @@ struct abb_iter{
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
 
+bool abb_raiz_esta_vacia(abb_t* arbol)
+{
+	return (!arbol || !arbol -> clave);
+}
+
 /* Funciones de Gian en cautiverio
 	      _____
 	     |=====|
@@ -295,7 +300,8 @@ void abb_destruir(abb_t* abb){
 
 void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra)
 {
-	if(!arbol) return;
+	if(abb_raiz_esta_vacia(arbol)) return;
+
 	abb_in_order(arbol,visitar,extra);
 
 	if(!visitar(arbol -> clave,arbol -> dato, extra))
@@ -304,13 +310,13 @@ void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void
 	abb_in_order(arbol,visitar,extra);
 }
 
-void apilar_hijos_izq(pila_t* pila, const abb_t *arbol)
+void apilar_hijos_izq(pila_t* pila, const abb_t* arbol)
 {
 	abb_t* arbol_izq = arbol -> izq;
 
 	while(arbol_izq)
 	{
-		pila_apilar(pila,arbol_izq -> dato);
+		pila_apilar(pila,arbol_izq -> clave);
 		arbol_izq = arbol_izq -> izq;
 	}
 }
@@ -329,9 +335,9 @@ abb_iter_t* abb_iter_in_crear(const abb_t *arbol){
 
 	iter -> arbol = arbol;
 
-	if(iter -> arbol && arbol -> clave)
+	if(!abb_raiz_esta_vacia((abb_t* )iter -> arbol))
 	{
-		pila_apilar(iter -> pila,(abb_t*)iter -> arbol);
+		pila_apilar(iter -> pila,iter -> arbol -> clave);
 		apilar_hijos_izq(iter -> pila, iter -> arbol);
 	}
 
@@ -350,7 +356,7 @@ bool abb_iter_in_avanzar(abb_iter_t *iter){
 
 	if(desapilado -> der)
 	{
-		pila_apilar(iter -> pila,desapilado);
+		pila_apilar(iter -> pila,desapilado -> der -> clave);
 		apilar_hijos_izq(iter -> pila,desapilado -> der);
 	}
 
