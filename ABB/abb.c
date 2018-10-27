@@ -84,7 +84,11 @@ abb_t* _abb_buscar(const abb_t* arbol,const char* clave,bool busco_padre)
 	abb_t* siguiente = abb_obtener_hijo(arbol,clave);
 	
 	if(busco_padre)
-	{
+	{	
+		if (siguiente == arbol)
+			return NULL;
+		if (!siguiente)
+			return (abb_t*) arbol;
 		if( !arbol->cmp(siguiente->clave,arbol -> izq-> clave) ||  !arbol->cmp(siguiente->clave,arbol -> der ->clave)) //Y si ninguna de las claves coincide?
 			return (abb_t*) arbol;
 		return _abb_buscar(siguiente,clave,busco_padre);
@@ -109,13 +113,13 @@ abb_t* abb_obtener_padre(const abb_t* arbol,const char* clave)
 }
 
 
-size_t abb_cantidad(abb_t *arbol)
-{
-	if(!arbol) return 0;
-	return arbol -> cantidad;//return abb_cantidad(arbol -> izq) + abb_cantidad(arbol -> der) + 1;
-}
 
 void abb_borrar_sin_hijos(abb_t* padre,abb_t* hijo){
+	if (!padre || !padre->clave){
+		free(hijo->clave);
+		hijo->clave = NULL;
+		return;
+	}	
 	if (padre->izq == hijo) 
 		padre->izq = NULL;
 	else 
@@ -196,19 +200,25 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato)
 
 bool abb_pertenece(const abb_t* abb,const char* clave){
 	abb_t* arbol = abb_buscar(abb,clave);
-	return arbol;
+	return arbol!=NULL && arbol->clave!=NULL;
 }
 
 void* abb_obtener(const abb_t* abb,const char* clave){
 	abb_t* arbol = abb_buscar(abb,clave);
-	if (!arbol) return NULL;
+	if (!arbol || !arbol->clave) return NULL;
 	return arbol->dato;
+}
+
+size_t abb_cantidad(abb_t *arbol)
+{
+	if(!arbol) return 0;
+	return arbol -> cantidad;//return abb_cantidad(arbol -> izq) + abb_cantidad(arbol -> der) + 1;
 }
 
 
 void* abb_borrar(abb_t* abb,const char* clave){
 	abb_t* arbol = abb_buscar(abb,clave);
-	if (!arbol) return NULL;
+	if (!arbol || !arbol->clave) return NULL;
 	void* dato = arbol->dato;
 	abb_t* padre = abb_obtener_padre(abb,clave);
 	if (!arbol->izq && !arbol->der)
@@ -225,8 +235,9 @@ void abb_destruir(abb_t* abb){
 	if (!abb) return;
 	abb_destruir(abb->izq);
 	abb_destruir(abb->der);
-	free(abb->clave);
-	if (abb->destruir_dato)
+	if (abb->clave)
+		free(abb->clave);
+	if (abb->destruir_dato && abb->dato)
 		abb->destruir_dato(abb->dato);
 	free(abb);
 }

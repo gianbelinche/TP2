@@ -4,7 +4,7 @@ VFLAGS = --leak-check=full --track-origins=yes --show-reachable=yes --error-exit
 
 CFILES = *.c
 HFILES = *.h
-EXEC_S = pruebas
+EXEC_S = pruebas_
 PADRON = 102674
 
 build: $(CFILES)
