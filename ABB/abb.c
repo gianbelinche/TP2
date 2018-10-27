@@ -272,3 +272,14 @@ void abb_destruir(abb_t* abb){
 }
 
 // -_-_-_-_-_-_-_-_-_-_-  ITERADOR DEL ABB  -_-_-_-_-_-_-_-_-_-_- //
+
+void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra)
+{
+	if(!arbol) return;
+	abb_in_order(arbol,visitar,extra);
+
+	if(!visitar(arbol -> clave,arbol -> dato, extra))
+		return;
+
+	abb_in_order(arbol,visitar,extra);
+}
