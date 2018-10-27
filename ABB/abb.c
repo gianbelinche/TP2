@@ -171,7 +171,9 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato)
 	abb_t* hijo;
 
 	// Si es la raíz
-	if(!padre -> clave || padre -> cmp(padre -> clave,clave) == 0)
+	if (!padre)
+		hijo = arbol;
+	else if(!padre -> clave || padre -> cmp(padre -> clave,clave) == 0)
 	{
 		hijo = padre;
 	}
@@ -179,12 +181,14 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato)
 	{
 		if(padre -> cmp(padre -> clave,clave) < 0)
 		{
-			padre -> der = abb_crear(padre -> cmp,padre -> destruir_dato);
+			if (!padre->der)
+				padre -> der = abb_crear(padre -> cmp,padre -> destruir_dato);
 			hijo = padre -> der;
 		}
 		else
 		{
-			padre -> izq = abb_crear(padre -> cmp,padre -> destruir_dato);
+			if (!padre->izq)
+				padre -> izq = abb_crear(padre -> cmp,padre -> destruir_dato);
 			hijo = padre -> izq;
 		}
 
@@ -192,7 +196,10 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato)
 		if(!hijo) return false;
 	}
 
-	(arbol -> cantidad)++;
+	if (!hijo->clave)
+		(arbol -> cantidad)++;
+	else
+		free(hijo->clave);
 	hijo -> clave = strdup(clave);
 	hijo -> dato = dato;
 	return true;
