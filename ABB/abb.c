@@ -117,10 +117,13 @@ abb_t* abb_obtener_padre(const abb_t* arbol,const char* clave)
 {
 	if(!arbol || !(arbol -> clave)) return NULL;
 
-	if( arbol -> cmp(arbol -> clave,clave) LA_COMPARACION 0)
+	if ( arbol -> cmp(arbol -> clave,clave) == 0)
+		return NULL;
+
+	if( arbol -> cmp(arbol -> clave,clave) < 0)
 	{
 		if(!arbol -> der)
-			return NULL;
+			return (abb_t*) arbol;
 
 		if(arbol -> cmp(arbol -> der -> clave, clave) == 0)
 			return (abb_t*) arbol;
@@ -128,13 +131,13 @@ abb_t* abb_obtener_padre(const abb_t* arbol,const char* clave)
 		return abb_obtener_padre(arbol -> der, clave);
 	}
 
-		if(!arbol -> izq)
-			return NULL;
+	if(!arbol -> izq)
+		return (abb_t*) arbol;
 
-		if(arbol -> cmp(arbol -> izq -> clave, clave) == 0)
-			return (abb_t*) arbol;
+	if(arbol -> cmp(arbol -> izq -> clave, clave) == 0)
+		return (abb_t*) arbol;
 
-		return abb_obtener_padre(arbol -> izq, clave);
+	return abb_obtener_padre(arbol -> izq, clave);
 }
 
 void abb_borrar_sin_hijos(abb_t* padre,abb_t* hijo){
