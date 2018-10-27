@@ -75,6 +75,7 @@ static void prueba_abb_reemplazar()
     print_test("Prueba abb obtener clave2 es valor2a", abb_obtener(abb, clave2) == valor2a);
     print_test("Prueba abb obtener clave2 es valor2a", abb_obtener(abb, clave2) == valor2a);
     print_test("Prueba abb la cantidad de elementos es 2", abb_cantidad(abb) == 2);
+     printf("\nCantidad: %zi\n",abb_cantidad(abb));
 
     print_test("Prueba abb insertar clave1 con otro valor", abb_guardar(abb, clave1, valor1b));
     print_test("Prueba abb obtener clave1 es valor1b", abb_obtener(abb, clave1) == valor1b);
@@ -83,6 +84,7 @@ static void prueba_abb_reemplazar()
     print_test("Prueba abb obtener clave2 es valor2b", abb_obtener(abb, clave2) == valor2b);
     print_test("Prueba abb obtener clave2 es valor2b", abb_obtener(abb, clave2) == valor2b);
     print_test("Prueba abb la cantidad de elementos es 2", abb_cantidad(abb) == 2);
+     printf("\nCantidad: %zi\n",abb_cantidad(abb));
 
     abb_destruir(abb);
 }
@@ -109,7 +111,7 @@ static void prueba_abb_reemplazar_con_destruir()
     print_test("Prueba abb obtener clave2 es valor2a", abb_obtener(abb, clave2) == valor2a);
     print_test("Prueba abb obtener clave2 es valor2a", abb_obtener(abb, clave2) == valor2a);
     print_test("Prueba abb la cantidad de elementos es 2", abb_cantidad(abb) == 2);
-
+    printf("\nCantidad: %zi\n",abb_cantidad(abb));
     print_test("Prueba abb insertar clave1 con otro valor", abb_guardar(abb, clave1, valor1b));
     print_test("Prueba abb obtener clave1 es valor1b", abb_obtener(abb, clave1) == valor1b);
     print_test("Prueba abb obtener clave1 es valor1b", abb_obtener(abb, clave1) == valor1b);
@@ -117,6 +119,7 @@ static void prueba_abb_reemplazar_con_destruir()
     print_test("Prueba abb obtener clave2 es valor2b", abb_obtener(abb, clave2) == valor2b);
     print_test("Prueba abb obtener clave2 es valor2b", abb_obtener(abb, clave2) == valor2b);
     print_test("Prueba abb la cantidad de elementos es 2", abb_cantidad(abb) == 2);
+     printf("\nCantidad: %zi\n",abb_cantidad(abb));
 
     /* Se destruye el abb (se debe liberar lo que quedó dentro) */
     abb_destruir(abb);
@@ -268,7 +271,7 @@ static ssize_t buscar(const char* clave, char* claves[], size_t largo)
 
 static void prueba_iterar_abb_vacio()
 {
-     puts("PRUEBA ITERAR HASH VACIO");
+     puts("PRUEBA ITERAR ABB VACIO");
     abb_t* abb = abb_crear(strcmp,NULL);
     abb_iter_t* iter = abb_iter_in_crear(abb);
     print_test("Prueba abb iter crear iterador abb vacio", iter);
@@ -282,7 +285,7 @@ static void prueba_iterar_abb_vacio()
 
 static void prueba_abb_iterar()
 {
-    puts("PRUEBA HASH ITERAR");
+    puts("PRUEBA ABB ITERAR");
     abb_t* abb = abb_crear(strcmp,NULL);
 
     char *claves[] = {"perro", "gato", "vaca"};
@@ -336,7 +339,7 @@ static void prueba_abb_iterar()
 
 static void prueba_abb_iterar_volumen(size_t largo)
 {
-    puts("PRUEBA HASH ITERAR VOLUMEN");
+    puts("PRUEBA ABB ITERAR VOLUMEN");
      abb_t* abb = abb_crear(strcmp,NULL);
 
     const size_t largo_clave = 10;
@@ -407,12 +410,13 @@ void pruebas_abb_alumno(){
     prueba_abb_clave_vacia();
     prueba_abb_valor_null();
     prueba_abb_volumen(5000,true);
+    prueba_iterar_abb_vacio();
+    prueba_abb_iterar();
+    prueba_abb_iterar_volumen(5000);
 
 }
 
 void dummy()
 {
-    prueba_iterar_abb_vacio();
-    prueba_abb_iterar();
-    prueba_abb_iterar_volumen(5000);
+
 }
