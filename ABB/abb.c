@@ -161,14 +161,20 @@ void abb_borrar_un_hijo(abb_t* padre,abb_t* hijo){
 		if (hijo->izq){
 			hijo->clave = hijo->izq->clave;
 			hijo->dato = hijo->izq->dato;
-			hijo->izq = NULL;
-			abb_destruir(hijo->izq);
+			abb_t* izq = hijo->izq;
+			hijo->izq = izq->izq;
+			hijo->der = izq->der;
+			if (izq)
+				free(izq);
 		}
 		else{
 			hijo->clave = hijo->der->clave;
 			hijo->dato = hijo->der->dato;
-			hijo->der = NULL;
-			abb_destruir(hijo->der);
+			abb_t* der = hijo->der;
+			hijo->izq = der->izq;
+			hijo->der = der->der;
+			if (der)
+				free(der);
 		}
 		return;
 
