@@ -280,7 +280,7 @@ static void prueba_iterar_abb_vacio()
     abb_destruir(abb);
 }
 
-static void prueba_abb_iter_inar()
+static void prueba_abb_iterar()
 {
     puts("PRUEBA HASH ITERAR");
     abb_t* abb = abb_crear(strcmp,NULL);
@@ -334,7 +334,7 @@ static void prueba_abb_iter_inar()
     abb_destruir(abb);
 }
 
-static void prueba_abb_iter_inar_volumen(size_t largo)
+static void prueba_abb_iterar_volumen(size_t largo)
 {
     puts("PRUEBA HASH ITERAR VOLUMEN");
      abb_t* abb = abb_crear(strcmp,NULL);
@@ -407,7 +407,12 @@ void pruebas_abb_alumno(){
     prueba_abb_clave_vacia();
     prueba_abb_valor_null();
     prueba_abb_volumen(5000,true);
+
+}
+
+void dummy()
+{
     prueba_iterar_abb_vacio();
-    prueba_abb_iter_inar();
-    prueba_abb_iter_inar_volumen(5000);
+    prueba_abb_iterar();
+    prueba_abb_iterar_volumen(5000);
 }
