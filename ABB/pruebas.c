@@ -87,8 +87,45 @@ static void prueba_abb_reemplazar()
     abb_destruir(abb);
 }
 
+static void prueba_abb_reemplazar_con_destruir()
+{
+    puts("PRUEBA ABB REEMPLAZAR CON DESTRUIR");
+    abb_t* abb = abb_crear(strcmp,free);
+
+    char *clave1 = "perro", *valor1a, *valor1b;
+    char *clave2 = "gato", *valor2a, *valor2b;
+
+    /* Pide memoria para 4 valores */
+    valor1a = malloc(10 * sizeof(char));
+    valor1b = malloc(10 * sizeof(char));
+    valor2a = malloc(10 * sizeof(char));
+    valor2b = malloc(10 * sizeof(char));
+
+    /* Inserta 2 valores y luego los reemplaza (debe liberar lo que reemplaza) */
+    print_test("Prueba abb insertar clave1", abb_guardar(abb, clave1, valor1a));
+    print_test("Prueba abb obtener clave1 es valor1a", abb_obtener(abb, clave1) == valor1a);
+    print_test("Prueba abb obtener clave1 es valor1a", abb_obtener(abb, clave1) == valor1a);
+    print_test("Prueba abb insertar clave2", abb_guardar(abb, clave2, valor2a));
+    print_test("Prueba abb obtener clave2 es valor2a", abb_obtener(abb, clave2) == valor2a);
+    print_test("Prueba abb obtener clave2 es valor2a", abb_obtener(abb, clave2) == valor2a);
+    print_test("Prueba abb la cantidad de elementos es 2", abb_cantidad(abb) == 2);
+
+    print_test("Prueba abb insertar clave1 con otro valor", abb_guardar(abb, clave1, valor1b));
+    print_test("Prueba abb obtener clave1 es valor1b", abb_obtener(abb, clave1) == valor1b);
+    print_test("Prueba abb obtener clave1 es valor1b", abb_obtener(abb, clave1) == valor1b);
+    print_test("Prueba abb insertar clave2 con otro valor", abb_guardar(abb, clave2, valor2b));
+    print_test("Prueba abb obtener clave2 es valor2b", abb_obtener(abb, clave2) == valor2b);
+    print_test("Prueba abb obtener clave2 es valor2b", abb_obtener(abb, clave2) == valor2b);
+    print_test("Prueba abb la cantidad de elementos es 2", abb_cantidad(abb) == 2);
+
+    /* Se destruye el abb (se debe liberar lo que quedó dentro) */
+    abb_destruir(abb);
+}
+
+
 void pruebas_abb_alumno(){
     prueba_crear_abb_vacio();
     prueba_abb_insertar();
     prueba_abb_reemplazar();
+    prueba_abb_reemplazar_con_destruir();
 }

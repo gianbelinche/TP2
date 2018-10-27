@@ -198,8 +198,11 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato)
 
 	if (!hijo->clave)
 		(arbol -> cantidad)++;
-	else
+	else{
 		free(hijo->clave);
+		if (arbol->destruir_dato)
+			arbol->destruir_dato(hijo->dato);
+	}
 	hijo -> clave = strdup(clave);
 	hijo -> dato = dato;
 	return true;
