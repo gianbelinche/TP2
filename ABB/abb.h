@@ -31,21 +31,21 @@ typedef void (*abb_destruir_dato_t) (void *);
 //Post: Devuelve un arbol vacío.
 abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato);
 
-//Post: Inserta el elmento en el árbol, junto con su calve asociada.
+//Post: Inserta el elemento en el árbol, junto con su calve asociada.
 bool abb_guardar(abb_t *arbol, const char *clave, void *dato);
 
-//Post: Si existe un elmento en el árbol cuya clave coincide con la indicada, retorna
+//Post: Si existe un elemento en el árbol cuya clave coincide con la indicada, retorna
 //		dicho elemento. En caso contrario devuelve NULL. 
 void *abb_obtener(const abb_t *arbol, const char *clave);
 
-//Post: Retorna un bool Si es que existe un elmento en el árbol cuya clave coincide con 
+//Post: Retorna un bool si es que existe un elemento en el árbol cuya clave coincide con 
 //		la indicada.
 bool abb_pertenece(const abb_t *arbol, const char *clave);
 
 //Post: Devuelve la cantidad de elementos en un árbol.
 size_t abb_cantidad(abb_t *arbol);
 
-//Post: Si existe un elmento en el árbol cuya clave coincide con la indicada, lo elimina
+//Post: Si existe un elemento en el árbol cuya clave coincide con la indicada, lo elimina
 //		y retorna su valor. En caso contrario devuelve NULL.
 void *abb_borrar(abb_t *arbol, const char *clave);
 
@@ -56,7 +56,7 @@ void abb_destruir(abb_t *arbol);
 // -_-_-_-_-_-_-_-_-_-_-  ITERADORES DEL ABB  -_-_-_-_-_-_-_-_-_-_- //
 
 //Pre:  La función visitar responde al formato presentado.
-//Post: Recibe una función visitar a la que pasa por argumento cada elemento de
+//Post: Recibe una función visitar a la que pasa por argumento cada elemento
 //		del árbol, su calve y la variable extra. Interrumpe su función si visitar devuelve 
 //		falso o si se acaban los elementos del árbol. 
 void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra);
