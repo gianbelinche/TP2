@@ -6,8 +6,11 @@
 
 #include "pila.h"
 #include "abb.h"
-// -_-_-_-_-_-_-_-_-_-_-_      CONSTANTES     -_-_-_-_-_-_-_-_-_-_-_- //
 
+
+/*  (O.O)                                
+    (   )
+     - -                                                              */
 // -_-_-_-_-_-_-_-_  DEFINICION DE  TIPOS DE DATO  _-_-_-_-_-_-_-_-_- //
 
 
@@ -144,6 +147,8 @@ void abb_borrar_dos_hijos(abb_t* arbol){
 // -_-_-_-_-_-_-_-_-_-_-  PRIMITIVAS DEL ABB  -_-_-_-_-_-_-_-_-_-_- //
 
 abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
+	if(!cmp) return NULL;
+	
 	abb_t* arbol = calloc(1, sizeof(abb_t));
 	if(!arbol) return NULL;
 
@@ -306,3 +311,8 @@ const char* abb_iter_in_ver_actual(const abb_iter_t *iter){
 	if (!arbol) return NULL;
 	return arbol -> clave;
 }
+
+/*                                                         Z z
+                                                    (-.-) z
+                                                    (   )             */
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_ //
