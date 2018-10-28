@@ -229,7 +229,7 @@ static void prueba_abb_volumen(size_t largo, bool debug){
     bool ok = true;
     for (unsigned i = 0; i < largo; i++) {
         valores[i] = malloc(sizeof(int));
-        sprintf(claves[i], "%08d", i);
+        sprintf(claves[i], "%d", i);
         *valores[i] = i;
         ok = abb_guardar(abb, claves[i], valores[i]);
         if (!ok) break;
@@ -332,8 +332,7 @@ static void prueba_abb_iter_interno(){
 }
 
 
-bool anular(const char* clave,void* numero, void* elementos_recorridos)
-{
+bool anular(const char* clave,void* numero, void* elementos_recorridos){
     (*((int*)numero)) = 0;
     (*((int*)elementos_recorridos))++;
     return true;
@@ -351,7 +350,7 @@ static void prueba_abb_iter_interno_volumen(size_t largo){
     /* Inserta 'largo' parejas en el abb */
     bool ok = true;
     for (unsigned i = 0; i < largo; i++) {
-        sprintf(claves[i], "%08d", i);
+        sprintf(claves[i], "%d", i);
         valores[i] = i;
         ok = abb_guardar(abb, claves[i], &valores[i]);
         if (!ok) break;
@@ -464,7 +463,7 @@ static void prueba_abb_iter_volumen(size_t largo){
     /* Inserta 'largo' parejas en el abb */
     bool ok = true;
     for (unsigned i = 0; i < largo; i++) {
-        sprintf(claves[i], "%08d", i);
+        sprintf(claves[i], "%d", i);
         valores[i] = i;
         ok = abb_guardar(abb, claves[i], &valores[i]);
         if (!ok) break;
