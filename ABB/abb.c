@@ -191,15 +191,20 @@ void abb_borrar_un_hijo(abb_t* padre,abb_t* hijo){
 		else
 			padre->der = hijo->der;
 	}
-	abb_destruir(hijo);
+	free(hijo->clave);
+	if (padre->destruir_dato)
+		padre->destruir_dato(hijo->dato);
+	free(hijo);
 }
 
 void abb_borrar_dos_hijos(abb_t* arbol){
 	abb_t* remplazante = arbol->der;
 	while (remplazante->izq)
 		remplazante = remplazante->izq;
-	char* clave = remplazante->clave;
+	char* clave = strdup(remplazante->clave);
+	arbol->cantidad++;
 	void* dato = abb_borrar(arbol,clave);
+	free(arbol->clave);
 	arbol->clave = clave;
 	arbol->dato = dato; 
 }
@@ -286,10 +291,10 @@ void* abb_borrar(abb_t* abb,const char* clave){
 	void* dato = arbol->dato;
 	if (!arbol->izq && !arbol->der)
 		abb_borrar_sin_hijos(padre,arbol);
-	else if (arbol->izq || arbol->der)
-		abb_borrar_un_hijo(padre,arbol);
-	else
+	else if (arbol->izq && arbol->der)
 		abb_borrar_dos_hijos(arbol);
+	else
+		abb_borrar_un_hijo(padre,arbol);
 	abb->cantidad --;
 	return dato;
 }

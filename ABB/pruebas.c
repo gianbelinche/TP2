@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>  // For ssize_t in Linux.
 
 
@@ -109,7 +110,7 @@ static void prueba_abb_reemplazar_con_destruir()
     print_test("Prueba abb obtener clave2 es valor2a", abb_obtener(abb, clave2) == valor2a);
     print_test("Prueba abb obtener clave2 es valor2a", abb_obtener(abb, clave2) == valor2a);
     print_test("Prueba abb la cantidad de elementos es 2", abb_cantidad(abb) == 2);
-    printf("\nCantidad: %zi\n",abb_cantidad(abb));
+
     print_test("Prueba abb insertar clave1 con otro valor", abb_guardar(abb, clave1, valor1b));
     print_test("Prueba abb obtener clave1 es valor1b", abb_obtener(abb, clave1) == valor1b);
     print_test("Prueba abb obtener clave1 es valor1b", abb_obtener(abb, clave1) == valor1b);
@@ -117,7 +118,6 @@ static void prueba_abb_reemplazar_con_destruir()
     print_test("Prueba abb obtener clave2 es valor2b", abb_obtener(abb, clave2) == valor2b);
     print_test("Prueba abb obtener clave2 es valor2b", abb_obtener(abb, clave2) == valor2b);
     print_test("Prueba abb la cantidad de elementos es 2", abb_cantidad(abb) == 2);
-     printf("\nCantidad: %zi\n",abb_cantidad(abb));
 
     /* Se destruye el abb (se debe liberar lo que quedó dentro) */
     abb_destruir(abb);
@@ -198,6 +198,38 @@ static void prueba_abb_valor_null()
     abb_destruir(abb);
 }
 
+static void prueba_borrar_dos_hijos(){
+
+    puts("PRUEBA ABB BORRAR DOS HIJOS");
+
+    abb_t* abb = abb_crear(strcmp,NULL);
+
+    char* clave1 = "B";
+    char* clave2 = "A";
+    char* clave3 = "C";
+    int valor1 = 1;
+    int valor2 = 2;
+    int valor3 = 3;
+
+    print_test("Prueba abb insertar clave1", abb_guardar(abb, clave1, &valor1));
+    print_test("Prueba abb insertar clave2", abb_guardar(abb, clave2, &valor2));
+    print_test("Prueba abb insertar clave3", abb_guardar(abb, clave3, &valor3));
+
+    print_test("Prueba abb pertenece clave1, es verdadero", abb_pertenece(abb, clave1));
+    print_test("Prueba abb borrar clave1, es valor3", abb_borrar(abb, clave1) == &valor1);
+    print_test("Prueba abb borrar clave1, es NULL", !abb_borrar(abb, clave1));
+    print_test("Prueba abb pertenece clave1, es falso", !abb_pertenece(abb, clave1));
+    print_test("Prueba abb obtener clave1, es NULL", !abb_obtener(abb, clave1));
+    print_test("Prueba abb la cantidad de elementos es 2", abb_cantidad(abb) == 2);
+    printf("%d\n",abb_cantidad(abb) );
+
+    abb_destruir(abb);
+
+
+
+ 
+}
+
 static void prueba_abb_volumen(size_t largo, bool debug)
 {
     puts("PRUEBA abb VOLUMEN");
@@ -207,12 +239,12 @@ static void prueba_abb_volumen(size_t largo, bool debug)
     char (*claves)[largo_clave] = malloc(largo * largo_clave);
 
     unsigned* valores[largo];
-
+    srand((unsigned)clock());
     /* Inserta 'largo' parejas en el abb */
     bool ok = true;
     for (unsigned i = 0; i < largo; i++) {
         valores[i] = malloc(sizeof(int));
-        sprintf(claves[i], "%08d", i);
+        sprintf(claves[i], "%d", i);
         *valores[i] = i;
         ok = abb_guardar(abb, claves[i], valores[i]);
         if (!ok) break;
@@ -400,6 +432,7 @@ static void prueba_abb_iterar_volumen(size_t largo)
 }
 
 void pruebas_abb_alumno(){
+    prueba_borrar_dos_hijos();
     prueba_crear_abb_vacio();
     prueba_abb_insertar();
     prueba_abb_reemplazar();
@@ -407,7 +440,7 @@ void pruebas_abb_alumno(){
     prueba_abb_borrar();
     prueba_abb_clave_vacia();
     prueba_abb_valor_null();
-    //prueba_abb_volumen(5000,true);
+    prueba_abb_volumen(5000,true);
     prueba_iterar_abb_vacio();
     prueba_abb_iterar();
     prueba_abb_iterar_volumen(5000);
@@ -417,4 +450,5 @@ void pruebas_abb_alumno(){
 void dummy()
 {
     prueba_abb_volumen(5000,true);
+    prueba_abb_iterar_volumen(5000);
 }
