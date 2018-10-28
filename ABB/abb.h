@@ -25,7 +25,9 @@ typedef void (*abb_destruir_dato_t) (void *);
 *     que reciben por parametro.
 **/
 
-//Pre:  La función de comparación debe ser distinta a NULL.
+//Pre:  La función de comparación debe ser distinta a NULL. Además debe devolver
+//		un entero negativo si la primera cadena es menor que la segunda, cero si
+//		coinciden o un entero positivo en el caso restante.
 //Post: Devuelve un arbol vacío.
 abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato);
 
