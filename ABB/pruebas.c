@@ -155,6 +155,60 @@ static void prueba_abb_borrar(){
     abb_destruir(abb);
 }
 
+static void prueba_abb_borrar_sin_hijos(){
+    puts("PRUEBA ABB BORRAR SIN HIJOS");
+
+    abb_t* abb = abb_crear(strcmp,NULL);
+
+    char* clave1 = "B";
+    char* clave2 = "A";
+    char* clave3 = "C";
+    int valor1 = 1;
+    int valor2 = 2;
+    int valor3 = 3;
+
+    print_test("Prueba abb insertar clave1", abb_guardar(abb, clave1, &valor1));
+    print_test("Prueba abb insertar clave2", abb_guardar(abb, clave2, &valor2));
+    print_test("Prueba abb insertar clave3", abb_guardar(abb, clave3, &valor3));
+
+    print_test("Prueba abb pertenece clave2, es verdadero", abb_pertenece(abb, clave2));
+    print_test("Prueba abb borrar clave2, es valor1", abb_borrar(abb, clave2) == &valor2);
+    print_test("Prueba abb borrar clave2, es NULL", !abb_borrar(abb, clave2));
+    print_test("Prueba abb pertenece clave2, es falso", !abb_pertenece(abb, clave2));
+    print_test("Prueba abb obtener clave2, es NULL", !abb_obtener(abb, clave2));
+    print_test("Prueba abb la cantidad de elementos es 2", abb_cantidad(abb) == 2);
+
+    abb_destruir(abb);
+}
+
+static void prueba_abb_borrar_un_hijo(){
+
+    puts("PRUEBA ABB BORRAR UN HIJO");
+
+    abb_t* abb = abb_crear(strcmp,NULL);
+
+    char* clave1 = "A";
+    char* clave2 = "B";
+    char* clave3 = "C";
+    int valor1 = 1;
+    int valor2 = 2;
+    int valor3 = 3;
+
+    print_test("Prueba abb insertar clave1", abb_guardar(abb, clave1, &valor1));
+    print_test("Prueba abb insertar clave2", abb_guardar(abb, clave2, &valor2));
+    print_test("Prueba abb insertar clave3", abb_guardar(abb, clave3, &valor3));
+
+    print_test("Prueba abb pertenece clave2, es verdadero", abb_pertenece(abb, clave2));
+    print_test("Prueba abb borrar clave2, es valor1", abb_borrar(abb, clave2) == &valor2);
+    print_test("Prueba abb borrar clave2, es NULL", !abb_borrar(abb, clave2));
+    print_test("Prueba abb pertenece clave2, es falso", !abb_pertenece(abb, clave2));
+    print_test("Prueba abb obtener clave2, es NULL", !abb_obtener(abb, clave2));
+    print_test("Prueba abb la cantidad de elementos es 2", abb_cantidad(abb) == 2);
+
+    abb_destruir(abb);
+
+}
+
 static void prueba_abb_borrar_dos_hijos(){
 
     puts("PRUEBA ABB BORRAR DOS HIJOS");
@@ -173,7 +227,7 @@ static void prueba_abb_borrar_dos_hijos(){
     print_test("Prueba abb insertar clave3", abb_guardar(abb, clave3, &valor3));
 
     print_test("Prueba abb pertenece clave1, es verdadero", abb_pertenece(abb, clave1));
-    print_test("Prueba abb borrar clave1, es valor3", abb_borrar(abb, clave1) == &valor1);
+    print_test("Prueba abb borrar clave1, es valor1", abb_borrar(abb, clave1) == &valor1);
     print_test("Prueba abb borrar clave1, es NULL", !abb_borrar(abb, clave1));
     print_test("Prueba abb pertenece clave1, es falso", !abb_pertenece(abb, clave1));
     print_test("Prueba abb obtener clave1, es NULL", !abb_obtener(abb, clave1));
@@ -520,6 +574,8 @@ void pruebas_abb_alumno(){
     prueba_abb_reemplazar();
     prueba_abb_reemplazar_con_destruir();
     prueba_abb_borrar();
+    prueba_abb_borrar_sin_hijos();
+    prueba_abb_borrar_un_hijo();
     prueba_abb_borrar_dos_hijos();
     prueba_abb_clave_vacia();
     prueba_abb_valor_null();
