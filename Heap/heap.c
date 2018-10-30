@@ -30,3 +30,13 @@ bool redimensionar(heap_t* heap){
 	return true;
 }
 
+heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp){
+	heap_t* heap = malloc(sizeof(heap_t));
+	for (int i = n-1;i >= 0;i--)
+		downheap(arreglo,i);
+	heap -> elementos = arreglo;
+	heap -> cantidad = n;
+	heap -> cmp = cmp;
+	return heap;
+}
+
