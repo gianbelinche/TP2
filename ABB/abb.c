@@ -242,15 +242,17 @@ void abb_destruir(abb_t* abb){
 
 // -_-_-_-_-_-_-_-_-_-_-  ITERADOR DEL ABB  -_-_-_-_-_-_-_-_-_-_- //
 
+bool _abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra){
+	if(abb_raiz_esta_vacia(arbol)) return true;
+
+	return _abb_in_order(arbol -> izq,visitar,extra) &&
+				visitar(arbol -> clave,arbol -> dato, extra) &&
+					_abb_in_order(arbol -> der,visitar,extra);
+}
+
 void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra){
-	if(abb_raiz_esta_vacia(arbol)) return;
 
-	abb_in_order(arbol -> izq,visitar,extra);
-
-	if(!visitar(arbol -> clave,arbol -> dato, extra))
-		return;
-
-	abb_in_order(arbol -> der,visitar,extra);
+	_abb_in_order(arbol,visitar,extra);
 }
 
 void apilar_hijos_izq(pila_t* pila, const abb_t* arbol){

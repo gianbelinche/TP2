@@ -350,8 +350,20 @@ bool sumatoria(const char* clave,void* numero, void* suma_total){
 
 static void prueba_abb_iter_interno(){
     puts("PRUEBA ABB ITER INTERNO");
+    sumatoria_t suma_total;
     abb_t* abb = abb_crear(strcmp,NULL);
 
+    suma_total.contador  = 100;suma_total.sumatoria = 0;
+    abb_in_order(NULL,sumatoria,&suma_total);
+    print_test("Prueba abb iter interna abb nulo" , suma_total.sumatoria == 0);
+
+    suma_total.contador  = 100;suma_total.sumatoria = 0;
+    abb_in_order(abb,sumatoria,&suma_total);
+    print_test("Prueba abb iter interna abb vacio" , suma_total.sumatoria == 0);
+
+
+    abb_destruir(abb);
+    abb = abb_crear(strcmp,NULL);
     char* claves[]   = {"gaviota","caballo","abedul","armadillo","rana","ornero","zorro"};
     int  valores[]   = {   4     ,    3    ,    1   ,     2     ,   6  ,   5    ,   7   };
 
@@ -363,8 +375,6 @@ static void prueba_abb_iter_interno(){
     print_test("Prueba abb insertar clave 5", abb_guardar(abb, claves[4], &valores[4]));
     print_test("Prueba abb insertar clave 6", abb_guardar(abb, claves[5], &valores[5]));
     print_test("Prueba abb insertar clave 7", abb_guardar(abb, claves[6], &valores[6]));
-
-    sumatoria_t suma_total;
 
     suma_total.contador  = 0;suma_total.sumatoria = 0;
     abb_in_order(abb,sumatoria,&suma_total);
@@ -382,7 +392,8 @@ static void prueba_abb_iter_interno(){
     abb_in_order(abb,sumatoria,&suma_total);
     print_test("Prueba abb iter interna superando el rango" , suma_total.sumatoria == 28);
 
-     abb_destruir(abb);
+    abb_destruir(abb);
+
 }
 
 
