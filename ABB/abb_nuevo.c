@@ -38,6 +38,13 @@ struct abb_iter{
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
 
+nodo_t* abb_crear_nodo(){
+	nodo_t* nodo = calloc(1, sizeof(nodo_t));
+	if(!nodo) return NULL;
+
+	return nodo;
+}
+
 bool abb_raiz_esta_vacia(abb_t* arbol){
 	return (!arbol -> raiz || !arbol -> raiz -> clave);
 }
@@ -94,16 +101,83 @@ nodo_t* abb_obtener_padre(const abb_t* arbol,const char* clave){
 
 
 
+void abb_borrar_un_hijo(nodo_t* padre,nodo_t* hijo,abb_destruir_dato_t destruir_dato){
+	if (!padre){
+		free(hijo -> clave);
+		if (destruir_dato)
+			destruir_dato(hijo -> dato);
+		if (hijo -> izq){
+			hijo -> clave = hijo -> izq -> clave;
+			hijo -> dato = hijo -> izq -> dato;
+			nodo_t* izq = hijo -> izq;
+			hijo -> izq = izq -> izq;
+			hijo -> der = izq -> der;
+			if (izq)
+				free(izq);
+		}
+		else{
+			hijo -> clave = hijo -> der -> clave;
+			hijo -> dato = hijo -> der -> dato;
+			nodo_t* der = hijo -> der;
+			hijo -> izq = der -> izq;
+			hijo -> der = der -> der;
+			if (der)
+				free(der);
+		}
+		return;
+
+	}
+	else if (padre -> izq == hijo){
+		if (hijo -> izq)
+			padre -> izq = hijo -> izq;
+		else
+			padre -> izq = hijo -> der;
+	}
+	else{
+		if (hijo -> izq)
+			padre -> der = hijo -> izq;
+		else
+			padre -> der = hijo -> der;
+	}
+	free(hijo -> clave);
+	if (destruir_dato)
+		destruir_dato(hijo -> dato);
+	free(hijo);
+}
+
+void _abb_destruir(nodo_t* abb, abb_destruir_dato_t destruir_dato);
+
+void abb_borrar_sin_hijos(nodo_t* padre,nodo_t* hijo,abb_destruir_dato_t destruir_dato){
+	if (!padre || !padre -> clave){
+		free(hijo -> clave);
+		hijo -> clave = NULL;
+		return;
+	}	
+	if (padre -> izq == hijo) 
+		padre -> izq = NULL;
+	else 
+		padre -> der = NULL;
+	_abb_destruir(hijo, destruir_dato);
+}
+
+void abb_borrar_dos_hijos(nodo_t* arbol,abb_t* abb){
+	nodo_t* remplazante = arbol -> der;
+	while (remplazante -> izq)
+		remplazante = remplazante -> izq;
+	char* clave = strdup(remplazante -> clave);
+	//arbol -> cantidad++;
+	void* dato = abb_borrar(abb,clave);
+	free(arbol -> clave);
+	arbol -> clave = clave;
+	arbol -> dato = dato; 
+}
+
+
 
 
 // -_-_-_-_-_-_-_-_-_-_-  PRIMITIVAS DEL ABB  -_-_-_-_-_-_-_-_-_-_- //
 
-nodo_t* abb_crear_nodo(){
-	nodo_t* nodo = calloc(1, sizeof(nodo_t));
-	if(!nodo) return NULL;
 
-	return nodo;
-}
 
 abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
 	if(!cmp) return NULL;
@@ -162,22 +236,41 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato){
 	return true;
 }
 
-bool abb_pertenece(const abb_t* abb,const char* clave){
-	nodo_t* arbol = abb_buscar(abb,clave);
-	return !(!arbol || !arbol -> clave);
-}
-
-
-
 void* abb_obtener(const abb_t* abb,const char* clave){
 	nodo_t* arbol = abb_buscar(abb,clave);
 	if (!arbol || !arbol -> clave) return NULL;
 	return arbol -> dato;
 }
 
+
+bool abb_pertenece(const abb_t* abb,const char* clave){
+	nodo_t* arbol = abb_buscar(abb,clave);
+	return !(!arbol || !arbol -> clave);
+}
+
+
 size_t abb_cantidad(abb_t *arbol){
 	if(!arbol) return 0;
 	return arbol -> cantidad;
+}
+
+
+void* abb_borrar(abb_t* abb,const char* clave){
+	nodo_t* arbol = abb_buscar(abb,clave);
+	if (!arbol || !arbol -> clave) return NULL;
+	nodo_t* padre = abb_obtener_padre(abb,clave);
+	void* dato = arbol -> dato;
+	if (!arbol -> izq && !arbol -> der)
+		abb_borrar_sin_hijos(padre,arbol,abb -> destruir_dato);
+	else if (arbol -> izq && arbol -> der)
+	{
+		abb_borrar_dos_hijos(arbol,abb);
+		abb -> cantidad++;
+	}
+	else
+		abb_borrar_un_hijo(padre,arbol,abb -> destruir_dato);
+	abb -> cantidad --;
+	return dato;
 }
 
 
@@ -199,94 +292,6 @@ void abb_destruir(abb_t* abb){
 	free(abb);
 }
 
-
-void abb_borrar_un_hijo(nodo_t* padre,nodo_t* hijo,abb_destruir_dato_t destruir_dato){
-	if (!padre){
-		free(hijo -> clave);
-		if (destruir_dato)
-			destruir_dato(hijo -> dato);
-		if (hijo -> izq){
-			hijo -> clave = hijo -> izq -> clave;
-			hijo -> dato = hijo -> izq -> dato;
-			nodo_t* izq = hijo -> izq;
-			hijo -> izq = izq -> izq;
-			hijo -> der = izq -> der;
-			if (izq)
-				free(izq);
-		}
-		else{
-			hijo -> clave = hijo -> der -> clave;
-			hijo -> dato = hijo -> der -> dato;
-			nodo_t* der = hijo -> der;
-			hijo -> izq = der -> izq;
-			hijo -> der = der -> der;
-			if (der)
-				free(der);
-		}
-		return;
-
-	}
-	else if (padre -> izq == hijo){
-		if (hijo -> izq)
-			padre -> izq = hijo -> izq;
-		else
-			padre -> izq = hijo -> der;
-	}
-	else{
-		if (hijo -> izq)
-			padre -> der = hijo -> izq;
-		else
-			padre -> der = hijo -> der;
-	}
-	free(hijo -> clave);
-	if (destruir_dato)
-		destruir_dato(hijo -> dato);
-	free(hijo);
-}
-
-
-void abb_borrar_sin_hijos(nodo_t* padre,nodo_t* hijo,abb_destruir_dato_t destruir_dato){
-	if (!padre || !padre -> clave){
-		free(hijo -> clave);
-		hijo -> clave = NULL;
-		return;
-	}	
-	if (padre -> izq == hijo) 
-		padre -> izq = NULL;
-	else 
-		padre -> der = NULL;
-	_abb_destruir(hijo, destruir_dato);
-}
-
-void abb_borrar_dos_hijos(nodo_t* arbol,abb_t* abb){
-	nodo_t* remplazante = arbol -> der;
-	while (remplazante -> izq)
-		remplazante = remplazante -> izq;
-	char* clave = strdup(remplazante -> clave);
-	//arbol -> cantidad++;
-	void* dato = abb_borrar(abb,clave);
-	free(arbol -> clave);
-	arbol -> clave = clave;
-	arbol -> dato = dato; 
-}
-
-void* abb_borrar(abb_t* abb,const char* clave){
-	nodo_t* arbol = abb_buscar(abb,clave);
-	if (!arbol || !arbol -> clave) return NULL;
-	nodo_t* padre = abb_obtener_padre(abb,clave);
-	void* dato = arbol -> dato;
-	if (!arbol -> izq && !arbol -> der)
-		abb_borrar_sin_hijos(padre,arbol,abb -> destruir_dato);
-	else if (arbol -> izq && arbol -> der)
-	{
-		abb_borrar_dos_hijos(arbol,abb);
-		abb -> cantidad++;
-	}
-	else
-		abb_borrar_un_hijo(padre,arbol,abb -> destruir_dato);
-	abb -> cantidad --;
-	return dato;
-}
 
 
 // -_-_-_-_-_-_-_-_-_-_-  ITERADOR DEL ABB  -_-_-_-_-_-_-_-_-_-_- //
