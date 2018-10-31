@@ -43,6 +43,8 @@ bool abb_raiz_esta_vacia(abb_t* arbol){
 }
 
 nodo_t* _abb_buscar(const nodo_t* arbol,const char* clave,abb_comparar_clave_t cmp){
+	if(!arbol || !(arbol -> clave)) return NULL;
+
 	if( cmp(arbol -> clave,clave) == 0)
 		return (nodo_t*) arbol;
 
@@ -109,6 +111,13 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
 	abb_t* arbol = calloc(1, sizeof(abb_t));
 	if(!arbol) return NULL;
 
+	nodo_t* raiz = abb_crear_nodo();
+	if(!raiz){
+		free(arbol);
+		return NULL;
+	}
+
+	arbol -> raiz = raiz;
 	arbol -> cmp = cmp; 
 	arbol -> destruir_dato = destruir_dato;
 	return arbol;
