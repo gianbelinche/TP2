@@ -6,6 +6,7 @@ typedef int (*cmp_func_t) (const void* a,const void* b);
 typedef struct heap{
 	void** elementos;
 	size_t cantidad;
+        size_t capacidad;
 	cmp_func_t cmp;
 } heap_t;
 
@@ -20,6 +21,7 @@ heap_t* heap_crear(cmp_func_t cmp){
 	heap -> elementos = elementos;
 	heap -> cantidad = 0;
 	heap -> cmp = cmp;
+        heap->capacidad = TAM_INCIAL;
 	return heap;
 }
 
@@ -53,4 +55,22 @@ heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp){
 void* heap_ver_max(const heap_t *heap){
 	if (!heap || heap->cantidad = 0) return NULL;
 	return heap -> elementos[0];
+}
+
+bool encolar(heap_t* heap, void* dato){
+	if(heap->cantidad /heap->capacidad > FAC_CARGA)
+		bool ok =redimension(heap);
+	if (!ok) return ok;	
+	heap->elementos[heap->cantidad] = dato;
+	downheap(heap->elementos,heap->cantidad);
+	return true;
+}
+
+void heapsort(void* arr,int n){
+	for(int i =n-1;i>=0;i--)
+		downheap(arr,i);
+	for(int i =n;i>=0;i--){
+		swap(arr,0,i);
+		upheap(arr[0]);
+	}	
 }
