@@ -165,7 +165,6 @@ void abb_borrar_dos_hijos(nodo_t* arbol,abb_t* abb){
 	while (remplazante -> izq)
 		remplazante = remplazante -> izq;
 	char* clave = strdup(remplazante -> clave);
-	//arbol -> cantidad++;
 	void* dato = abb_borrar(abb,clave);
 	free(arbol -> clave);
 	arbol -> clave = clave;
