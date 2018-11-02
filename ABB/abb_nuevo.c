@@ -8,11 +8,7 @@
 #include "abb.h"
 
 
-/*  (O.O)                                
-    (   )
-     - -                                                              */
 // -_-_-_-_-_-_-_-_  DEFINICION DE  TIPOS DE DATO  _-_-_-_-_-_-_-_-_- //
-
 
 typedef int (*abb_comparar_clave_t) (const char *, const char *);
 typedef void (*abb_destruir_dato_t) (void *);
@@ -304,7 +300,7 @@ bool _abb_in_order(nodo_t *arbol, bool visitar(const char *, void *, void *), vo
 }
 
 void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra){
-	if(abb_raiz_esta_vacia(arbol)) return;
+	if(!arbol || abb_raiz_esta_vacia(arbol)) return;
 
 	_abb_in_order(arbol  -> raiz,visitar,extra);
 }
@@ -367,8 +363,3 @@ const char* abb_iter_in_ver_actual(const abb_iter_t *iter){
 	if (!arbol) return NULL;
 	return arbol -> clave;
 }
-
-/*                                                         Z z
-                                                    (-.-) z
-                                                    (   )             */
-// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_ //
