@@ -125,12 +125,14 @@ heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp){
 	for (int i = 0;i<n;i++)
 		elementos[i] = arreglo[i];
 
-	for (int i = n-1;i >= 0;i--)
-		downheap(heap -> elementos, heap -> cantidad, heap -> cmp,i);
 
 	heap -> elementos = elementos;
 	heap -> cantidad = n;
 	heap -> cmp = cmp;
+
+	for (int i = n;i > 0;i--)
+		downheap(heap -> elementos, heap -> cantidad - 1, heap -> cmp,i);
+
 	return heap;
 }
 
@@ -154,10 +156,10 @@ bool heap_encolar(heap_t* heap, void* dato){
 void* heap_desencolar(heap_t *heap){
 
 	if (!heap || heap->cantidad == 0) return NULL;
-	swap(heap -> elementos, heap -> elementos + heap -> cantidad);
+	swap(heap -> elementos, heap -> elementos + heap -> cantidad - 1);
 	(heap -> cantidad)--;
-	downheap(heap -> elementos, heap -> cantidad, heap -> cmp,0);
-	return heap -> elementos[heap -> cantidad + 1];
+	downheap(heap -> elementos, heap -> cantidad - 1, heap -> cmp,0);
+	return heap -> elementos[heap -> cantidad];
 }
 
 size_t heap_cantidad(const heap_t *heap){

@@ -12,7 +12,7 @@
  * *****************************************************************/
 
 int cmp (const void* x,const void* y){
-	return *((int*) x) - *((int*) y);
+	return (int)x - (int)y;
 }
 
 bool cumple_condicion_heap(heap_t* heap, cmp_func_t cmpx)
@@ -25,7 +25,7 @@ bool cumple_condicion_heap(heap_t* heap, cmp_func_t cmpx)
 
 		anterior = heap_desencolar(heap);
 	}
-
+    
 	return true;
 }
 
@@ -43,20 +43,21 @@ static void prueba_heap_insertar(){
     puts("PRUEBA HEAP INSERTAR");
     heap_t* heap = heap_crear(cmp);
 
-    int  valores[] = {10,9,8,4,5,8,3,1,7,6,1};
+    int  valores[] = {10,9,8,4,5,8,3,1,7,6,1,12,45,78};
     char msg[30];
 
-    for(int i = 1; i < 11; i++)
+    for(int i = 0; i < 10; i++)
     {
     		heap_encolar(heap,&valores[i]);
-    	    sprintf(msg,"Inserto valor %i",i);
-    	    print_test(msg,heap_cantidad(heap) == i && !heap_esta_vacio(heap));
+    	    sprintf(msg,"Inserto valor %i",i + 1);
+    	    print_test(msg,heap_cantidad(heap) == i + 1 && !heap_esta_vacio(heap));
     }
 
     print_test("Se cumple la condicion de heap",cumple_condicion_heap(heap,cmp));
     heap_destruir(heap,NULL);
 }
 
+/*
 static void prueba_heap_volumen(size_t largo){
     puts("PRUEBA HEAP VOLUMEN");
     heap_t* heap = heap_crear(cmp);
@@ -77,6 +78,7 @@ static void prueba_heap_volumen(size_t largo){
 	heap_destruir(heap,NULL);
 
 }
+*/
 
 static void prueba_heap_arr()
 {
@@ -99,5 +101,5 @@ void pruebas_heap_alumno(){
     prueba_heap_insertar();
     prueba_heap_arr();
     
-    prueba_heap_volumen(5000);
+    //prueba_heap_volumen(5000);
 }
