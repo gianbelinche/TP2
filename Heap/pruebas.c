@@ -43,7 +43,7 @@ static void prueba_heap_insertar(){
     puts("PRUEBA HEAP INSERTAR");
     heap_t* heap = heap_crear(cmp);
 
-    int  valores[] = {10,9,8,4,5,8,3,1,7,6};
+    int  valores[] = {10,9,8,4,5,8,3,1,7,6,1};
     char msg[30];
 
     for(int i = 1; i < 11; i++)
@@ -96,7 +96,8 @@ static void prueba_heap_arr()
 void pruebas_heap_alumno(){
 	srand((unsigned) clock());
     prueba_crear_heap_vacio();
-    prueba_heap_arr();
     prueba_heap_insertar();
+    prueba_heap_arr();
+    
     prueba_heap_volumen(5000);
 }
