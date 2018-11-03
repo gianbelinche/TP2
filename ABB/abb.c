@@ -7,7 +7,13 @@
 #include "pila.h"
 #include "abb.h"
 
-
+/*        __________
+          |I'm back|
+         / ________|
+		  /		
+	(O.O)                                	
+    (   )	
+     - -                                                              */
 // -_-_-_-_-_-_-_-_  DEFINICION DE  TIPOS DE DATO  _-_-_-_-_-_-_-_-_- //
 
 typedef int (*abb_comparar_clave_t) (const char *, const char *);
@@ -354,3 +360,9 @@ void abb_iter_in_destruir(abb_iter_t* iter){
 	pila_destruir(iter -> pila);
 	free(iter);
 }
+
+
+/*                                                         Z z
+                                                    (-.-) z
+                                                    (   )             */                                                    
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_ //
