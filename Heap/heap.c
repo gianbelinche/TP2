@@ -20,7 +20,7 @@ typedef int (*cmp_func_t) (const void* a,const void* b);
 typedef struct heap{
 	void** elementos;
 	size_t cantidad;
-    size_t capacidad;
+	size_t capacidad;
 	cmp_func_t cmp;
 } heap_t;
 
@@ -92,7 +92,7 @@ heap_t* heap_crear(cmp_func_t cmp){
 	heap -> elementos = elementos;
 	heap -> cantidad = 0;
 	heap -> cmp = cmp;
-    heap -> capacidad = TAM_INICIAL;
+	heap -> capacidad = TAM_INICIAL;
 	return heap;
 }
 
@@ -127,7 +127,7 @@ void* heap_ver_max(const heap_t *heap){
 
 bool encolar(heap_t* heap, void* dato){
 
-	if( (heap -> cantidad /heap -> capacidad) > FACTOR_CARGA && redimensionar(heap))
+	if( (heap -> cantidad /heap -> capacidad) > FACTOR_CARGA && !redimensionar(heap))
 		return false;
 
 	heap->elementos[heap->cantidad] = dato;
@@ -140,7 +140,7 @@ void* heap_desencolar(heap_t *heap){
 	if (!heap || heap->cantidad == 0) return NULL;
 	swap(heap -> elementos, heap -> elementos + heap -> cantidad);
 	heap -> cantidad--;
-	downheap(heap -> elementos, heap -> cantidad, heap -> cmp,0);
+	upheap(heap -> elementos, heap -> cantidad, heap -> cmp,0);
 	return heap -> elementos[heap -> cantidad + 1];
 }
 
@@ -155,7 +155,7 @@ bool heap_esta_vacio(const heap_t *heap){
 }
 
 void heap_sort(void *elementos[], size_t cantidad, cmp_func_t cmp){
-	//i = cantidad -1 puede fallar
+	if (cantidad == 0) return;  //i = cantidad -1 puede fallar
 	for(int i = cantidad-1; i >= 0; i--)
 		downheap(elementos,cantidad,cmp,i);
 
