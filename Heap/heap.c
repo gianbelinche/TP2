@@ -80,7 +80,7 @@ void downheap(void* elementos[], size_t cantidad, cmp_func_t cmp, size_t pos){
 	}
 }
 
-void upheap(void* elementos[], size_t cantidad, cmp_func_t cmp, size_t pos){
+void upheap(void* elementos[],size_t cantidad, cmp_func_t cmp, size_t pos){
 	if(!cantidad) return;
 	int pos_padre = PADRE(pos);
 
@@ -158,8 +158,10 @@ void* heap_desencolar(heap_t *heap){
 	if (!heap || heap->cantidad == 0) return NULL;
 	swap(heap -> elementos, heap -> elementos + heap -> cantidad - 1);
 	(heap -> cantidad)--;
-	downheap(heap -> elementos, heap -> cantidad - 1, heap -> cmp,0);
-	return heap -> elementos[heap -> cantidad];
+	downheap(heap -> elementos, heap -> cantidad, heap -> cmp,0); 
+	void* elem = heap -> elementos[heap -> cantidad];
+	heap -> elementos[heap -> cantidad] = NULL;
+	return elem;
 }
 
 size_t heap_cantidad(const heap_t *heap){
