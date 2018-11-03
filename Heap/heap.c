@@ -19,7 +19,7 @@ typedef int (*cmp_func_t) (const void* a,const void* b);
 typedef struct heap{
 	void** elementos;
 	size_t cantidad;
-    size_t capacidad;
+	size_t capacidad;
 	cmp_func_t cmp;
 } heap_t;
 
@@ -45,7 +45,7 @@ int obtener_pos_hijo_mayor(void* elementos[], size_t cantidad, cmp_func_t cmp, s
 	int hijo_der = HIJO_DER(pos);
 	int hijo_izq = HIJO_IZQ(pos);
 
-	if(cantidad) return -1;
+	if(hijo_der > cantidad) return -1;
 
 	if(cmp(elementos[hijo_der],elementos[hijo_izq]) > 0)
 		return hijo_der;
@@ -91,7 +91,7 @@ heap_t* heap_crear(cmp_func_t cmp){
 	heap -> elementos = elementos;
 	heap -> cantidad = 0;
 	heap -> cmp = cmp;
-    heap -> capacidad = TAM_INICIAL;
+	heap -> capacidad = TAM_INICIAL;
 	return heap;
 }
 
@@ -140,7 +140,7 @@ void* heap_desencolar(heap_t *heap){
 	if (!heap || heap->cantidad == 0) return NULL;
 	swap(heap -> elementos, heap -> elementos + heap -> cantidad);
 	heap -> cantidad--;
-	downheap(heap -> elementos, heap -> cantidad, heap -> cmp,0);
+	upheap(heap -> elementos, heap -> cantidad, heap -> cmp,0);
 	return heap -> elementos[heap -> cantidad + 1];
 }
 
@@ -155,7 +155,7 @@ bool heap_esta_vacio(const heap_t *heap){
 }
 
 void heap_sort(void *elementos[], size_t cantidad, cmp_func_t cmp){
-	//i = cantidad -1 puede fallar
+	if (cantidad == 0) return;  //i = cantidad -1 puede fallar
 	for(int i = cantidad-1; i >= 0; i--)
 		downheap(elementos,cantidad,cmp,i);
 
@@ -164,6 +164,7 @@ void heap_sort(void *elementos[], size_t cantidad, cmp_func_t cmp){
 		upheap(elementos,cantidad,cmp,0);
 	}
 }
+<<<<<<< HEAD
 
 void heap_destruir(heap_t *heap, void destruir_elemento(void *elementos))
 {
@@ -174,3 +175,5 @@ void heap_destruir(heap_t *heap, void destruir_elemento(void *elementos))
 	free(heap -> elementos);
 	free(heap);
 }
+=======
+>>>>>>> 7683b0e669dc987e82ff65ebb5f057e357fe3dab

@@ -7,7 +7,13 @@
 #include "pila.h"
 #include "abb.h"
 
-
+/*        __________
+          |I'm back|
+         / ________|
+		  /		
+	(O.O)                                	
+    (   )	
+     - -                                                              */
 // -_-_-_-_-_-_-_-_  DEFINICION DE  TIPOS DE DATO  _-_-_-_-_-_-_-_-_- //
 
 typedef int (*abb_comparar_clave_t) (const char *, const char *);
@@ -35,19 +41,24 @@ struct abb_iter{
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
 
-nodo_t* abb_crear_nodo(){
+nodo_t* abb_crear_nodo(const char* clave, void* dato){
 	nodo_t* nodo = calloc(1, sizeof(nodo_t));
 	if(!nodo) return NULL;
+
+	nodo -> clave = strdup(clave);
+	nodo -> dato = dato;
+	nodo -> izq = NULL;
+	nodo -> der = NULL;
 
 	return nodo;
 }
 
 bool abb_raiz_esta_vacia(abb_t* abb){
-	return (!abb -> raiz || !abb -> raiz -> clave);
+	return (!abb -> raiz);
 }
 
 nodo_t* _abb_buscar(const nodo_t* nodo,const char* clave,abb_comparar_clave_t cmp){
-	if(!nodo || !(nodo -> clave)) return NULL;
+	if(!nodo) return NULL;
 
 	if( cmp(nodo -> clave,clave) == 0)
 		return (nodo_t*) nodo;
@@ -106,13 +117,7 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
 	abb_t* abb = calloc(1, sizeof(abb_t));
 	if(!abb) return NULL;
 
-	nodo_t* raiz = abb_crear_nodo();
-	if(!raiz){
-		free(abb);
-		return NULL;
-	}
-
-	abb -> raiz = raiz;
+	abb -> raiz = NULL;
 	abb -> cmp = cmp; 
 	abb -> destruir_dato = destruir_dato;
 	return abb;
@@ -121,52 +126,62 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
 bool abb_guardar(abb_t* abb, const char *clave, void *dato){
 	nodo_t* padre = abb_obtener_padre(abb,clave);
 	nodo_t* hijo;
+	bool esta_repetido = true;
 
 	// Si es la raíz
 	if (!padre){
-		hijo = abb -> raiz;
+		hijo = abb->raiz;
+		if (!abb->raiz){
+			esta_repetido = false;
+			hijo = abb_crear_nodo(clave,dato);
+		}
+		abb -> raiz = hijo;	
 	}
-	else if(!padre -> clave || abb -> cmp(padre -> clave,clave) == 0){
+	else if(abb -> cmp(padre -> clave,clave) == 0){
 		hijo = padre;
+		esta_repetido = false;
 	}
 	else{
 		if(abb -> cmp(padre -> clave,clave) < 0){
-			if (!padre -> der)
-				padre -> der = abb_crear_nodo();
+			if (!padre -> der){
+				padre -> der = abb_crear_nodo(clave,dato);
+				esta_repetido = false;
+			}
 			hijo = padre -> der;
 		}
 		else{
-			if (!padre -> izq)
-				padre -> izq = abb_crear_nodo();
+			if (!padre -> izq){
+				esta_repetido = false;
+				padre -> izq = abb_crear_nodo(clave,dato);
+			}
 			hijo = padre -> izq;
 		}
-
-		if(!hijo) return false;
 	}
 
-	if (!hijo -> clave)
-		(abb -> cantidad)++;
-	else{
-		free(hijo -> clave);
+	if(!hijo) return false;
+
+	if((padre && abb -> cmp(padre -> clave,clave) == 0) || esta_repetido){
 		if (abb -> destruir_dato)
 			abb -> destruir_dato(hijo -> dato);
+		hijo -> dato = dato;
+	}	
+	else{
+		(abb -> cantidad)++;
 	}
 
-	hijo -> clave = strdup(clave);
-	hijo -> dato = dato;
 	return true;
 }
 
 void* abb_obtener(const abb_t* abb,const char* clave){
 	nodo_t* nodo = abb_buscar(abb,clave);
-	if (!nodo || !nodo -> clave) return NULL;
+	if (!nodo) return NULL;
 	return nodo -> dato;
 }
 
 
 bool abb_pertenece(const abb_t* abb,const char* clave){
 	nodo_t* nodo = abb_buscar(abb,clave);
-	return !(!nodo || !nodo -> clave);
+	return !(!nodo);
 }
 
 
@@ -179,8 +194,8 @@ void _abb_destruir(nodo_t* nodo, abb_destruir_dato_t destruir_dato){
 	if (!nodo) return;
 	_abb_destruir(nodo -> izq,destruir_dato);
 	_abb_destruir(nodo -> der,destruir_dato);
-	if (nodo -> clave)
-		free(nodo -> clave);
+
+	free(nodo -> clave);
 
 	if (destruir_dato && nodo -> dato)
 			destruir_dato(nodo -> dato);
@@ -193,29 +208,18 @@ void abb_destruir(abb_t* abb){
 	free(abb);
 }
 
-void abb_borrar_un_hijo(nodo_t* padre,nodo_t* hijo,abb_destruir_dato_t destruir_dato){
+void abb_borrar_un_hijo(nodo_t* padre,nodo_t* hijo,abb_destruir_dato_t destruir_dato,abb_t* abb){
 	if (!padre){
 		free(hijo -> clave);
 		if (destruir_dato)
 			destruir_dato(hijo -> dato);
 		if (hijo -> izq){
-			hijo -> clave = hijo -> izq -> clave;
-			hijo -> dato = hijo -> izq -> dato;
-			nodo_t* izq = hijo -> izq;
-			hijo -> izq = izq -> izq;
-			hijo -> der = izq -> der;
-			if (izq)
-				free(izq);
+			abb->raiz = hijo->izq;
 		}
 		else{
-			hijo -> clave = hijo -> der -> clave;
-			hijo -> dato = hijo -> der -> dato;
-			nodo_t* der = hijo -> der;
-			hijo -> izq = der -> izq;
-			hijo -> der = der -> der;
-			if (der)
-				free(der);
+			abb->raiz = hijo->der;
 		}
+		free(hijo);
 		return;
 
 	}
@@ -237,10 +241,10 @@ void abb_borrar_un_hijo(nodo_t* padre,nodo_t* hijo,abb_destruir_dato_t destruir_
 	free(hijo);
 }
 
-void abb_borrar_sin_hijos(nodo_t* padre,nodo_t* hijo,abb_destruir_dato_t destruir_dato){
-	if (!padre || !padre -> clave){
-		free(hijo -> clave);
-		hijo -> clave = NULL;
+void abb_borrar_sin_hijos(nodo_t* padre,nodo_t* hijo,abb_destruir_dato_t destruir_dato,abb_t* abb){
+	if (!padre){
+		_abb_destruir(hijo,destruir_dato);
+		abb->raiz = NULL;
 		return;
 	}	
 	if (padre -> izq == hijo) 
@@ -263,18 +267,18 @@ void abb_borrar_dos_hijos(nodo_t* nodo,abb_t* abb){
 
 void* abb_borrar(abb_t* abb,const char* clave){
 	nodo_t* nodo = abb_buscar(abb,clave);
-	if (!nodo || !nodo -> clave) return NULL;
+	if (!nodo) return NULL;
 	nodo_t* padre = abb_obtener_padre(abb,clave);
 	void* dato = nodo -> dato;
 	if (!nodo -> izq && !nodo -> der)
-		abb_borrar_sin_hijos(padre,nodo,abb -> destruir_dato);
+		abb_borrar_sin_hijos(padre,nodo,abb -> destruir_dato,abb);
 	else if (nodo -> izq && nodo -> der)
 	{
 		abb_borrar_dos_hijos(nodo,abb);
 		abb -> cantidad++;
 	}
 	else
-		abb_borrar_un_hijo(padre,nodo,abb -> destruir_dato);
+		abb_borrar_un_hijo(padre,nodo,abb -> destruir_dato,abb);
 	abb -> cantidad --;
 	return dato;
 }
@@ -356,3 +360,9 @@ void abb_iter_in_destruir(abb_iter_t* iter){
 	pila_destruir(iter -> pila);
 	free(iter);
 }
+
+
+/*                                                         Z z
+                                                    (-.-) z
+                                                    (   )             */                                                    
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_ //
