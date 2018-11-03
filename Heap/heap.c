@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -96,7 +95,7 @@ heap_t* heap_crear(cmp_func_t cmp){
 	return heap;
 }
 
-heap_t* heap_crear_elementos(void* arreglo[], size_t n, cmp_func_t cmp){
+heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp){
 
 	heap_t* heap = malloc(sizeof(heap_t));
 	if (!heap) return NULL;
@@ -125,13 +124,14 @@ void* heap_ver_max(const heap_t *heap){
 	return heap -> elementos[0];
 }
 
-bool encolar(heap_t* heap, void* dato){
+bool heap_encolar(heap_t* heap, void* dato){
 
-	if( (heap -> cantidad /heap -> capacidad) > FACTOR_CARGA && redimensionar(heap))
+	if( (heap -> cantidad /heap -> capacidad) > FACTOR_CARGA && !redimensionar(heap))
 		return false;
 
 	heap->elementos[heap->cantidad] = dato;
-	downheap(heap -> elementos, heap -> cantidad, heap -> cmp,heap -> cantidad);
+	upheap(heap -> elementos, heap -> cantidad, heap -> cmp,heap -> cantidad);
+	(heap -> cantidad)++;
 	return true;
 }
 
@@ -163,4 +163,14 @@ void heap_sort(void *elementos[], size_t cantidad, cmp_func_t cmp){
 		swap(&elementos[0],&elementos[i]);
 		upheap(elementos,cantidad,cmp,0);
 	}
+}
+
+void heap_destruir(heap_t *heap, void destruir_elemento(void *elementos))
+{
+	if(destruir_elemento)
+		for(int i = 0;i < heap -> cantidad; i++)
+			destruir_elemento(heap -> elementos[i]);
+
+	free(heap -> elementos);
+	free(heap);
 }
