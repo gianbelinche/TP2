@@ -48,11 +48,11 @@ nodo_t* abb_crear_nodo(const char* clave, void* dato){
 }
 
 bool abb_raiz_esta_vacia(abb_t* abb){
-	return (!abb -> raiz || !abb -> raiz -> clave);
+	return (!abb -> raiz);
 }
 
 nodo_t* _abb_buscar(const nodo_t* nodo,const char* clave,abb_comparar_clave_t cmp){
-	if(!nodo || !(nodo -> clave)) return NULL;
+	if(!nodo) return NULL;
 
 	if( cmp(nodo -> clave,clave) == 0)
 		return (nodo_t*) nodo;
@@ -168,14 +168,14 @@ bool abb_guardar(abb_t* abb, const char *clave, void *dato){
 
 void* abb_obtener(const abb_t* abb,const char* clave){
 	nodo_t* nodo = abb_buscar(abb,clave);
-	if (!nodo || !nodo -> clave) return NULL;
+	if (!nodo) return NULL;
 	return nodo -> dato;
 }
 
 
 bool abb_pertenece(const abb_t* abb,const char* clave){
 	nodo_t* nodo = abb_buscar(abb,clave);
-	return !(!nodo || !nodo -> clave);
+	return !(!nodo);
 }
 
 
@@ -188,8 +188,8 @@ void _abb_destruir(nodo_t* nodo, abb_destruir_dato_t destruir_dato){
 	if (!nodo) return;
 	_abb_destruir(nodo -> izq,destruir_dato);
 	_abb_destruir(nodo -> der,destruir_dato);
-	if (nodo -> clave)
-		free(nodo -> clave);
+
+	free(nodo -> clave);
 
 	if (destruir_dato && nodo -> dato)
 			destruir_dato(nodo -> dato);
