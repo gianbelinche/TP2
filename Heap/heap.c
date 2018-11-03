@@ -4,9 +4,9 @@
 
 // -_-_-_-_-_-_-_-_-_-_-_-_-_-_  MACROS  _-_-_-_-_-_-_-_-_-_-_-_-_-_- //
 
-#define PADRE(x)      (x + 1)/2
-#define HIJO_DER(x)   2*x + 1
-#define HIJO_IZQ(x)   2*x + 2
+#define PADRE(x)      (x - 1)/2
+#define HIJO_DER(x)   2*x + 2
+#define HIJO_IZQ(x)   2*x + 1
 
 #define TAM_INICIAL  32
 #define FACTOR_CARGA 70
@@ -126,7 +126,7 @@ void* heap_ver_max(const heap_t *heap){
 
 bool heap_encolar(heap_t* heap, void* dato){
 
-	if( (heap -> cantidad /heap -> capacidad) > FACTOR_CARGA && !redimensionar(heap))
+	if( ((heap -> cantidad /heap -> capacidad)*100) > FACTOR_CARGA && !redimensionar(heap))
 		return false;
 
 	heap->elementos[heap->cantidad] = dato;
@@ -164,7 +164,6 @@ void heap_sort(void *elementos[], size_t cantidad, cmp_func_t cmp){
 		upheap(elementos,cantidad,cmp,0);
 	}
 }
-<<<<<<< HEAD
 
 void heap_destruir(heap_t *heap, void destruir_elemento(void *elementos))
 {
@@ -175,5 +174,4 @@ void heap_destruir(heap_t *heap, void destruir_elemento(void *elementos))
 	free(heap -> elementos);
 	free(heap);
 }
-=======
->>>>>>> 7683b0e669dc987e82ff65ebb5f057e357fe3dab
+
