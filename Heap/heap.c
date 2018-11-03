@@ -40,35 +40,51 @@ void swap (void** x, void** y){
 	*y = z;
 }
 
-int obtener_pos_hijo_mayor(void* elementos[], size_t cantidad, cmp_func_t cmp, size_t pos){
-
-	int hijo_der = HIJO_DER(pos);
-	int hijo_izq = HIJO_IZQ(pos);
-
-	if(hijo_der > cantidad) return -1;
-
-	if(cmp(elementos[hijo_der],elementos[hijo_izq]) > 0)
-		return hijo_der;
-
-	return hijo_izq;
-}
-
 void downheap(void* elementos[], size_t cantidad, cmp_func_t cmp, size_t pos){
+	
+	size_t hijo_der = HIJO_DER(pos);
+	size_t hijo_izq = HIJO_IZQ(pos);
+	size_t hijo_mayor;
 
-	int pos_hijo_mayor = obtener_pos_hijo_mayor(elementos,cantidad,cmp,pos);
+	if(hijo_der > cantidad)
+	{
+		if(hijo_izq > cantidad)
+			return;
+		else
+			hijo_mayor = HIJO_IZQ(pos);
+	}
+	else
+	{
+			hijo_mayor = (cmp(elementos[hijo_der],elementos[hijo_izq]) > 0) ? hijo_der : hijo_izq;
+	}
 
-	while(pos_hijo_mayor >= 0 && cmp(elementos[pos_hijo_mayor],elementos[pos]) > 0){
-		swap(elementos + pos_hijo_mayor, elementos + pos);
-		pos = pos_hijo_mayor;
-		pos_hijo_mayor = obtener_pos_hijo_mayor(elementos,cantidad,cmp,pos);
+	while(cmp(elementos[pos],elementos[hijo_mayor]) < 0)
+	{
+		swap(&elementos[pos],&elementos[hijo_mayor]);
+		pos = hijo_mayor;
+
+		hijo_der = HIJO_DER(pos);
+		hijo_izq = HIJO_IZQ(pos);
+
+		if(hijo_der > cantidad)
+		{
+			if(hijo_izq > cantidad)
+				return;
+			else
+				hijo_mayor = HIJO_IZQ(pos);
+		}
+		else
+		{
+			hijo_mayor = (cmp(elementos[hijo_der],elementos[hijo_izq]) > 0) ? hijo_der : hijo_izq;
+		}
 	}
 }
 
 void upheap(void* elementos[], size_t cantidad, cmp_func_t cmp, size_t pos){
-
+	if(!cantidad) return;
 	int pos_padre = PADRE(pos);
 
-	while(pos_padre != pos && cmp(elementos[pos_padre], elementos[pos])){
+	while(pos_padre != pos && pos_padre > 0 && cmp(elementos[pos_padre], elementos[pos]) < 0){
 		swap(elementos + pos_padre, elementos + pos);
 		pos = pos_padre;
 		pos_padre = PADRE(pos);
@@ -139,8 +155,8 @@ void* heap_desencolar(heap_t *heap){
 
 	if (!heap || heap->cantidad == 0) return NULL;
 	swap(heap -> elementos, heap -> elementos + heap -> cantidad);
-	heap -> cantidad--;
-	upheap(heap -> elementos, heap -> cantidad, heap -> cmp,0);
+	(heap -> cantidad)--;
+	downheap(heap -> elementos, heap -> cantidad, heap -> cmp,0);
 	return heap -> elementos[heap -> cantidad + 1];
 }
 
