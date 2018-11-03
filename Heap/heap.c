@@ -33,6 +33,17 @@ bool redimensionar(heap_t* heap){
 	return true;
 }
 
+void swap(void** elementos,size_t pos1,size_t pos2){
+	void * aux = elementos[pos1];
+	elementos[pos1] = elementos[pos2];
+	elementos[pos2] = aux;
+}
+
+/* 
+-----------------------------------------------------------------------------------
+							EN CUARENTENA TEMPORAL
+-----------------------------------------------------------------------------------
+
 void swap (void** x, void** y){
 
 	void* z = *x;
@@ -89,6 +100,49 @@ void upheap(void* elementos[],size_t cantidad, cmp_func_t cmp, size_t pos){
 		pos = pos_padre;
 		pos_padre = PADRE(pos);
 	}
+}
+
+-----------------------------------------------------------------------------------
+							EN CUARENTENA TEMPORAL
+-----------------------------------------------------------------------------------
+
+*/
+
+size_t max(void** elementos,size_t elem1, size_t elem2, cmp_func_t cmp){
+	if (cmp(elementos[elem1],elementos[elem2]) > 0 ) return elem1;
+	return elem2;
+}
+void downheap(void* elementos[],size_t cantidad,cmp_func_t cmp,size_t pos){
+	size_t hijo_izq = HIJO_IZQ(pos);
+	size_t hijo_der = HIJO_DER(pos);
+	size_t hijo;
+	if (hijo_der >= cantidad && hijo_izq >= cantidad) return;
+	if (hijo_der >= cantidad){
+		if (cmp(elementos[pos],elementos[hijo_izq]) > 0)
+			return;
+		hijo = hijo_izq;
+	}
+	else if (hijo_izq >= cantidad){
+		if (cmp(elementos[pos],elementos[hijo_der]) > 0)
+			return;
+		hijo = hijo_der;
+	}
+	else
+		hijo = max(elementos,hijo_izq,hijo_der,cmp);
+	swap(elementos,pos,hijo);
+	downheap(elementos,cantidad,cmp,hijo);
+
+}
+
+
+void upheap(void* elementos[],size_t cantidad, cmp_func_t cmp, size_t pos){
+	if (cantidad == 1 || pos==0) return;
+	size_t padre = PADRE(pos);
+	if ( cmp(elementos[pos],elementos[padre]) > 0){
+		swap(elementos,pos,padre);
+		upheap(elementos,cantidad,cmp,padre);
+	}
+
 }
 
 // -_-_-_-_-_-_-_-_-_-_-   PRIMITIVAS DEL HEAP  -_-_-_-_-_-_-_-_-_-_- //
@@ -148,15 +202,16 @@ bool heap_encolar(heap_t* heap, void* dato){
 		return false;
 
 	heap->elementos[heap->cantidad] = dato;
-	upheap(heap -> elementos, heap -> cantidad, heap -> cmp,heap -> cantidad);
 	(heap -> cantidad)++;
+	upheap(heap -> elementos, heap -> cantidad, heap -> cmp,heap -> cantidad-1);
+	
 	return true;
 }
 
 void* heap_desencolar(heap_t *heap){
 
 	if (!heap || heap->cantidad == 0) return NULL;
-	swap(heap -> elementos, heap -> elementos + heap -> cantidad - 1);
+	swap(heap -> elementos,0,heap -> cantidad - 1);
 	(heap -> cantidad)--;
 	downheap(heap -> elementos, heap -> cantidad, heap -> cmp,0); 
 	void* elem = heap -> elementos[heap -> cantidad];
@@ -180,7 +235,7 @@ void heap_sort(void *elementos[], size_t cantidad, cmp_func_t cmp){
 		downheap(elementos,cantidad,cmp,i);
 
 	for(int i = cantidad; i >= 0; i--){
-		swap(&elementos[0],&elementos[i]);
+		swap(elementos,0,i);
 		upheap(elementos,cantidad,cmp,0);
 	}
 }
