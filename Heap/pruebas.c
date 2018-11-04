@@ -54,7 +54,6 @@ static void prueba_heap_insertar(){
     heap_destruir(heap,NULL);
 }
 
-/*
 static void prueba_heap_volumen(size_t largo){
     puts("PRUEBA HEAP VOLUMEN");
     heap_t* heap = heap_crear(cmp);
@@ -74,7 +73,6 @@ static void prueba_heap_volumen(size_t largo){
 	heap_destruir(heap,NULL);
 
 }
-*/
 
 
 static void prueba_heap_arr(){
@@ -140,6 +138,80 @@ static void prueba_crear_arr_vacio(){
 
 }
 
+static void prueba_heap_arr_vacio_insertar(){
+    puts("PRUEBA INSERTAR CON ARR VACIO");
+    void* valores[] = {};
+
+    heap_t* heap = heap_crear_arr(valores,0,cmp);
+
+    int i = 2, j = 1, k = 3;
+    print_test("Elemento encolado correctamente",heap_encolar(heap,&i));
+    print_test("Elemento encolado correctamente",heap_encolar(heap,&j));
+    print_test("Elemento encolado correctamente",heap_encolar(heap,&k));
+
+    print_test("El heap no esta vacio",!heap_esta_vacio(heap));
+    print_test("Elemento desencolado con prioridad correcta",heap_desencolar(heap) == &k);
+    print_test("El heap no esta vacio",!heap_esta_vacio(heap));
+    print_test("Elemento desencolado con prioridad correcta",heap_desencolar(heap) == &i);
+    print_test("El heap no esta vacio",!heap_esta_vacio(heap));
+    print_test("Elemento desencolado con prioridad correcta",heap_desencolar(heap) == &j);
+    print_test("El heap esta vacio",heap_esta_vacio(heap));
+    print_test("No se puede desencolar el heap vacio",!heap_desencolar(heap));
+
+    heap_destruir(heap,NULL);
+}
+
+static void prueba_heap_arr_insertar(){
+    puts("PRUEBA HEAP ARR INSERTAR");
+    int  valores [] = {10,9,8,4,5,8,3,1,7,6};
+    int  mas_valores[] = {10,9,8,4,5,8,3,1,7,6,1,12,45,78};
+    char msg[30];
+
+    void* punteros[10];
+
+    for(int i = 0;i < 10;i++)
+        punteros[i] = &valores[i];
+
+    heap_t* heap = heap_crear_arr(punteros, 10, cmp);
+    print_test("Se crea exitosamente el heap",heap);
+
+    for(int i = 0; i < 10; i++){
+            heap_encolar(heap,&mas_valores[i]);
+            sprintf(msg,"Inserto valor %i",i + 1);
+            print_test(msg,heap_cantidad(heap) == i + 11);
+    }
+
+    print_test("Se cumple la condicion de heap",cumple_condicion_heap(heap,cmp));
+    heap_destruir(heap,NULL);
+}
+
+static void prueba_heap_arr_volumen(size_t largo){
+
+    puts("PRUEBA HEAP ARR VOLUMEN");
+    int  valores [] = {10,9,8,4,5,8,3,1,7,6};
+    int mas_valores[largo];
+
+    void* punteros[10];
+
+    for(int i = 0;i < 10;i++)
+        punteros[i] = &valores[i];
+
+    heap_t* heap = heap_crear_arr(punteros, 10, cmp);
+    print_test("Se crea exitosamente el heap",heap);
+
+    bool ok = true;
+
+    for(int i = 0; i < largo;i++){
+        valores[i] = rand();
+        ok = heap_encolar(heap,&mas_valores[i]) && ok;
+    }
+
+    print_test("Almacenar muchos elementos", ok);
+    print_test("La cantidad de elementos es correcta", heap_cantidad(heap) == largo);
+    print_test("Se cumple la condicion de heap",cumple_condicion_heap(heap,cmp));
+    print_test("La cantidad de elementos es 0", heap_cantidad(heap) == 0);
+    heap_destruir(heap,NULL);
+}
 static void prueba_heapsort(){
     puts("PRUEBA HEAPSORT");
 
@@ -176,39 +248,20 @@ static void prueba_heapsort(){
     print_test("El arreglo se ordena exitosamente",ok);
 }
 
-static void prueba_insertar_con_arr_vacio(){
-    puts("PRUEBA INSERTAR CON ARR VACIO");
-    void* valores[] = {};
-
-    heap_t* heap = heap_crear_arr(valores,0,cmp);
-
-    int i = 2, j = 1, k = 3;
-    print_test("Elemento encolado correctamente",heap_encolar(heap,&i));
-    print_test("Elemento encolado correctamente",heap_encolar(heap,&j));
-    print_test("Elemento encolado correctamente",heap_encolar(heap,&k));
-
-    print_test("El heap no esta vacio",!heap_esta_vacio(heap));
-    print_test("Elemento desencolado con prioridad correcta",heap_desencolar(heap) == &k);
-    print_test("El heap no esta vacio",!heap_esta_vacio(heap));
-    print_test("Elemento desencolado con prioridad correcta",heap_desencolar(heap) == &i);
-    print_test("El heap no esta vacio",!heap_esta_vacio(heap));
-    print_test("Elemento desencolado con prioridad correcta",heap_desencolar(heap) == &j);
-    print_test("El heap esta vacio",heap_esta_vacio(heap));
-    print_test("No se puede desencolar el heap vacio",!heap_desencolar(heap));
-
-    heap_destruir(heap,NULL);
-}
-
 
 
 void pruebas_heap_alumno(){
-	srand((unsigned) clock());
+    srand((unsigned) clock());
     prueba_heap_crear_vacio();
     prueba_heap_insertar();
     prueba_heap_elementos_iguales();
-    //prueba_heap_volumen(5000);
+    prueba_heap_volumen(5000);
+
     prueba_crear_arr_vacio();
+    prueba_heap_arr_vacio_insertar();
     prueba_heap_arr();
+    prueba_heap_arr_insertar();
+    prueba_heap_arr_volumen(5000);
+
     prueba_heapsort();
-    prueba_insertar_con_arr_vacio();
 }
