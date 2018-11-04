@@ -64,35 +64,10 @@ void downheap(void* elementos[],size_t cantidad,cmp_func_t cmp,size_t pos){
             return;
         
     }
+    
     swap(elementos,pos,hijo_mayor);
     downheap(elementos,cantidad,cmp,hijo_mayor);
 }
-/*
-void downheap(void* elementos[],size_t cantidad,cmp_func_t cmp,size_t pos){
-	size_t hijo_izq = HIJO_IZQ(pos);
-	size_t hijo_der = HIJO_DER(pos);
-	size_t hijo;
-	if (hijo_der >= cantidad && hijo_izq >= cantidad) return;
-	if (hijo_der >= cantidad){
-		if (cmp(elementos[pos],elementos[hijo_izq]) > 0)
-			return;
-		hijo = hijo_izq;
-	}
-	else if (hijo_izq >= cantidad){
-		if (cmp(elementos[pos],elementos[hijo_der]) > 0)
-			return;
-		hijo = hijo_der;
-	}
-	else{
-		if (cmp(elementos[pos],elementos[hijo_der]) > 0 && cmp(elementos[pos],elementos[hijo_izq]) > 0)
-			return;
-		hijo = max(elementos,hijo_izq,hijo_der,cmp);
-	}
-	swap(elementos,pos,hijo);
-	downheap(elementos,cantidad,cmp,hijo);
-}
-
-*/
 
 void upheap(void* elementos[],size_t cantidad, cmp_func_t cmp, size_t pos){
 	if (cantidad == 1 || pos==0) return;
@@ -171,9 +146,11 @@ bool heap_encolar(heap_t* heap, void* dato){
 void* heap_desencolar(heap_t *heap){
 
 	if (!heap || heap -> cantidad == 0) return NULL;
+
 	swap(heap -> elementos,0,heap -> cantidad - 1);
 	(heap -> cantidad)--;
-	downheap(heap -> elementos, heap -> cantidad, heap -> cmp,0); 
+	downheap(heap -> elementos, heap -> cantidad, heap -> cmp,0);
+
 	void* elem = heap -> elementos[heap -> cantidad];
 	heap -> elementos[heap -> cantidad] = NULL;
 	return elem;
@@ -190,15 +167,15 @@ bool heap_esta_vacio(const heap_t *heap){
 }
 
 void heap_sort(void *elementos[], size_t cantidad, cmp_func_t cmp){
-	if (cantidad < 2) return;  //i = cantidad -1 puede fallar
-	for(int i = cantidad-1; i >= 0; i--)
+	if (cantidad < 2) return;
+
+	for(int i = cantidad - 1; i >= 0; i--)
 		downheap(elementos,cantidad,cmp,i);
-	int i = cantidad - 1;
-	int k = 1;
-	for(; i >= 0; i--){
+	
+	for(int i = cantidad - 1; i >= 0; i--){
 		swap(elementos,0,i);
-		downheap(elementos,cantidad-k,cmp,0);
-		k++;
+		downheap(elementos,cantidad - 1,cmp,0);
+		cantidad--;
 	}
 }
 
@@ -212,15 +189,9 @@ void heap_destruir(heap_t *heap, void destruir_elemento(void *elementos)){
 }
 
 
-
-/*
-
-
-       ("`-'  '-/") .___..--' ' "`-._
+/*     ("`-'  '-/") .___..--' ' "`-._
          ` O_ O  )    `-.   (      ) .`-.__. `)
          (_Y_.) ' ._   )   `._` ;  `` -. .-'
-      _.. `--'_..-_/   /--' _ .' ,)
-   ( i l ),-''  ( l i),'  ( ( ! .-'  
-
-
-*/
+      _.. `--'_..-_/   /--' _ .' ,(
+   ( i l ),-''  ( l i),'  ( ( ! .-'                             */
+// -_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-  //
