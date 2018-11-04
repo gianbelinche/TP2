@@ -29,7 +29,7 @@ bool cumple_condicion_heap(heap_t* heap, cmp_func_t cmpx)
 	return true;
 }
 
-static void prueba_crear_heap_vacio(){
+static void prueba_heap_crear_vacio(){
      puts("PRUEBA HEAP CREAR VACIO");
      heap_t* heap = heap_crear(cmp);
      print_test("El heap está vacío", heap_esta_vacio(heap));
@@ -144,15 +144,52 @@ static void prueba_crear_arr_vacio(){
 
 }
 
+static void prueba_heapsort()
+{
+    puts("PRUEBA HEAPSORT");
+
+    bool ok = true;
+
+    int decena[]              = {10,9,8,4,5,8,3,1,7,6};
+    int decena_ordenado[]     = {1,2,3,4,5,6,7,8,9,10};
+
+    int fibonnaci[]           = {1,34,55,5,8,13,3,1,2,21};
+    int fibonnaci_ordenado[]  = {1,1,2,3,5,8,13,21,34,55};
+
+    void* punteros[10];
+
+    for(int i = 0;i < 10;i++)
+        punteros[i] = &decena[i];
+
+    heap_sort(punteros,10,cmp);
+
+    for(int i = 0;i < 10;i++)
+        if(*((int*)punteros[i]) != decena_ordenado[i])
+            ok = false;
+
+    print_test("El arreglo se ordena exitosamente",ok);
+
+    for(int i = 0;i < 10;i++)
+        punteros[i] = &fibonnaci[i];
+
+    heap_sort(punteros,10,cmp);
+
+    for(int i = 0;i < 10;i++)
+        if(*((int*)punteros[i]) != fibonnaci_ordenado[i])
+            ok = false;
+
+    print_test("El arreglo se ordena exitosamente",ok);
+}
 
 
 
 void pruebas_heap_alumno(){
 	srand((unsigned) clock());
-    prueba_crear_heap_vacio();
+    prueba_heap_crear_vacio();
     prueba_heap_insertar();
-    prueba_heap_arr();
     prueba_heap_elementos_iguales();
     prueba_heap_volumen(5000);
     prueba_crear_arr_vacio();
+    prueba_heap_arr();
+    prueba_heapsort();
 }
