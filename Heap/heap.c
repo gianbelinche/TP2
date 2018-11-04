@@ -119,7 +119,7 @@ heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp){
 	heap -> cantidad = n;
 	heap -> cmp = cmp;
 
-	for (int i = n;i > 0;i--)
+	for (size_t i = n;i > 0;i--)
 		downheap(heap -> elementos, heap -> cantidad, heap -> cmp,i-1);
 
 	return heap;
@@ -169,10 +169,10 @@ bool heap_esta_vacio(const heap_t *heap){
 void heap_sort(void *elementos[], size_t cantidad, cmp_func_t cmp){
 	if (cantidad < 2) return;
 
-	for(int i = cantidad - 1; i >= 0; i--)
+	for(size_t i = cantidad - 1; i >= 0; i--)
 		downheap(elementos,cantidad,cmp,i);
 	
-	for(int i = cantidad - 1; i >= 0; i--){
+	for(size_t i = cantidad - 1; i >= 0; i--){
 		swap(elementos,0,i);
 		downheap(elementos,cantidad - 1,cmp,0);
 		cantidad--;
