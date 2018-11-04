@@ -105,7 +105,11 @@ heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp){
 	heap_t* heap = malloc(sizeof(heap_t));
 	if (!heap) return NULL;
 
-	void** elementos = malloc(sizeof(void*) * n * FACTOR_REDIMENSION);
+	size_t tam = n;
+	if (n == 0)
+		tam = TAM_INICIAL;
+
+	void** elementos = malloc(sizeof(void*) * tam * FACTOR_REDIMENSION);
 	if (!elementos){
 		free(heap);
 		return NULL;
@@ -115,7 +119,7 @@ heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp){
 		elementos[i] = arreglo[i];
 
 	heap -> elementos = elementos;
-	heap -> capacidad = n * FACTOR_REDIMENSION;
+	heap -> capacidad = tam * FACTOR_REDIMENSION;
 	heap -> cantidad = n;
 	heap -> cmp = cmp;
 
