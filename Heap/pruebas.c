@@ -15,11 +15,9 @@ int cmp (const void* x,const void* y){
 	return *(int*)x - *(int*)y;
 }
 
-bool cumple_condicion_heap(heap_t* heap, cmp_func_t cmpx)
-{
+bool cumple_condicion_heap(heap_t* heap, cmp_func_t cmpx){
 	void* anterior = heap_desencolar(heap);
-	while(!heap_esta_vacio(heap))
-	{
+	while(!heap_esta_vacio(heap)){
 		if(cmpx(anterior,heap_ver_max(heap)) < 0)
 			return false;
 
@@ -46,8 +44,7 @@ static void prueba_heap_insertar(){
     int  valores[] = {10,9,8,4,5,8,3,1,7,6,1,12,45,78};
     char msg[30];
 
-    for(int i = 0; i < 10; i++)
-    {
+    for(int i = 0; i < 10; i++){
     		heap_encolar(heap,&valores[i]);
     	    sprintf(msg,"Inserto valor %i",i + 1);
     	    print_test(msg,heap_cantidad(heap) == i + 1 && !heap_esta_vacio(heap));
@@ -65,8 +62,7 @@ static void prueba_heap_volumen(size_t largo){
     int valores[largo];
     bool ok = true;
 
-    for(int i = 0; i < largo;i++)
-    {
+    for(int i = 0; i < largo;i++){
     	valores[i] = rand();
     	ok = heap_encolar(heap,&valores[i]) && ok;
     }
@@ -80,8 +76,7 @@ static void prueba_heap_volumen(size_t largo){
 }
 
 
-static void prueba_heap_arr()
-{
+static void prueba_heap_arr(){
 	puts("PRUEBA HEAP ARR");
 	int  valores[10] = {10,9,8,4,5,8,3,1,7,6};
 	void* punteros[10];
@@ -144,14 +139,13 @@ static void prueba_crear_arr_vacio(){
 
 }
 
-static void prueba_heapsort()
-{
+static void prueba_heapsort(){
     puts("PRUEBA HEAPSORT");
 
     bool ok = true;
 
     int decena[]              = {10,9,8,4,5,8,3,1,7,6};
-    int decena_ordenado[]     = {1,2,3,4,5,6,7,8,9,10};
+    int decena_ordenado[]     = {1,3,4,5,6,7,8,8,9,10};
 
     int fibonnaci[]           = {1,34,55,5,8,13,3,1,2,21};
     int fibonnaci_ordenado[]  = {1,1,2,3,5,8,13,21,34,55};

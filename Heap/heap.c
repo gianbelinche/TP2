@@ -29,7 +29,7 @@ bool redimensionar(heap_t* heap){
 
 	void** nuevos_elem = realloc(heap -> elementos,sizeof(void*)*(heap -> capacidad)*FACTOR_REDIMENSION);
 	if (!nuevos_elem) return false;
-	heap->elementos = nuevos_elem;
+	heap -> elementos = nuevos_elem;
 	heap -> capacidad *= FACTOR_REDIMENSION;
 	return true;
 }
@@ -40,79 +40,34 @@ void swap(void** elementos,size_t pos1,size_t pos2){
 	elementos[pos2] = aux;
 }
 
-/* 
------------------------------------------------------------------------------------
-							EN CUARENTENA TEMPORAL
------------------------------------------------------------------------------------
-
-void swap (void** x, void** y){
-
-	void* z = *x;
-	*x = *y;
-	*y = z;
-}
-
-void downheap(void* elementos[], size_t cantidad, cmp_func_t cmp, size_t pos){
-	
-	size_t hijo_der = HIJO_DER(pos);
-	size_t hijo_izq = HIJO_IZQ(pos);
-	size_t hijo_mayor;
-
-	if(hijo_der > cantidad)
-	{
-		if(hijo_izq > cantidad)
-			return;
-		else
-			hijo_mayor = HIJO_IZQ(pos);
-	}
-	else
-	{
-			hijo_mayor = (cmp(elementos[hijo_der],elementos[hijo_izq]) > 0) ? hijo_der : hijo_izq;
-	}
-
-	while(cmp(elementos[pos],elementos[hijo_mayor]) < 0)
-	{
-		swap(&elementos[pos],&elementos[hijo_mayor]);
-		pos = hijo_mayor;
-
-		hijo_der = HIJO_DER(pos);
-		hijo_izq = HIJO_IZQ(pos);
-
-		if(hijo_der > cantidad)
-		{
-			if(hijo_izq > cantidad)
-				return;
-			else
-				hijo_mayor = HIJO_IZQ(pos);
-		}
-		else
-		{
-			hijo_mayor = (cmp(elementos[hijo_der],elementos[hijo_izq]) > 0) ? hijo_der : hijo_izq;
-		}
-	}
-}
-
-void upheap(void* elementos[],size_t cantidad, cmp_func_t cmp, size_t pos){
-	if(!cantidad) return;
-	int pos_padre = PADRE(pos);
-
-	while(pos_padre != pos && pos_padre > 0 && cmp(elementos[pos_padre], elementos[pos]) < 0){
-		swap(elementos + pos_padre, elementos + pos);
-		pos = pos_padre;
-		pos_padre = PADRE(pos);
-	}
-}
-
------------------------------------------------------------------------------------
-							EN CUARENTENA TEMPORAL
------------------------------------------------------------------------------------
-
-*/
 
 size_t max(void** elementos,size_t elem1, size_t elem2, cmp_func_t cmp){
 	if (cmp(elementos[elem1],elementos[elem2]) > 0 ) return elem1;
 	return elem2;
 }
+
+void downheap(void* elementos[],size_t cantidad,cmp_func_t cmp,size_t pos){
+    size_t hijo_izq = HIJO_IZQ(pos);
+    size_t hijo_der = HIJO_DER(pos);
+    size_t hijo_mayor;
+
+    if (hijo_izq >= cantidad) return;
+
+    if (hijo_der >= cantidad){
+        if (cmp(elementos[pos],elementos[hijo_izq]) > 0)
+            return;
+        hijo_mayor = hijo_izq;
+    }
+    else{
+        hijo_mayor = max(elementos,hijo_izq,hijo_der,cmp);
+        if (cmp(elementos[pos],elementos[hijo_mayor]) > 0)
+            return;
+        
+    }
+    swap(elementos,pos,hijo_mayor);
+    downheap(elementos,cantidad,cmp,hijo_mayor);
+}
+/*
 void downheap(void* elementos[],size_t cantidad,cmp_func_t cmp,size_t pos){
 	size_t hijo_izq = HIJO_IZQ(pos);
 	size_t hijo_der = HIJO_DER(pos);
@@ -137,6 +92,7 @@ void downheap(void* elementos[],size_t cantidad,cmp_func_t cmp,size_t pos){
 	downheap(elementos,cantidad,cmp,hijo);
 }
 
+*/
 
 void upheap(void* elementos[],size_t cantidad, cmp_func_t cmp, size_t pos){
 	if (cantidad == 1 || pos==0) return;
@@ -196,7 +152,7 @@ heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp){
 
 void* heap_ver_max(const heap_t *heap){
 
-	if (!heap || heap->cantidad == 0) return NULL;
+	if (!heap || heap -> cantidad == 0) return NULL;
 	return heap -> elementos[0];
 }
 
@@ -205,7 +161,7 @@ bool heap_encolar(heap_t* heap, void* dato){
 	if( ((heap -> cantidad /heap -> capacidad)*100) > FACTOR_CARGA && !redimensionar(heap))
 		return false;
 
-	heap->elementos[heap->cantidad] = dato;
+	heap -> elementos[heap -> cantidad] = dato;
 	(heap -> cantidad)++;
 	upheap(heap -> elementos, heap -> cantidad, heap -> cmp,heap -> cantidad-1);
 	
@@ -214,7 +170,7 @@ bool heap_encolar(heap_t* heap, void* dato){
 
 void* heap_desencolar(heap_t *heap){
 
-	if (!heap || heap->cantidad == 0) return NULL;
+	if (!heap || heap -> cantidad == 0) return NULL;
 	swap(heap -> elementos,0,heap -> cantidad - 1);
 	(heap -> cantidad)--;
 	downheap(heap -> elementos, heap -> cantidad, heap -> cmp,0); 
@@ -246,8 +202,7 @@ void heap_sort(void *elementos[], size_t cantidad, cmp_func_t cmp){
 	}
 }
 
-void heap_destruir(heap_t *heap, void destruir_elemento(void *elementos))
-{
+void heap_destruir(heap_t *heap, void destruir_elemento(void *elementos)){
 	if(destruir_elemento)
 		for(int i = 0;i < heap -> cantidad; i++)
 			destruir_elemento(heap -> elementos[i]);
@@ -262,9 +217,9 @@ void heap_destruir(heap_t *heap, void destruir_elemento(void *elementos))
 
 
        ("`-'  '-/") .___..--' ' "`-._
-         ` *_ *  )    `-.   (      ) .`-.__. `)
+         ` O_ O  )    `-.   (      ) .`-.__. `)
          (_Y_.) ' ._   )   `._` ;  `` -. .-'
-      _.. `--'_..-_/   /--' _ .' ,4
+      _.. `--'_..-_/   /--' _ .' ,)
    ( i l ),-''  ( l i),'  ( ( ! .-'  
 
 
