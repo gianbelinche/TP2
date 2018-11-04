@@ -169,14 +169,18 @@ bool heap_esta_vacio(const heap_t *heap){
 void heap_sort(void *elementos[], size_t cantidad, cmp_func_t cmp){
 	if (cantidad < 2) return;
 
-	for(size_t i = cantidad - 1; i >= 0; i--)
+	for(size_t i = cantidad - 1; i > 0; i--)
 		downheap(elementos,cantidad,cmp,i);
 	
-	for(size_t i = cantidad - 1; i >= 0; i--){
+	downheap(elementos,cantidad - 1,cmp,0);
+
+	for(size_t i = cantidad - 1; i > 0; i--){
 		swap(elementos,0,i);
 		downheap(elementos,cantidad - 1,cmp,0);
 		cantidad--;
 	}
+
+	downheap(elementos,cantidad - 1,cmp,0);
 }
 
 void heap_destruir(heap_t *heap, void destruir_elemento(void *elementos)){
