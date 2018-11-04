@@ -12,7 +12,7 @@
  * *****************************************************************/
 
 int cmp (const void* x,const void* y){
-	return (int)x - (int)y;
+	return *(int*)x - *(int*)y;
 }
 
 bool cumple_condicion_heap(heap_t* heap, cmp_func_t cmpx)
@@ -57,7 +57,7 @@ static void prueba_heap_insertar(){
     heap_destruir(heap,NULL);
 }
 
-/*
+
 static void prueba_heap_volumen(size_t largo){
     puts("PRUEBA HEAP VOLUMEN");
     heap_t* heap = heap_crear(cmp);
@@ -78,7 +78,7 @@ static void prueba_heap_volumen(size_t largo){
 	heap_destruir(heap,NULL);
 
 }
-*/
+
 
 static void prueba_heap_arr()
 {
@@ -95,11 +95,64 @@ static void prueba_heap_arr()
     heap_destruir(heap,NULL);
 }
 
+static void prueba_heap_elementos_iguales(){
+    puts("PRUEBA HEAP ELEMENTOS IGUALES");
+
+    heap_t* heap = heap_crear(cmp);
+
+    int valores[] = {3,3,3,8,5,8,5,8,5,8,3};
+
+    char msg[30];
+
+    for(int i = 0; i < 10; i++){
+        heap_encolar(heap,&valores[i]);
+        sprintf(msg,"Inserto valor %i",i + 1);
+        print_test(msg,heap_cantidad(heap) == i + 1 && !heap_esta_vacio(heap));
+    }
+    bool ok = true;
+    for (int i = 0; i<10; i++){
+        int* max = heap_ver_max(heap);
+        print_test("El heap no esta vacio", !heap_esta_vacio(heap));
+        int* elem = heap_desencolar(heap);
+        print_test("El maximo es correcto",*max == *elem);
+        if (i < 4)
+            ok = *elem == 8;
+        else if (i < 7)
+            ok = *elem == 5;
+        else
+            ok = *elem == 3;
+        if (!ok) break;
+    }
+
+    print_test("Los elementos tienen la prioridad correcta",ok);
+    heap_destruir(heap,NULL);
+}
+
+static void prueba_crear_arr_vacio(){
+    puts("PRUEBA HEAP CREAR ARR VACIO");
+
+    void* valores[] = {};
+
+    heap_t* heap = heap_crear_arr(valores,0,cmp);
+    print_test("El heap está creado",heap);
+    print_test("Desencolar no es valido",!heap_desencolar(heap)); 
+    print_test("La cantidad de elementos es 0",heap_cantidad(heap) == 0);
+    print_test("El heap esta vacío",heap_esta_vacio(heap));
+    print_test("Cumple la propiedad de heap",cumple_condicion_heap(heap,cmp));
+
+    heap_destruir(heap,NULL);
+
+}
+
+
+
+
 void pruebas_heap_alumno(){
 	srand((unsigned) clock());
     prueba_crear_heap_vacio();
     prueba_heap_insertar();
     prueba_heap_arr();
-    
-    //prueba_heap_volumen(5000);
+    prueba_heap_elementos_iguales();
+    prueba_heap_volumen(5000);
+    prueba_crear_arr_vacio();
 }
