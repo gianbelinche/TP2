@@ -234,13 +234,15 @@ bool heap_esta_vacio(const heap_t *heap){
 }
 
 void heap_sort(void *elementos[], size_t cantidad, cmp_func_t cmp){
-	if (cantidad == 0) return;  //i = cantidad -1 puede fallar
+	if (cantidad < 2) return;  //i = cantidad -1 puede fallar
 	for(int i = cantidad-1; i >= 0; i--)
 		downheap(elementos,cantidad,cmp,i);
-
-	for(int i = cantidad; i >= 0; i--){
+	int i = cantidad - 1;
+	int k = 1;
+	for(; i >= 0; i--){
 		swap(elementos,0,i);
-		upheap(elementos,cantidad,cmp,0);
+		downheap(elementos,cantidad-k,cmp,0);
+		k++;
 	}
 }
 
@@ -254,3 +256,16 @@ void heap_destruir(heap_t *heap, void destruir_elemento(void *elementos))
 	free(heap);
 }
 
+
+
+/*
+
+
+       ("`-'  '-/") .___..--' ' "`-._
+         ` *_ *  )    `-.   (      ) .`-.__. `)
+         (_Y_.) ' ._   )   `._` ;  `` -. .-'
+      _.. `--'_..-_/   /--' _ .' ,4
+   ( i l ),-''  ( l i),'  ( ( ! .-'  
+
+
+*/
