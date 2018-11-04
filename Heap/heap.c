@@ -114,8 +114,8 @@ heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp){
 	for (int i = 0;i<n;i++)
 		elementos[i] = arreglo[i];
 
-
 	heap -> elementos = elementos;
+	heap -> capacidad = n*2;
 	heap -> cantidad = n;
 	heap -> cmp = cmp;
 
