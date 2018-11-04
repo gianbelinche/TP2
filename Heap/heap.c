@@ -128,8 +128,11 @@ void downheap(void* elementos[],size_t cantidad,cmp_func_t cmp,size_t pos){
 			return;
 		hijo = hijo_der;
 	}
-	else
+	else{
+		if (cmp(elementos[pos],elementos[hijo_der]) > 0 && cmp(elementos[pos],elementos[hijo_izq]) > 0)
+			return;
 		hijo = max(elementos,hijo_izq,hijo_der,cmp);
+	}
 	swap(elementos,pos,hijo);
 	downheap(elementos,cantidad,cmp,hijo);
 }
