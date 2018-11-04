@@ -27,9 +27,10 @@ typedef struct heap{
 
 bool redimensionar(heap_t* heap){
 
-	void** nuevos_elem = realloc(heap -> elementos,FACTOR_REDIMENSION);
+	void** nuevos_elem = realloc(heap -> elementos,sizeof(void*)*(heap -> capacidad)*FACTOR_REDIMENSION);
 	if (!nuevos_elem) return false;
 	heap->elementos = nuevos_elem;
+	heap -> capacidad *= FACTOR_REDIMENSION;
 	return true;
 }
 
@@ -131,13 +132,13 @@ void downheap(void* elementos[],size_t cantidad,cmp_func_t cmp,size_t pos){
 		hijo = max(elementos,hijo_izq,hijo_der,cmp);
 	swap(elementos,pos,hijo);
 	downheap(elementos,cantidad,cmp,hijo);
-
 }
 
 
 void upheap(void* elementos[],size_t cantidad, cmp_func_t cmp, size_t pos){
 	if (cantidad == 1 || pos==0) return;
 	size_t padre = PADRE(pos);
+
 	if ( cmp(elementos[pos],elementos[padre]) > 0){
 		swap(elementos,pos,padre);
 		upheap(elementos,cantidad,cmp,padre);
