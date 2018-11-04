@@ -106,8 +106,8 @@ heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp){
 	if (!heap) return NULL;
 
 	size_t tam = n;
-	if (n == 0)
-		tam = TAM_INICIAL;
+	
+	if (n == 0) tam = TAM_INICIAL;
 
 	void** elementos = malloc(sizeof(void*) * tam * FACTOR_REDIMENSION);
 	if (!elementos){

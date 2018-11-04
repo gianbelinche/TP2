@@ -202,12 +202,12 @@ static void prueba_heap_arr_volumen(size_t largo){
     bool ok = true;
 
     for(int i = 0; i < largo;i++){
-        valores[i] = rand();
+        mas_valores[i] = rand();
         ok = heap_encolar(heap,&mas_valores[i]) && ok;
     }
 
     print_test("Almacenar muchos elementos", ok);
-    print_test("La cantidad de elementos es correcta", heap_cantidad(heap) == largo);
+    print_test("La cantidad de elementos es correcta", heap_cantidad(heap) == largo + 10);
     print_test("Se cumple la condicion de heap",cumple_condicion_heap(heap,cmp));
     print_test("La cantidad de elementos es 0", heap_cantidad(heap) == 0);
     heap_destruir(heap,NULL);
