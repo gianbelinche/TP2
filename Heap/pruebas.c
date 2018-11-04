@@ -67,10 +67,10 @@ static void prueba_heap_volumen(size_t largo){
     	ok = heap_encolar(heap,&valores[i]) && ok;
     }
 
-    print_test("Prueba heap almacenar muchos elementos", ok);
-    print_test("Prueba heap la cantidad de elementos es correcta", heap_cantidad(heap) == largo);
+    print_test("Almacenar muchos elementos", ok);
+    print_test("La cantidad de elementos es correcta", heap_cantidad(heap) == largo);
     print_test("Se cumple la condicion de heap",cumple_condicion_heap(heap,cmp));
-    print_test("Prueba heap la cantidad de elementos es 0", heap_cantidad(heap) == 0);
+    print_test("La cantidad de elementos es 0", heap_cantidad(heap) == 0);
 	heap_destruir(heap,NULL);
 
 }
