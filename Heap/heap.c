@@ -186,7 +186,7 @@ heap_t* heap_crear_arr(void* arreglo[], size_t n, cmp_func_t cmp){
 	heap -> cmp = cmp;
 
 	for (int i = n;i > 0;i--)
-		downheap(heap -> elementos, heap -> cantidad - 1, heap -> cmp,i);
+		downheap(heap -> elementos, heap -> cantidad, heap -> cmp,i-1);
 
 	return heap;
 }
