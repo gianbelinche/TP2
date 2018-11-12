@@ -25,8 +25,8 @@ typedef struct vuelo_prioridad{
 }vp_t;
 
 int cmp(const void* dato1, const void* dato2){
-	(vp_t*) dato1;
-	(vp_t*) dato2;
+	*(vp_t*) dato1; //MI no entender porque no funcionar
+	*(vp_t*) dato2;
 	if (dato1->prioridad < dato2->prioridad) return 1; //Nuestro heap es de maximos, lo queremos de minimos
 	else if (dato1->prioridad > dato2->prioridad) return -1;
 	return -strcmp(dato1->codigo,dato2->codigo);
