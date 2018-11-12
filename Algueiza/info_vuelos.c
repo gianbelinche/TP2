@@ -31,7 +31,7 @@ void prioridad_vuelos_v1(heap_t* prioridades,int k){
 	for(int i;i<k;i++){
 		if (heap_esta_vacio(prioridades)) break;
 		vp_t* vuelo = heap_desencolar(prioridades);
-		printf("%d - %s\n",vuelo -> prioridad, vuelo -> codigo ); //O(n*k*log(n))
+		printf("%d - %s\n",vuelo -> prioridad, vuelo -> codigo ); //O(n*log(n))
 		vuelos[i] = vuelo;
 		j++;
 	}
@@ -47,7 +47,7 @@ void prioridad_vuelos_v2(vp_t** vuelos,int cant,int k){
 		heap_encolar(heap,vuelos[i]);
 	}
 	for (;i<cant;i++){
-		if (heap_ver_tope(heap)->prioridad < vuelos[i]->prioridad){ //O(n*k*log(k))
+		if (heap_ver_tope(heap)->prioridad < vuelos[i]->prioridad){ //O(n*log(k))
 			heap_desencolar(heap); 
 			heap_encolar(heap,vuelos[i]);
 		}
