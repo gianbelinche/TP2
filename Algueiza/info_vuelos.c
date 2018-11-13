@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include "hash.h"
 #include "heap.h"
 /*
@@ -25,11 +26,11 @@ typedef struct vuelo_prioridad{
 }vp_t;
 
 int cmp(const void* dato1, const void* dato2){
-	*(vp_t*) dato1; //MI no entender porque no funcionar
-	*(vp_t*) dato2;
-	if (dato1->prioridad < dato2->prioridad) return 1; //Nuestro heap es de maximos, lo queremos de minimos
-	else if (dato1->prioridad > dato2->prioridad) return -1;
-	return -strcmp(dato1->codigo,dato2->codigo);
+	vp_t* vuelo1 = (vp_t*) dato1; 
+	vp_t* vuelo2 = (vp_t*) dato2;
+	if (vuelo1->prioridad < vuelo2->prioridad) return 1; //Nuestro heap es de maximos, lo queremos de minimos
+	else if (vuelo1->prioridad > vuelo2->prioridad) return -1;
+	return -strcmp(vuelo1->codigo,vuelo2->codigo);
 } 
 
 void obtener_info_vuelos(hash_t* info_vuelos,char* vuelo){
@@ -40,29 +41,15 @@ void obtener_info_vuelos(hash_t* info_vuelos,char* vuelo){
 		printf("%s\n",info);
 }
 
-void prioridad_vuelos_v1(heap_t* prioridades,int k){
-	vp_t* vuelos[k];
-	int j = 0;
-	for(int i;i<k;i++){
-		if (heap_esta_vacio(prioridades)) break;
-		vp_t* vuelo = heap_desencolar(prioridades);
-		printf("%d - %s\n",vuelo -> prioridad, vuelo -> codigo ); //O(n*log(n))
-		vuelos[i] = vuelo;
-		j++;
-	}
-	for (int i = 0;i<j;i++){
-		heap_encolar(prioridades,vuelos[i]);
-	}
-}
 
-void prioridad_vuelos_v2(vp_t** vuelos,int cant,int k){
+void prioridad_vuelos(vp_t** vuelos,int cant,int k){
 	heap_t* heap = heap_crear(cmp); //Heap de minimos
 	int i = 0;
 	for (;i<k && i<cant;i++){
 		heap_encolar(heap,vuelos[i]);
 	}
 	for (;i<cant;i++){
-		if (heap_ver_max(heap)->prioridad < vuelos[i]->prioridad){ //O(n*log(k))
+		if (((vp_t*)heap_ver_max(heap))->prioridad < vuelos[i]->prioridad){ //O(n*log(k))
 			heap_desencolar(heap); 
 			heap_encolar(heap,vuelos[i]);
 		}
