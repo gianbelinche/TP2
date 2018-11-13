@@ -6,6 +6,8 @@
 #include <string.h>
 #include "hash.h"
 #include "heap.h"
+#include "abb.h"
+#include "lista.h"
 /*
 hash_t* guardar_info_vuelos(FILE* vuelos,size_t cantidad_vuelos){ //Despues veremos como guardamos los vuelos
 	hash_t* hash = hash_crear(NULL);
@@ -24,6 +26,7 @@ typedef struct vuelo_prioridad{
 	char* codigo;
 	int prioridad;
 }vp_t;
+
 
 int cmp(const void* dato1, const void* dato2){
 	vp_t* vuelo1 = (vp_t*) dato1; 
@@ -64,4 +67,25 @@ void prioridad_vuelos(vp_t** vuelos,int cant,int k){
 	for (int l = j;l >= 0;l--){
 		printf("%d - %s\n",flights[l] -> prioridad, flights[l] -> codigo );
 	}
+}
+
+void borrar(abb_t* abb,hash_t* hash,char* desde,char* hasta){
+	time_t s_desde = convertir_a_time(desde);
+	time_t s_hasta = convertir_a_time(hasta);
+	lista_t* lista = lista_crear();
+	abb_iter_t* iter = abb_iter_in_crear(abb);
+	abb_iter_in_llegar_a(iter,s_desde);
+	while (!abb_iter_in_al_final(iter)){
+		char* codigo = abb_iter_in_ver_actual(iter);
+		if (convertir_a_time(abb_obtener(abb,codigo)) > s_hasta)
+			break;
+		hash_borrar(hash,codigo);
+		lista_insertar_ultimo(lista,codigo);
+		abb_iter_in_avanzar(iter);
+	}
+	while (!lista_esta_vacia(lista)){
+		abb_borrar(abb,lista_borrar_primero(lista));
+	}
+	lista_destruir(lista,NULL);
+	abb_iter_in_destruir(iter);
 }
