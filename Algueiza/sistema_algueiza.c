@@ -66,14 +66,18 @@ void agregar_archivo(abb_t* vuelos_x_fecha,heap_t* vuelos_x_codigo,char* nombre_
 struct vuelos_en_rango{
 	lista_t* vuelos;
 	fecha_t fecha_max;
-	fecha_t fecha_min; 
+	fecha_t fecha_min;
+	bool orden_ascendente;
 };
 
 bool obtener_vuelos_en_rango(const char* fecha_actual, void* vuelo_actual, void* rango)
 {
 	if( comparar_fecha(fecha_actual,((vuelos_en_rango*) rango).fecha_min) > 0
 		&& comparar_fecha(fecha_actual,((vuelos_en_rango*) rango).fecha_max) < 0 ){
-		lista_insertar_ultimo(((vuelos_en_rango*) rango).vuelos,vuelo_actual);
+		if(orden_ascendente)
+			lista_insertar_ultimo(((vuelos_en_rango*) rango).vuelos,vuelo_actual);
+		else
+			lista_insertar_primero(((vuelos_en_rango*) rango).vuelos,vuelo_actual);
 		return true;
 	}
 
@@ -90,8 +94,6 @@ void mostrar_tablero(abb_t* vuelos_x_fecha,size_t cantidad_a_mostrar,bool ascend
 	vuelos_en_rango.fecha_max = fecha_max;
 
 	abb_pre_order(vuelos, obtener_vuelos_en_rango,&vuelos_en_rango);
-
-	(bool) *borrar (lista_t* lista)  = (ascendente) ? lista_borrar_primero : lista_borrar_ultimo;
 
 	while(!lista_esta_vacia(vuelos_en_rango.vuelos))
 	{
