@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 #include "hash.h"
 #include "heap.h"
 #include "abb.h"
@@ -69,6 +70,23 @@ void prioridad_vuelos(vp_t** vuelos,int cant,int k){
 	}
 }
 
+time_t convertir_a_time(char* fecha){
+	struct tm tiempo;
+	char* año = {fecha[0],fecha[1],fecha[2],fecha[3],'\0'}; //NO entiendo porque no funciona
+	tiempo.tm_year = atoi(año) - 1900;
+	char* mes = {fecha[5],fecha[6],'\0'};
+	tiempo.tm_mon = atoi(mes) -1;
+	char* dia = {fecha[8],fecha[9],'\0'};
+	tiempo.tm_mday = atoi(dia);
+	char* hora = {fecha[11],fecha[12],'\0'};
+	tiempo.tm_hour = atoi(hora);
+	char* minutos = {fecha[14],fecha[15],'\0'};
+	tiempo.tm_min = atoi(minutos);
+	char* seg = {fecha[17],fecha[18],'\0'};
+	tiempo.tm_sec = atoi(seg);
+	return mktime(&tiempo);
+
+}
 void borrar(abb_t* abb,hash_t* hash,char* desde,char* hasta){
 	time_t s_desde = convertir_a_time(desde);
 	time_t s_hasta = convertir_a_time(hasta);
