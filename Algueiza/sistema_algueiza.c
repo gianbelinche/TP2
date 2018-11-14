@@ -98,24 +98,31 @@ int main()
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
 
-int comparar_fecha(fecha_t fecha1 , fecha_t fecha2)
-{
-	return -1;
+int comparar_fechas(void* dato1 , void* dato2){
+
+	char* fecha1 = (char*) dato1;
+	char* fecha2 = (char*) dato2;
+
+	time_t tiempo1 = convertir_a_time(fecha1);
+	time_t tiempo2 = convertir_a_time(fecha2);
+
+	return tiempo1 - tiempo2;
+
 }
 
 time_t convertir_a_time(char* fecha){
 	struct tm tiempo;
-	char* año = {fecha[0],fecha[1],fecha[2],fecha[3],'\0'}; //NO entiendo porque no funciona
+	char año[] = {fecha[0],fecha[1],fecha[2],fecha[3],'\0'}; //NO entiendo porque no funciona
 	tiempo.tm_year = atoi(año) - 1900;
-	char* mes = {fecha[5],fecha[6],'\0'};
+	char mes[] = {fecha[5],fecha[6],'\0'};
 	tiempo.tm_mon = atoi(mes) -1;
-	char* dia = {fecha[8],fecha[9],'\0'};
+	char dia[] = {fecha[8],fecha[9],'\0'};
 	tiempo.tm_mday = atoi(dia);
-	char* hora = {fecha[11],fecha[12],'\0'};
+	char hora[] = {fecha[11],fecha[12],'\0'};
 	tiempo.tm_hour = atoi(hora);
-	char* minutos = {fecha[14],fecha[15],'\0'};
+	char minutos[] = {fecha[14],fecha[15],'\0'};
 	tiempo.tm_min = atoi(minutos);
-	char* seg = {fecha[17],fecha[18],'\0'};
+	char seg[] = {fecha[17],fecha[18],'\0'};
 	tiempo.tm_sec = atoi(seg);
 	return mktime(&tiempo);
 
@@ -159,8 +166,8 @@ struct vuelos_en_rango{
 
 bool obtener_vuelos_en_rango(const char* fecha_actual, void* vuelo_actual, void* rango){
 
-	if( comparar_fecha(fecha_actual,((vuelos_en_rango*) rango).fecha_min) > 0
-		&& comparar_fecha(fecha_actual,((vuelos_en_rango*) rango).fecha_max) < 0 ){
+	if( comparar_fechas(fecha_actual,((vuelos_en_rango*) rango).fecha_min) > 0
+		&& comparar_fechas(fecha_actual,((vuelos_en_rango*) rango).fecha_max) < 0 ){
 		if(orden_ascendente)
 			lista_insertar_ultimo(((vuelos_en_rango*) rango).vuelos,vuelo_actual);
 		else
@@ -196,33 +203,6 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 	return true;
 }
 
-/*
-hash_t* guardar_info_vuelos(FILE* vuelos,size_t cantidad_vuelos){ //Despues veremos como guardamos los vuelos
-	hash_t* hash = hash_crear(NULL);
-	for (int i = 0;i<cantidad_vuelos;i++){
-		char* info = NULL;
-		size_t cantidad = 0;
-		if (getline(vuelos,info,cantidad) == -1) break;
-		char** nombre = split(info);
-		hash_guardar(hash,nombre[0],info);
-	}
-	return hash;
-}
-*/
-
-typedef struct vuelo_prioridad{
-	char* codigo;
-	int prioridad;
-}vp_t;
-
-
-int cmp(const void* dato1, const void* dato2){ //Estaria bueno un nombre mas descriptivo que cmp
-	vp_t* vuelo1 = (vp_t*) dato1; 
-	vp_t* vuelo2 = (vp_t*) dato2;
-	if (vuelo1->prioridad < vuelo2->prioridad) return 1; //Nuestro heap es de maximos, lo queremos de minimos
-	else if (vuelo1->prioridad > vuelo2->prioridad) return -1;
-	return -strcmp(vuelo1->codigo,vuelo2->codigo);
-} 
 
 bool info_vuelo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 	char* info = hash_obtener(vuelos_x_codigo,ordenes[1]);
@@ -236,49 +216,77 @@ bool info_vuelo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 // Aca estás suponiendo que te llega una dupla de vuelos y prioridad, todo joya pero de donde las sacas?
 // En mi opinion ese heap deberia recorrer directamente el hash y ahi si queres guardar la dupla
 
-bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
-bool prioridad_vuelos(vp_t** vuelos,int cant,int k){
-	heap_t* heap = heap_crear(cmp); //Heap de minimos
+
+bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
+	heap_t* heap = heap_crear(strcmp); //Heap de minimos
+	hash_iter_t iter = hash_iter_crear(vuelos_x_codigo);
+	int k = ordenes[1];
 	int i = 0;
-	for (;i<k && i<cant;i++){
-		heap_encolar(heap,vuelos[i]);
+	while (!hash_iter_al_final(iter) && i < k){
+		heap_encolar(heap,hash_iter_ver_actual(iter));
+		i++;
+		hash_iter_avanzar(iter);
 	}
-	for (;i<cant;i++){
-		if (((vp_t*)heap_ver_max(heap))->prioridad < vuelos[i]->prioridad){ //O(n*log(k))
+	while (!hash_iter_al_final(iter)){
+		char* codigo_max = heap_ver_max(heap);
+		char* actual = hash_iter_ver_actual(iter);
+		if (hash_obtener(vuelos_x_codigo,codigo_max)->prioridad < hash_obtener(vuelos_x_codigo,actual)->prioridad){ //O(n*log(k))
 			heap_desencolar(heap); 
 			heap_encolar(heap,vuelos[i]);
 		}
+		hash_iter_avanzar(iter);
 	}
 	vp_t* flights[k];
 	int j = 0;
 	while (!heap_esta_vacio(heap)){
-		vp_t* vuelo = heap_desencolar(heap);
+		char* vuelo = heap_desencolar(heap);
 		flights[j] = vuelo;
 		j++;
 	}
 	for (int l = j;l >= 0;l--){
-		printf("%d - %s\n",flights[l] -> prioridad, flights[l] -> codigo );
+		printf("%d - %s\n",hash_obtener(vuelos_x_codigo,flights[l]) -> prioridad, flights[l]);
 	}
 }
 
+void avanzar_hasta(abb_iter_t* iter){
+	while (!abb_iter_in_al_final(iter)){
+		char* fecha_actual = abb_iter_in_ver_actual(iter)
+		if (comparar_fechas(fecha_actual,desde) > 0)
+			return;
+		abb_iter_in_avanzar(iter);
+	}
+}
 
 bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 
-	time_t desde = convertir_a_time(ordenes[1]);
-	time_t hasta = convertir_a_time(ordenes[2]);
-	
-	lista_t* lista = lista_crear();
-	abb_iter_t* iter = abb_iter_in_crear(vuelos_x_fecha);
-	abb_iter_in_llegar_a(iter,desde);
+	char* desde = ordenes[1];
+	char* hasta = ordenes[2];
 
-	//Faltan un monton de comprobaciones por NULL;
+	lista_t* lista = lista_crear();
+	if (!lista) return false;
+
+
+
+	abb_iter_t* iter = abb_iter_in_crear(vuelos_x_fecha);
+
+	if (!iter){
+		free(lista);
+		return false;
+	}
+
+	avanzar_hasta(iter);
+
 	
 	while (!abb_iter_in_al_final(iter)){
-		char* codigo = abb_iter_in_ver_actual(iter);
-		if (convertir_a_time(abb_obtener(vuelos_x_fecha,codigo)) > hasta) // Esto hay que cambiarlo
+		char* fecha = abb_iter_in_ver_actual(iter);
+		if (comparar_fechas(fecha,hasta) > 0)
 			break;
-		hash_borrar(vuelos_x_codigo,codigo);
-		lista_insertar_ultimo(lista,codigo);
+		lista_t* codigos = abb_obtener(vuelos_x_fecha,fecha);
+		while(!lista_esta_vacia(codigos)){
+			char* codigo = lista_borrar_primero(codigos);
+			hash_borrar(vuelos_x_codigo,codigo);
+		}
+		lista_insertar_ultimo(lista,fecha);
 		abb_iter_in_avanzar(iter);
 	}
 	while (!lista_esta_vacia(lista)){
