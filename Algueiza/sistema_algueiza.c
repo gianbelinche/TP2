@@ -14,7 +14,7 @@
 
 
 
-#define FORMATO_VUELO "%zi, %zi, %[^,], %[^,], %[^,], %zi, fecha, %i, %i, %[^\n]\n"
+#define FORMATO_ARCHIVO "%zi, %zi, %[^,], %[^,], %[^,], %zi, %[^,], %i, %i, %[^\n]\n"
 
 typedef struct vuelo{
 	size_t numero_de_vuelo;
@@ -97,8 +97,6 @@ int main()
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
 
-
-
 time_t convertir_a_time(char* fecha){
 	struct tm tiempo;
 	char ano[] = {fecha[0],fecha[1],fecha[2],fecha[3],'\0'}; //NO entiendo porque no funciona
@@ -132,33 +130,113 @@ int comparar_fechas(const void* dato1,const void* dato2){
 int mi_strcmp(const void* dato1,const void* dato2){
 	return -strcmp((char*) dato1,(char*) dato2);
 }
+
+char* obtener_codigo_en_lista(lista_t* lista, char* codigo)
+{
+	lista_iter_t* lista_iter  = lista_iter_crear(lista_t *lista);
+	if(!lista_iter) return NULL;
+
+	void* codigo_actual;
+	
+	while(!lista_iter_al_final(lista_iter))
+	{
+		codigo_actual = lista_iter_ver_actual(lista_iter);
+		if(!strcmp(codigo_actual,codigo)) break;
+
+		lista_iter_avanzar(lista_iter);
+	}
+
+	lista_iter_destruir(lista_iter);
+
+	return (!strcmp(codigo_actual,codigo)) ? codigo_actual : NULL;
+}
+
+void borrar_codigo_en_lista(lista_t* lista, char* codigo)
+{
+	lista_iter_t* lista_iter  = lista_iter_crear(lista_t *lista);
+	if(!lista_iter) return NULL;
+
+	void* codigo_actual;
+	
+	while(!lista_iter_al_final(lista_iter))
+	{
+		codigo_actual = lista_iter_ver_actual(lista_iter);
+		if(!strcmp(codigo_actual,codigo))
+		{
+			lista_iter_borrar(lista_iter);
+			break;
+		}
+
+		lista_iter_avanzar(lista_iter);
+	}
+
+	lista_iter_destruir(lista_iter);
+}
+
+int leer_vuelo(FILE* archivo,vuelo_t* vuelo_actual){
+	return fscanf(archivo,FORMATO_ARCHIVO, vuelo_actual -> numero_de_vuelo, vuelo_actual -> aerolinea, vuelo_actual -> puerto_origen
+		, vuelo_actual -> puerto_destino, vuelo_actual -> numero_de_cola, vuelo_actual -> prioridad, vuelo_actual -> fecha
+		, vuelo_actual -> retraso, vuelo_actual -> tiempo_de_vuelo, vuelo_actual -> cancelado);
+}
+
 // -_-_-_-_-_-_-_-_-_-_-_-_-_   COMANDOS   _-_-_-_-_-_-_-_-_-_-_-_-_- //
 
 bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 
 	FILE* archivo = fopen(ordenes[1],"r");
-
 	if(!archivo) return false;
 
+	vuelo_t* vuelo_previo;
 	vuelo_t* vuelo_actual = malloc(sizeof(vuelo_t));
+	if(!vuelo_actual){
+		fclose(archivo);
+		return false;
+	}
 
-	if(!vuelo_actual) return false;
+	lista_t* codigos_asosiados;
 
-	while(fscanf(archivo,FORMATO_VUELO	, vuelo_actual -> numero_de_vuelo, vuelo_actual -> aerolinea, vuelo_actual -> puerto_origen
-		, vuelo_actual -> puerto_destino, vuelo_actual -> numero_de_cola, vuelo_actual -> prioridad, vuelo_actual -> fecha
-		, vuelo_actual -> retraso, vuelo_actual -> tiempo_de_vuelo, vuelo_actual -> cancelado) != EOF) {
+	while(leer_vuelo(archivo, vuelo_actual) != EOF) {
 
-		abb_guardar(vuelos_x_fecha,vuelo_actual -> fecha,vuelo_actual);
+		vuelo_previo = hash_obtener(vuelos_x_codigo,vuelo_actual -> codigo);
+		codigos_asosiados = abb_obtener(vuelos_x_fecha,vuelo_previo -> fecha);
+
+		if(vuelo_previo && strcmp(vuelo_previo -> fecha,vuelo_actual -> fecha)){
+			borrar_codigo_en_lista(codigos_asosiados,vuelo_previo -> codigo);
+			if(lista_esta_vacia(codigos_asosiados))
+			{
+				lista_destruir(abb_borrar(vuelos_x_fecha,vuelo_previo -> fecha));
+				codigos_asosiados = NULL;
+			}
+		}
+
+		if(!codigos_asosiados)
+		{
+			codigos_asosiados = lista_crear();
+			
+			if(!codigos_asosiados){
+			free(vuelo_actual);
+			fclose(archivo);
+			return false;
+			}
+
+			abb_guardar(vuelos_x_fecha,vuelo_actual -> fecha,codigos_asosiados);
+		}
+
+		lista_insertar_ultimo(codigos_asosiados, vuelo_actual -> codigo);
 		hash_guardar(vuelos_x_codigo, vuelo_actual -> codigo,vuelo_actual);
 
-		vuelo_t* vuelo_actual = malloc(sizeof(vuelo_t));
-
-		if(!vuelo_actual) return false;
+		vuelo_actual = malloc(sizeof(vuelo_t));
+		if(!vuelo_actual){
+		fclose(archivo);
+		return false;
+		}
+		
 	}
 
 	fclose(archivo);
 	return true;
 }
+
 
 struct vuelos_en_rango{
 	lista_t* vuelos;
