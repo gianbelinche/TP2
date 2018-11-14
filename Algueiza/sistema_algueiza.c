@@ -209,11 +209,12 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 
 
 bool info_vuelo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
-	char* info = hash_obtener(vuelos_x_codigo,ordenes[1]);
-	if (!info) 
+	vuelo_t* info = hash_obtener(vuelos_x_codigo,ordenes[1]);
+	if (!info){ 
 		fprintf(stderr,"Error en comando info_vuelo\n");
-	else
-		printf("%s\n",info);//Aca va a ser necesario interpretar un poco mas lo que tiene el hash
+		return false;
+	}	
+	printf("%s\n",info->resumen);
 	return true;
 }
 
