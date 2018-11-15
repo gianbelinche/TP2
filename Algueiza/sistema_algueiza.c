@@ -26,6 +26,7 @@ typedef struct vuelo{
 	int retraso;
 	int tiempo_de_vuelo;
 	bool cancelado;
+	char* resumen;
 }vuelo_t;
 
 typedef bool (*comando_t)(abb_t*,hash_t*,char**);
@@ -51,7 +52,7 @@ bool interpretar_comando(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char* ord
 	return false;
 }
 
-int comparar_fechas(const void* dato1,const void* dato2);
+int comparar_fechas(const char* dato1,const char* dato2);
 
 int main()
 {
@@ -99,7 +100,7 @@ int main()
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
 
-time_t convertir_a_time(char* fecha){
+time_t convertir_a_time(const char* fecha){
 	struct tm tiempo;
 	char ano[] = {fecha[0],fecha[1],fecha[2],fecha[3],'\0'}; //NO entiendo porque no funciona
 	tiempo.tm_year = atoi(ano) - 1900;
@@ -117,10 +118,7 @@ time_t convertir_a_time(char* fecha){
 
 }
 
-int comparar_fechas(const void* dato1,const void* dato2){
-
-	char* fecha1 = (char*) dato1;
-	char* fecha2 = (char*) dato2;
+int comparar_fechas(const char* fecha1,const char* fecha2){
 
 	time_t tiempo1 = convertir_a_time(fecha1);
 	time_t tiempo2 = convertir_a_time(fecha2);
@@ -309,15 +307,15 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 	int k = atoi(ordenes[1]);
 	int i = 0;
 	while (!hash_iter_al_final(iter) && i < k){
-		heap_encolar(heap,hash_iter_ver_actual(iter));
+		heap_encolar(heap,(char*) hash_iter_ver_actual(iter));
 		i++;
 		hash_iter_avanzar(iter);
 	}
 	while (!hash_iter_al_final(iter)){
 		char* codigo_max = heap_ver_max(heap);
-		char* actual = hash_iter_ver_actual(iter);
-		vuelos_t* vuelo_max = hash_obtener(vuelos_x_codigo,codigo_max);
-		vuelos_t* vuelo_actual = hash_obtener(vuelos_x_codigo,actual);
+		char* actual = (char*) hash_iter_ver_actual(iter);
+		vuelo_t* vuelo_max = hash_obtener(vuelos_x_codigo,codigo_max);
+		vuelo_t* vuelo_actual = hash_obtener(vuelos_x_codigo,actual);
 		if (vuelo_max->prioridad < vuelo_actual->prioridad){ //O(n*log(k))
 			heap_desencolar(heap); 
 			heap_encolar(heap,actual);
@@ -332,7 +330,7 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 		j++;
 	}
 	for (int l = j;l >= 0;l--){
-		vuelo_t* vuelo = hash_obtener(vuelos_x_codigo,actual);
+		vuelo_t* vuelo = hash_obtener(vuelos_x_codigo,flights[l]);
 		printf("%d - %s\n",vuelo -> prioridad, flights[l]);
 	}
 	return true;
@@ -340,7 +338,7 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 
 void avanzar_hasta(abb_iter_t* iter,char* desde){
 	while (!abb_iter_in_al_final(iter)){
-		char* fecha_actual = abb_iter_in_ver_actual(iter);
+		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
 		if (comparar_fechas(fecha_actual,desde) > 0)
 			return;
 		abb_iter_in_avanzar(iter);
@@ -368,7 +366,7 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 
 	
 	while (!abb_iter_in_al_final(iter)){
-		char* fecha = abb_iter_in_ver_actual(iter);
+		char* fecha = (char*) abb_iter_in_ver_actual(iter);
 		if (comparar_fechas(fecha,hasta) > 0)
 			break;
 		lista_t* codigos = abb_obtener(vuelos_x_fecha,fecha);
