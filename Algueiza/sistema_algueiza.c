@@ -60,12 +60,17 @@ void interpretar_comando(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char* ord
 
 }
 
+void destruir_lista_fechas(void* lista)
+{
+	lista_destruir(lista,NULL);
+}
+
 int comparar_fechas(const char* dato1,const char* dato2);
 void destruir_vuelo(void* vuelo);
 
 int main()
 {
-	abb_t* vuelos_x_fecha = abb_crear(comparar_fechas,destruir_vuelo);
+	abb_t* vuelos_x_fecha = abb_crear(comparar_fechas,destruir_lista_fechas);
 
 	if(!vuelos_x_fecha) return -1;
 
@@ -102,8 +107,11 @@ int main()
 		free_strv(strv0);
 		free_strv(strv);
 	}
+
 	free(*entrada);
 	free(entrada);
+	abb_destruir(vuelos_x_fecha);
+	hash_destruir(vuelos_x_codigo);
 	return 0;
 }
 
@@ -132,6 +140,9 @@ time_t convertir_a_time(const char* fecha){
 	tiempo.tm_min = atoi(minutos);
 	char seg[] = {fecha[17],fecha[18],'\0'};
 	tiempo.tm_sec = atoi(seg);
+	tiempo.tm_wday = 0;
+    tiempo.tm_yday = 0;
+    tiempo.tm_isdst = 0;
 	return mktime(&tiempo);
 
 }
@@ -214,6 +225,7 @@ bool leer_vuelo(FILE* archivo,vuelo_t* vuelo_actual){
 
 	if(getline(linea,&tam_linea,archivo) == -1 || tam_linea <= 1)
 	{
+		free(*linea);
 		free(linea);
 		return false;
 	}
@@ -221,10 +233,11 @@ bool leer_vuelo(FILE* archivo,vuelo_t* vuelo_actual){
 	//Falta chquear que todos los strdup sean distintos de NULL
 	char** linea_separada     = split(*linea,',');
 	vuelo_actual -> codigo    = strdup(linea_separada[0]);
-	vuelo_actual -> prioridad = atoi(linea_separada[6]);
-	vuelo_actual -> fecha     = strdup(linea_separada[7]);
+	vuelo_actual -> prioridad = atoi(linea_separada[7]);
+	vuelo_actual -> fecha     = strdup(linea_separada[6]);
 	vuelo_actual -> resumen   = join(linea_separada,' ');
 	
+	free(*linea);
 	free(linea);
 	free_strv(linea_separada);
 	return true;
@@ -247,7 +260,7 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 	lista_t* codigos_asosiados = NULL;
 
 	while(leer_vuelo(archivo, vuelo_actual)) {
-
+		printf("%s \n",vuelo_actual -> fecha);
 		vuelo_previo = hash_obtener(vuelos_x_codigo,vuelo_actual -> codigo);
 		
 		if(vuelo_previo){
@@ -256,6 +269,8 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 			
 			if(lista_esta_vacia(codigos_asosiados))
 				lista_destruir(abb_borrar(vuelos_x_fecha,vuelo_previo -> fecha),NULL);
+
+			destruir_vuelo(vuelo_previo);
 		}
 
 		codigos_asosiados = abb_obtener(vuelos_x_fecha,vuelo_actual -> fecha);
@@ -283,6 +298,7 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 		}
 	}
 
+	free(vuelo_actual);
 	fclose(archivo);
 	return true;
 }
