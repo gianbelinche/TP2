@@ -13,10 +13,12 @@
 
 // -_-_-_-_-_-_-_-_-_-_-_-_-_-_  MACROS  _-_-_-_-_-_-_-_-_-_-_-_-_-_- //
 
-#define FORMATO_ARCHIVO "%zi, %zi, %[^,], %[^,], %[^,], %zi, %[^,], %i, %i, %[^\n]\n"
-
 typedef struct vuelo{
 	char* codigo;
+	char* fecha;
+	char* resumen;
+	size_t prioridad;
+	/*
 	size_t aerolinea;
 	char*  puerto_origen;
 	char*  puerto_destino;
@@ -26,7 +28,7 @@ typedef struct vuelo{
 	int retraso;
 	int tiempo_de_vuelo;
 	bool cancelado;
-	char* resumen;
+	*/
 }vuelo_t;
 
 typedef bool (*comando_t)(abb_t*,hash_t*,char**);
@@ -53,10 +55,11 @@ bool interpretar_comando(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char* ord
 }
 
 int comparar_fechas(const char* dato1,const char* dato2);
+void destruir_vuelo(void* vuelo);
 
 int main()
 {
-	abb_t* vuelos_x_fecha = abb_crear(comparar_fechas);
+	abb_t* vuelos_x_fecha = abb_crear(comparar_fechas,destruir_vuelo);
 
 	if(!vuelos_x_fecha) return -1;
 
@@ -100,6 +103,14 @@ int main()
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
 
+void destruir_vuelo(void* vuelo)
+{
+	free(((vuelo_t*)vuelo) -> codigo);
+	free(((vuelo_t*)vuelo) -> fecha);
+	free(((vuelo_t*)vuelo) -> resumen);
+	free(((vuelo_t*)vuelo));
+}
+
 time_t convertir_a_time(const char* fecha){
 	struct tm tiempo;
 	char ano[] = {fecha[0],fecha[1],fecha[2],fecha[3],'\0'}; //NO entiendo porque no funciona
@@ -127,28 +138,29 @@ int comparar_fechas(const char* fecha1,const char* fecha2){
 
 }
 
-int mi_strcmp(const void* dato1,const void* dato2){
+int strcmp_min(const void* dato1,const void* dato2){
 	return -strcmp((char*) dato1,(char*) dato2);
 }
 
-char* obtener_codigo_en_lista(lista_t* lista, char* codigo)
+int strcmp_max(const void* dato1,const void* dato2){
+	return strcmp((char*) dato1,(char*) dato2);
+}
+
+void insertar_lista_en_heap(lista_t* lista, heap_t heap)
 {
 	lista_iter_t* lista_iter  = lista_iter_crear(lista);
-	if(!lista_iter) return NULL;
+	if(!lista_iter) return;
 
 	void* codigo_actual;
 	
 	while(!lista_iter_al_final(lista_iter))
 	{
 		codigo_actual = lista_iter_ver_actual(lista_iter);
-		if(!strcmp(codigo_actual,codigo)) break;
-
+		heap_encolar(heap,codigo_actual);
 		lista_iter_avanzar(lista_iter);
 	}
 
 	lista_iter_destruir(lista_iter);
-
-	return (!strcmp(codigo_actual,codigo)) ? codigo_actual : NULL;
 }
 
 void borrar_codigo_en_lista(lista_t* lista, char* codigo)
@@ -173,13 +185,35 @@ void borrar_codigo_en_lista(lista_t* lista, char* codigo)
 	lista_iter_destruir(lista_iter);
 }
 
-int leer_vuelo(FILE* archivo,vuelo_t* vuelo_actual){
+
+bool leer_vuelo(FILE* archivo,vuelo_t* vuelo_actual){
 	/* Esto tengo que arreglarlo dependiendo de que agamos
+	#define FORMATO_ARCHIVO "%s,%*[^,],%*[^,],%*[^,],%*[^,],%*[^,],%zi,%s"
 	return fscanf(archivo,FORMATO_ARCHIVO, vuelo_actual -> codigo, vuelo_actual -> aerolinea, vuelo_actual -> puerto_origen
 		, vuelo_actual -> puerto_destino, vuelo_actual -> numero_de_cola, vuelo_actual -> prioridad, vuelo_actual -> fecha
 		, vuelo_actual -> retraso, vuelo_actual -> tiempo_de_vuelo, vuelo_actual -> cancelado);
-		*/
-	return -1;
+	*/
+
+	char** linea = malloc(sizeof(char));
+	if(!linea) return false;
+	size_t tam_linea;
+
+	if(getline(linea,&tam_linea,archivo) == -1)
+	{
+		free(linea);
+		return false;
+	}
+
+	//Falta chquear que todos los strdup sean distintos de NULL
+	char** linea_separada     = split(*linea,',');
+	vuelo_actual -> codigo    = strdup(linea_separada[0]);
+	vuelo_actual -> prioridad = atoi(linea_separada[6]);
+	vuelo_actual -> fecha     = strdup(linea_separada[7]);
+	vuelo_actual -> resumen   = join(linea_separada,' ');
+	
+	free(linea);
+	free_strv(linea_separada);
+	return true;
 }
 
 // -_-_-_-_-_-_-_-_-_-_-_-_-_   COMANDOS   _-_-_-_-_-_-_-_-_-_-_-_-_- //
@@ -198,7 +232,7 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 
 	lista_t* codigos_asosiados;
 
-	while(leer_vuelo(archivo, vuelo_actual) != EOF) {
+	while(leer_vuelo(archivo, vuelo_actual)) {
 
 		vuelo_previo = hash_obtener(vuelos_x_codigo,vuelo_actual -> codigo);
 		codigos_asosiados = abb_obtener(vuelos_x_fecha,vuelo_previo -> fecha);
@@ -242,7 +276,7 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 
 struct vuelos_en_rango{
 	lista_t* vuelos;
-	bool orden_ascendente;
+	(bool) (insertar*) (lista_t*, void*);
 	char* fecha_max;
 	char* fecha_min;
 	
@@ -255,10 +289,7 @@ bool obtener_vuelos_en_rango(const char* fecha_actual, void* vuelo_actual, void*
 	if( comparar_fechas(fecha_actual,vuelos_en_rango.fecha_min) > 0
 		&& comparar_fechas(fecha_actual,vuelos_en_rango.fecha_max) < 0 ){
 
-		if(vuelos_en_rango.orden_ascendente)
-			lista_insertar_ultimo(vuelos_en_rango.vuelos,vuelo_actual);
-		else
-			lista_insertar_primero(vuelos_en_rango.vuelos,vuelo_actual);
+		insertar(vuelos_en_rango.vuelos,vuelo_actual);
 		return true;
 	}
 
@@ -269,24 +300,35 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 
 	struct vuelos_en_rango vuelos_en_rango;
 
+	heap_t heap = heap_crear((!strcmp(ordenes[2],"asc")) ? strcmp_min : strcmp_max);
+
 	vuelos_en_rango.vuelos = lista_crear();
 	if(!vuelos_en_rango.vuelos) return false;
 
-	vuelos_en_rango.orden_ascendente = atoi(ordenes[2]);
+	vuelos_en_rango.insertar = (!strcmp(ordenes[2],"asc")) ? lista_insertar_primero : lista_insertar_ultimo;
 	vuelos_en_rango.fecha_min = ordenes[3];
 	vuelos_en_rango.fecha_max = ordenes[4];
 	
 	abb_in_order(vuelos_x_fecha, obtener_vuelos_en_rango,&vuelos_en_rango);
-
+	
 	int contador = atoi(ordenes[1]);
+	vuelo_t* vuelo_actual;
+
 	while(!lista_esta_vacia(vuelos_en_rango.vuelos) && contador > 0)
 	{
-		vuelo_t vuelo_actual = lista_borrar_primero(hash_obtener(vuelos_x_codigo,vuelos_en_rango.vuelos));
-		printf("%s - %s\n",vuelo_actual.fecha,vuelo_actual.codigo);
+		insertar_lista_en_heap(lista_borrar_primero(vuelos_en_rango),heap);
+
+		while(!heap_esta_vacio(heap))
+		{
+			vuelo_actual = hash_obtener(vuelos_x_codigo, heap_desencolar(heap));
+			printf("%s - %s\n",vuelo_actual.fecha,vuelo_actual.codigo);	
+		}
+
 		contador--;
 	}
 
 	lista_destruir(vuelos_en_rango.vuelos,NULL);
+	heap_destruir(heap);
 	return true;
 }
 
@@ -302,7 +344,7 @@ bool info_vuelo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 }
 
 bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
-	heap_t* heap = heap_crear(mi_strcmp); //Heap de minimos
+	heap_t* heap = heap_crear(strcmp_min); //Heap de minimos
 	hash_iter_t* iter = hash_iter_crear(vuelos_x_codigo);
 	int k = atoi(ordenes[1]);
 	int i = 0;
