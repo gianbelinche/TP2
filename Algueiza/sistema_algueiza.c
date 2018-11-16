@@ -146,7 +146,7 @@ int strcmp_max(const void* dato1,const void* dato2){
 	return strcmp((char*) dato1,(char*) dato2);
 }
 
-void insertar_lista_en_heap(lista_t* lista, heap_t heap)
+void insertar_lista_en_heap(lista_t* lista, heap_t* heap)
 {
 	lista_iter_t* lista_iter  = lista_iter_crear(lista);
 	if(!lista_iter) return;
@@ -276,7 +276,7 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 
 struct vuelos_en_rango{
 	lista_t* vuelos;
-	(bool) (insertar*) (lista_t*, void*);
+	bool (*insertar) (lista_t*, void*);
 	char* fecha_max;
 	char* fecha_min;
 	
@@ -289,7 +289,7 @@ bool obtener_vuelos_en_rango(const char* fecha_actual, void* vuelo_actual, void*
 	if( comparar_fechas(fecha_actual,vuelos_en_rango.fecha_min) > 0
 		&& comparar_fechas(fecha_actual,vuelos_en_rango.fecha_max) < 0 ){
 
-		insertar(vuelos_en_rango.vuelos,vuelo_actual);
+		vuelos_en_rango.insertar(vuelos_en_rango.vuelos,vuelo_actual);
 		return true;
 	}
 
@@ -300,7 +300,7 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 
 	struct vuelos_en_rango vuelos_en_rango;
 
-	heap_t heap = heap_crear((!strcmp(ordenes[2],"asc")) ? strcmp_min : strcmp_max);
+	heap_t* heap = heap_crear((!strcmp(ordenes[2],"asc")) ? strcmp_min : strcmp_max);
 
 	vuelos_en_rango.vuelos = lista_crear();
 	if(!vuelos_en_rango.vuelos) return false;
@@ -316,19 +316,19 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 
 	while(!lista_esta_vacia(vuelos_en_rango.vuelos) && contador > 0)
 	{
-		insertar_lista_en_heap(lista_borrar_primero(vuelos_en_rango),heap);
+		insertar_lista_en_heap(lista_borrar_primero(vuelos_en_rango.vuelos),heap);
 
 		while(!heap_esta_vacio(heap))
 		{
 			vuelo_actual = hash_obtener(vuelos_x_codigo, heap_desencolar(heap));
-			printf("%s - %s\n",vuelo_actual.fecha,vuelo_actual.codigo);	
+			printf("%s - %s\n",vuelo_actual -> fecha,vuelo_actual -> codigo);	
 		}
 
 		contador--;
 	}
 
 	lista_destruir(vuelos_en_rango.vuelos,NULL);
-	heap_destruir(heap);
+	heap_destruir(heap,NULL);
 	return true;
 }
 
