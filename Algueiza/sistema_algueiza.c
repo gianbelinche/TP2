@@ -45,13 +45,19 @@ const comando_t COMANDOS_FUNCIONES[] = {agregar_archivo  , ver_tablero , info_vu
 
 // -_-_-_-_-_-_-_-_-_-_-   FUNCIONE  PRINCIPAL  -_-_-_-_-_-_-_-_-_-_- //
 
-bool interpretar_comando(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char* ordenes[])
+void interpretar_comando(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char* ordenes[])
 {
 	for(size_t i = 0; i < COMANDOS_CANTIDAD; i++)
 		if(!strcmp(ordenes[0],COMANDOS_NOMBRES[i]))
-			return COMANDOS_FUNCIONES[i](vuelos_x_fecha,vuelos_x_codigo,ordenes);
+		{
+			if(COMANDOS_FUNCIONES[i](vuelos_x_fecha,vuelos_x_codigo,ordenes))
+				puts("OK");
+			else
+				printf("Error en comando %s\n",COMANDOS_NOMBRES[i]);
 
-	return false;
+			return;
+		}
+
 }
 
 int comparar_fechas(const char* dato1,const char* dato2);
@@ -194,18 +200,17 @@ bool leer_vuelo(FILE* archivo,vuelo_t* vuelo_actual){
 		, vuelo_actual -> retraso, vuelo_actual -> tiempo_de_vuelo, vuelo_actual -> cancelado);
 	*/
 
-	char** linea = malloc(sizeof(char));
-	if(!linea) return false;
-	size_t tam_linea;
+	char* linea = NULL;
+	size_t tam_linea = 0;
 
-	if(getline(linea,&tam_linea,archivo) == -1)
+	if(getline(&linea,&tam_linea,archivo) == -1 || tam_linea == 0)
 	{
 		free(linea);
 		return false;
 	}
 
 	//Falta chquear que todos los strdup sean distintos de NULL
-	char** linea_separada     = split(*linea,',');
+	char** linea_separada     = split(linea,',');
 	vuelo_actual -> codigo    = strdup(linea_separada[0]);
 	vuelo_actual -> prioridad = atoi(linea_separada[6]);
 	vuelo_actual -> fecha     = strdup(linea_separada[7]);
@@ -230,14 +235,14 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 		return false;
 	}
 
-	lista_t* codigos_asosiados;
+	lista_t* codigos_asosiados = NULL;
 
 	while(leer_vuelo(archivo, vuelo_actual)) {
 
 		vuelo_previo = hash_obtener(vuelos_x_codigo,vuelo_actual -> codigo);
-		codigos_asosiados = abb_obtener(vuelos_x_fecha,vuelo_previo -> fecha);
-
+		
 		if(vuelo_previo && strcmp(vuelo_previo -> fecha,vuelo_actual -> fecha)){
+			codigos_asosiados = abb_obtener(vuelos_x_fecha,vuelo_previo -> fecha);
 			borrar_codigo_en_lista(codigos_asosiados,vuelo_previo -> codigo);
 			if(lista_esta_vacia(codigos_asosiados))
 			{
