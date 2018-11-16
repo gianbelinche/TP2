@@ -97,7 +97,7 @@ ssize_t hash_buscar(const hash_t* hash, const char* clave){
 	return NO_ENCONTRADO;
 }
 
-bool redimensionar(hash_t* hash,uint32_t porcentaje){
+bool _redimensionar(hash_t* hash,uint32_t porcentaje){
 
 	uint32_t pos;
 	campo_t* campo;
@@ -163,7 +163,7 @@ bool hash_guardar(hash_t* hash, const char* clave, void* dato){
 		return false;
 
 	if ( (hash->ocupados + hash->borrados)*100/hash->capacidad > FACTOR_DE_REDIMENSION){
-		bool ok = redimensionar(hash,ESCALAR_DE_REDIMENSION);
+		bool ok = _redimensionar(hash,ESCALAR_DE_REDIMENSION);
 		if (!ok)
 			return false;
 	} 
