@@ -25,7 +25,7 @@ typedef struct heap{
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
 
-bool redimensionar(heap_t* heap){
+bool redimensionar_heap(heap_t* heap){
 
 	void** nuevos_elem = realloc(heap -> elementos,sizeof(void*)*(heap -> capacidad)*FACTOR_REDIMENSION);
 	if (!nuevos_elem) return false;
@@ -137,7 +137,7 @@ void* heap_ver_max(const heap_t *heap){
 
 bool heap_encolar(heap_t* heap, void* dato){
 
-	if( ((heap -> cantidad /heap -> capacidad)*100) > FACTOR_CARGA && !redimensionar(heap))
+	if( ((heap -> cantidad /heap -> capacidad)*100) > FACTOR_CARGA && !redimensionar_heap(heap))
 		return false;
 
 	heap -> elementos[heap -> cantidad] = dato;

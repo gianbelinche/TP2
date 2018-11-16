@@ -1,0 +1,9 @@
+agregar_archivo archivos/vuelos_basicos.csv
+info_vuelo 1092
+ver_tablero 6 asc 2018-04-10T23:22:55 2018-11-03T18:40:31
+ver_tablero 6 asc 2018-04-10T23:22:55 2018-06-06T18:48:33
+ver_tablero 6 asc 2019-04-10T23:22:55 2019-06-06T18:48:33
+ver_tablero 6 asc 2018-06-06T18:48:33 2018-04-10T23:22:55
+borrar 2018-04-10T23:22:55 2018-11-03T18:40:31
+ver_tablero 6 asc 2018-04-10T23:22:55 2018-11-03T18:40:31
+prioridad_vuelos 5

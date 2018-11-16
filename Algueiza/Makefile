@@ -1,11 +1,11 @@
 CC = gcc
-CFLAGS = -g -O2 -std=c99 -Wall -Wconversion -Wno-sign-conversion -Wbad-function-cast -Wshadow -Wpointer-arith -Wunreachable-code -Wformat=2 -Werror
+CFLAGS = -g -O2 -std=c99 -Wall -Wconversion -Wno-sign-conversion -Wbad-function-cast -Wshadow -Wpointer-arith -Wunreachable-code -Wformat=2 -Werror -pedantic
 VFLAGS = --leak-check=full --track-origins=yes --show-reachable=yes --error-exitcode=2
 
 CFILES = *.c
 HFILES = *.h
-EXEC_S = pruebas_
-PADRON = 102674
+EXEC_S = algueiza
+PADRON = G47
 
 build: $(CFILES)
 	$(CC) $(CFLAGS) -o $(EXEC_S) $(CFILES)
