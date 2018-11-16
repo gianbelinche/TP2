@@ -7,17 +7,7 @@
 #include "pila.h"
 #include "abb.h"
 
-/*        __________
-          |I'm back|
-         / ________|
-		  /		
-	(O.O)                                	
-    (   )	
-     - -                                                              */
 // -_-_-_-_-_-_-_-_  DEFINICION DE  TIPOS DE DATO  _-_-_-_-_-_-_-_-_- //
-
-typedef int (*abb_comparar_clave_t) (const char *, const char *);
-typedef void (*abb_destruir_dato_t) (void *);
 
 typedef struct nodo {
     char* clave;

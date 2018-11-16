@@ -10,7 +10,7 @@
 typedef struct abb_iter abb_iter_t;
 typedef struct abb abb_t;
 
-typedef int (*abb_comparar_clave_t) (const char *, const char *);
+typedef int  (*abb_comparar_clave_t) (const char *, const char *);
 typedef void (*abb_destruir_dato_t) (void *);
 
 // -_-_-_-_-_-_-_-_-_-_-  PRIMITIVAS DEL ABB  -_-_-_-_-_-_-_-_-_-_- //
