@@ -73,7 +73,7 @@ time_t convertir_a_time(const char* fecha)
 
 int comparar_fechas(const char* fecha1,const char* fecha2)
 {
-	return convertir_a_time(fecha1) - convertir_a_time(fecha2);
+	return (int) convertir_a_time(fecha1) - convertir_a_time(fecha2);
 }
 
 int cmp_min(const void* dato1,const void* dato2)
@@ -502,7 +502,7 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 	for (;cantidad_a_mostrar > 0;cantidad_a_mostrar--)
 	{
 		vuelo_t* vuelo = vuelos_x_prioridad[cantidad_a_mostrar-1];
-		printf("%d - %s\n",vuelo -> prioridad, vuelo -> codigo);
+		printf("%ld - %s\n",vuelo -> prioridad, vuelo -> codigo);
 	}
 
 	heap_destruir(heap_min,NULL);
