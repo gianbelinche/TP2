@@ -52,7 +52,7 @@ const comando_t COMANDOS_FUNCIONES[] = {agregar_archivo  , ver_tablero , info_vu
 time_t convertir_a_time(const char* fecha)
 {
 	struct tm tiempo;
-	char ano[] = {fecha[0],fecha[1],fecha[2],fecha[3],'\0'}; //NO entiendo porque no funciona
+	char ano[] = {fecha[0],fecha[1],fecha[2],fecha[3],'\0'};
 	tiempo.tm_year = atoi(ano) - 1900;
 	char mes[] = {fecha[5],fecha[6],'\0'};
 	tiempo.tm_mon = atoi(mes) -1;
@@ -508,3 +508,17 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 	heap_destruir(heap_min,NULL);
 	return true;
 }
+
+/*                               
+                                _
+                              -=\`\
+                          |\ ____\_\__
+                        -=\c`""""""" "`)
+                           `~~~~~/ /~~`
+                             -==/ /
+                               '-'                 _
+                                                  (  )
+                _, _ .                         ( `  ) . )
+               ( (  _ )_                      (_, _(  ,_)_)
+             (_(_  _(_ ,)                                
+*/
