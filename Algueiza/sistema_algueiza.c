@@ -509,7 +509,11 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 	return true;
 }
 
-/*                               
+
+         /* `   )_                                   
+       (    )    `)                                  
+     (_   (_ .  _) _)                                 
+
                                 _
                               -=\`\
                           |\ ____\_\__
@@ -520,5 +524,4 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
                                                   (  )
                 _, _ .                         ( `  ) . )
                ( (  _ )_                      (_, _(  ,_)_)
-             (_(_  _(_ ,)                                
-*/
+             (_(_  _(_ ,*/
