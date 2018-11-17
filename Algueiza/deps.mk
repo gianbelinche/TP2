@@ -1,0 +1,1 @@
+algueiza: sistema_algueiza.o hash.o abb.o heap.o lista.o pila.o strutil.o
