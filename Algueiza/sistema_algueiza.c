@@ -309,11 +309,8 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 		{
 			codigos_asosiados = abb_obtener(vuelos_x_fecha,vuelo_previo -> fecha);
 			borrar_codigo_en_lista(codigos_asosiados,vuelo_previo -> codigo);
-			
-			if(lista_esta_vacia(codigos_asosiados))
-				//abb_borrar(vuelos_x_fecha,vuelo_previo -> fecha);
-
 			hash_borrar(vuelos_x_codigo,vuelo_previo -> codigo);
+			destruir_vuelo(vuelo_previo);
 		}
 
 		codigos_asosiados = abb_obtener(vuelos_x_fecha,vuelo_actual -> fecha);
