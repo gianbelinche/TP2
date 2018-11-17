@@ -76,6 +76,17 @@ int comparar_fechas(const char* fecha1,const char* fecha2)
 	return convertir_a_time(fecha1) - convertir_a_time(fecha2);
 }
 
+int cmp_min(const void* dato1,const void* dato2)
+{
+	vuelo_t* vuelo1 = (vuelo_t*) dato1;
+	vuelo_t* vuelo2 = (vuelo_t*) dato2;
+	if (vuelo1->prioridad > vuelo2->prioridad)
+		return 1;
+	else if (vuelo1->prioridad < vuelo2->prioridad)
+		return -1;
+	return 0;
+}
+
 int strcmp_min(const void* dato1,const void* dato2)
 {
 	return -strcmp((char*) dato1,(char*) dato2);
@@ -443,7 +454,7 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 {
 	if(hash_cantidad(vuelos_x_codigo) == 0) return true;
 
-	heap_t* heap_min = heap_crear(strcmp_min);
+	heap_t* heap_min = heap_crear(cmp_min);
 
 	if(!heap_min) return false;
 
@@ -460,30 +471,31 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 
 	while (!hash_iter_al_final(iter) && contador < cantidad_a_mostrar)
 	{
-		heap_encolar(heap_min, (char*) hash_iter_ver_actual(iter));
+		char* codigo = (char*) hash_iter_ver_actual(iter);
+		heap_encolar(heap_min, hash_obtener(vuelos_x_codigo,codigo));
 		hash_iter_avanzar(iter);
 		contador++;
 	}
 
-	vuelo_t* vuelo_min;
+	vuelo_t* vuelo_tope;
 	vuelo_t* vuelo_actual;
 
 	while (!hash_iter_al_final(iter))
 	{
-		vuelo_min    = hash_obtener(vuelos_x_codigo, heap_ver_max(heap_min));
+		vuelo_tope    = heap_ver_max(heap_min);
 		vuelo_actual = hash_obtener(vuelos_x_codigo, (char*) hash_iter_ver_actual(iter));
 
-		if (vuelo_actual -> prioridad < vuelo_min -> prioridad)
+		if (vuelo_actual -> prioridad < vuelo_tope -> prioridad)
 		{
 			heap_desencolar(heap_min); 
-			heap_encolar(heap_min,vuelo_actual -> codigo);
+			heap_encolar(heap_min,vuelo_actual);
 		}
 		hash_iter_avanzar(iter);
 	}
 
 	hash_iter_destruir(iter);
 
-	char* vuelos_x_prioridad[cantidad_a_mostrar];
+	vuelo_t* vuelos_x_prioridad[cantidad_a_mostrar];
 	
 	for(int i = 0;i < cantidad_a_mostrar;i++)
 	{
@@ -492,8 +504,8 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 
 	for (;cantidad_a_mostrar > 0;cantidad_a_mostrar--)
 	{
-		vuelo_actual = hash_obtener(vuelos_x_codigo,vuelos_x_prioridad[cantidad_a_mostrar]);
-		printf("%d - %s\n",vuelo_actual -> prioridad, vuelo_actual -> codigo);
+		vuelo_t* vuelo = vuelos_x_prioridad[cantidad_a_mostrar-1];
+		printf("%d - %s\n",vuelo -> prioridad, vuelo -> codigo);
 	}
 
 	heap_destruir(heap_min,NULL);
