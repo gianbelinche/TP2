@@ -81,9 +81,9 @@ int cmp_min(const void* dato1,const void* dato2)
 	vuelo_t* vuelo1 = (vuelo_t*) dato1;
 	vuelo_t* vuelo2 = (vuelo_t*) dato2;
 	if (vuelo1->prioridad > vuelo2->prioridad)
-		return 1;
-	else if (vuelo1->prioridad < vuelo2->prioridad)
 		return -1;
+	else if (vuelo1->prioridad < vuelo2->prioridad)
+		return 1;
 	return 0;
 }
 
@@ -502,7 +502,7 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 	for (;cantidad_a_mostrar > 0;cantidad_a_mostrar--)
 	{
 		vuelo_t* vuelo = vuelos_x_prioridad[cantidad_a_mostrar-1];
-		printf("%ld - %s\n",vuelo -> prioridad, vuelo -> codigo);
+		printf("%zd - %s\n",vuelo -> prioridad, vuelo -> codigo);
 	}
 
 	heap_destruir(heap_min,NULL);
