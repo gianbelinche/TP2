@@ -311,9 +311,9 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 			borrar_codigo_en_lista(codigos_asosiados,vuelo_previo -> codigo);
 			
 			if(lista_esta_vacia(codigos_asosiados))
-				lista_destruir(abb_borrar(vuelos_x_fecha,vuelo_previo -> fecha),NULL);
+				//abb_borrar(vuelos_x_fecha,vuelo_previo -> fecha);
 
-			destruir_vuelo(vuelo_previo);
+			hash_borrar(vuelos_x_codigo,vuelo_previo -> codigo);
 		}
 
 		codigos_asosiados = abb_obtener(vuelos_x_fecha,vuelo_actual -> fecha);
@@ -357,7 +357,7 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 	int contador = atoi(ordenes[1]);
 	if(contador <= 0) return false;
 
-	if(!strcmp(ordenes[2],NOTACION_ASCENDENTE) && !strcmp(ordenes[2],NOTACION_DESCENDENTE)) return false;
+	if(strcmp(ordenes[2],NOTACION_ASCENDENTE) && strcmp(ordenes[2],NOTACION_DESCENDENTE)) return false;
 
 	struct vuelos_en_rango vuelos_en_rango;
 
