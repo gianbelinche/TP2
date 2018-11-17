@@ -45,6 +45,7 @@ const char*     COMANDOS_NOMBRES[]   = {"agregar_archivo","ver_tablero","info_vu
 const comando_t COMANDOS_FUNCIONES[] = {agregar_archivo  , ver_tablero , info_vuelo , prioridad_vuelos , borrar };
 
 #define NOTACION_ASCENDENTE "asc"
+#define NOTACION_DESCENDENTE "desc"
 
 // -_-_-_-_-_-_-_-_-_-_-  FUNCIONES AUXILIARES  -_-_-_-_-_-_-_-_-_-_- //
 
@@ -155,11 +156,38 @@ bool leer_vuelo(FILE* archivo,vuelo_t* vuelo_actual)
 		return false;
 	}
 
-	//Falta chquear que todos los strdup sean distintos de NULL
 	char** linea_separada     = split(*linea,',');
+
+	if(!*linea_separada)
+	{
+		free_strv(linea_separada);
+		free(*linea);
+		free(linea);
+		return false;
+	}
+
 	vuelo_actual -> codigo    = strdup(linea_separada[0]);
+
+	if(!vuelo_actual -> codigo)
+	{
+		free_strv(linea_separada);
+		free(*linea);
+		free(linea);
+		return false;
+	}
+
 	vuelo_actual -> prioridad = atoi(linea_separada[5]);
 	vuelo_actual -> fecha     = strdup(linea_separada[6]);
+
+	if(!vuelo_actual -> fecha)
+	{
+		free(vuelo_actual -> codigo);
+		free_strv(linea_separada);
+		free(*linea);
+		free(linea);
+		return false;
+	}
+
 	vuelo_actual -> resumen   = join(linea_separada,' ');
 	
 	free(*linea);
@@ -191,6 +219,7 @@ void interpretar_comando(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char* ord
 			return;
 		}
 
+	fprintf(stderr,"Error en comando %s\n",ordenes[0]);
 }
 
 int main()
@@ -313,6 +342,12 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 
 bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 	if(hash_cantidad(vuelos_x_codigo) == 0) return true;
+	
+	int contador = atoi(ordenes[1]);
+	if(contador <= 0) return false;
+
+	if(!strcmp(ordenes[2],NOTACION_ASCENDENTE) && !strcmp(ordenes[2],NOTACION_DESCENDENTE)) return false;
+
 	struct vuelos_en_rango vuelos_en_rango;
 
 	vuelos_en_rango.vuelos = lista_crear();
@@ -332,7 +367,6 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 	
 	heap_t* heap = heap_crear((!strcmp(ordenes[2],NOTACION_ASCENDENTE)) ? strcmp_min : strcmp_max);
 	vuelo_t* vuelo_actual;
-	size_t contador = atoi(ordenes[1]);
 	
 	while(!lista_esta_vacia(vuelos_en_rango.vuelos) && contador > 0)
 	{
