@@ -13,7 +13,8 @@
 
 // -_-_-_-_-_-_-_-_-_-_-_-_-_-_  TIPOS DE DATO  _-_-_-_-_-_-_-_-_-_-_-_-_-_- //
 
-typedef struct vuelo{
+typedef struct vuelo
+{
 	char* codigo;
 	char* fecha;
 	char* resumen;
@@ -72,9 +73,9 @@ int cmp_min(const void* dato1,const void* dato2)
 {
 	vuelo_t* vuelo1 = (vuelo_t*) dato1;
 	vuelo_t* vuelo2 = (vuelo_t*) dato2;
-	if (vuelo1->prioridad > vuelo2->prioridad)
+	if (vuelo1 -> prioridad > vuelo2 -> prioridad)
 		return -1;
-	else if (vuelo1->prioridad < vuelo2->prioridad)
+	else if (vuelo1 -> prioridad < vuelo2 -> prioridad)
 		return 1;
 	return 0;
 }
@@ -351,7 +352,8 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 	return true;
 }
 
-bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
+bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
+{
 	if(hash_cantidad(vuelos_x_codigo) == 0) return true;
 	
 	int contador = atoi(ordenes[1]);
@@ -382,7 +384,8 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 
 	abb_iter_in_llegar_a(iter,fecha_min);
 
-	while(!abb_iter_in_al_final(iter)){
+	while(!abb_iter_in_al_final(iter))
+	{
 		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
 		if (comparar_fechas(fecha_actual,fecha_min) <= 0)
 		{
@@ -421,7 +424,8 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 	return true;
 }
 
-bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
+bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
+{
 	if(hash_cantidad(vuelos_x_codigo) == 0) return true;
 
 	lista_t* vuelos = lista_crear();
@@ -477,7 +481,7 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 		codigo_actual     = lista_borrar_primero(codigos_asosiados); 
 		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha); 
 
-		printf("%s\n",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual))->resumen); 
+		printf("%s\n",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual)) -> resumen); 
 
 		destruir_vuelo(hash_borrar(vuelos_x_codigo,codigo_actual));
 		
