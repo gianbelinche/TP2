@@ -66,7 +66,13 @@ time_t convertir_a_time(const char* fecha)
 
 int comparar_fechas(const char* fecha1,const char* fecha2)
 {
-	return (int) convertir_a_time(fecha1) - convertir_a_time(fecha2);
+	if( convertir_a_time(fecha1) - convertir_a_time(fecha2) > 0)
+		return 1;
+
+	if ( convertir_a_time(fecha1) - convertir_a_time(fecha2) < 0)
+		return -1;
+
+	return 0;
 }
 
 int cmp_min(const void* dato1,const void* dato2)
@@ -481,7 +487,7 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 		codigo_actual     = lista_borrar_primero(codigos_asosiados); 
 		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha); 
 
-		printf("%s\n",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual)) -> resumen); 
+		printf("%s",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual)) -> resumen); 
 
 		destruir_vuelo(hash_borrar(vuelos_x_codigo,codigo_actual));
 		
