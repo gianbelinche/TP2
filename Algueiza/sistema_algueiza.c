@@ -458,19 +458,43 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 		return false;
 	}
 
-	abb_in_order(vuelos_x_fecha, obtener_vuelos_en_rango,&vuelos_en_rango);
+	abb_iter_t* iter = abb_iter_in_crear(vuelos_x_fecha);
+
+	if (!iter){
+		lista_destruir(vuelos_en_rango.vuelos,NULL);
+		return false;
+	}
+
+	abb_iter_in_llegar_a(iter,vuelos_en_rango.fecha_min);
+
+	while(!abb_iter_in_al_final(iter)){
+		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
+		if (comparar_fechas(fecha_actual,vuelos_en_rango.fecha_min) <= 0){
+			abb_iter_in_avanzar(iter);
+			continue;
+		}
+		if(comparar_fechas(fecha_actual,vuelos_en_rango.fecha_max) <= 0 ){
+			vuelos_en_rango.insertar(vuelos_en_rango.vuelos,abb_obtener(vuelos_x_fecha,fecha_actual));
+			vuelos_en_rango.fecha_min = fecha_actual;
+			abb_iter_in_avanzar(iter);
+		}
+		else break;
+	}
+
+	abb_iter_in_destruir(iter);
+	
 	lista_t* codigos_asosiados;
 	char* codigo_actual;
 	char* fecha_actual;
 
-	while(!lista_esta_vacia(vuelos_en_rango.vuelos)) //Esto tiene listas adento, por lo tanto no esta vacio
+	while(!lista_esta_vacia(vuelos_en_rango.vuelos)) 
 	{
 
-		codigos_asosiados = lista_borrar_primero(vuelos_en_rango.vuelos); // pero esta es una lista vacia
-		codigo_actual     = lista_borrar_primero(codigos_asosiados); // por lo que esto es NULL
-		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha); // sorpresa, core dumped
+		codigos_asosiados = lista_borrar_primero(vuelos_en_rango.vuelos); 
+		codigo_actual     = lista_borrar_primero(codigos_asosiados); 
+		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha); 
 
-		printf("%s\n",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual))->resumen); //Se me ocurre que es por el hecho de que nos quedan fehcas sin vuelos en el arbol
+		printf("%s\n",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual))->resumen); 
 
 		destruir_vuelo(hash_borrar(vuelos_x_codigo,codigo_actual));
 		
