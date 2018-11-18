@@ -21,15 +21,6 @@ typedef struct vuelo{
 
 }vuelo_t;
 
-struct vuelos_en_rango{
-	lista_t* vuelos;
-	bool (*insertar) (lista_t*, void*);
-	char* fecha_max;
-	char* fecha_min;
-	
-};
-
-
 // -_-_-_-_-_-_-_-_-_-_-_-_-_-_      MACROS    _-_-_-_-_-_-_-_-_-_-_-_-_-_- //
 
 typedef bool (*comando_t)(abb_t*,hash_t*,char**);
@@ -98,18 +89,6 @@ int strcmp_max(const void* dato1,const void* dato2)
 	return strcmp((char*) dato1,(char*) dato2);
 }
 
-bool obtener_vuelos_en_rango(const char* fecha_actual, void* vuelo_actual, void* rango){
-	struct vuelos_en_rango vuelos_en_rango = *((struct vuelos_en_rango*) (rango));
-
-	if( comparar_fechas(fecha_actual,vuelos_en_rango.fecha_min) >= 0
-		&& comparar_fechas(fecha_actual,vuelos_en_rango.fecha_max) <= 0 ){
-		vuelos_en_rango.insertar(vuelos_en_rango.vuelos,vuelo_actual);
-		return true;
-	}
-
-	return false;
-}
-
 void insertar_lista_en_heap(lista_t* lista, heap_t* heap)
 {
 	lista_iter_t* lista_iter  = lista_iter_crear(lista);
@@ -171,7 +150,7 @@ bool leer_vuelo(FILE* archivo,vuelo_t* vuelo_actual)
 		return false;
 	}
 
-	char** linea_separada     = split(*linea,',');
+	char** linea_separada  = split(*linea,',');
 
 	if(!*linea_separada)
 	{
@@ -181,7 +160,7 @@ bool leer_vuelo(FILE* archivo,vuelo_t* vuelo_actual)
 		return false;
 	}
 
-	vuelo_actual -> codigo    = strdup(linea_separada[0]);
+	vuelo_actual -> codigo = strdup(linea_separada[0]);
 
 	if(!vuelo_actual -> codigo)
 	{
@@ -203,7 +182,7 @@ bool leer_vuelo(FILE* archivo,vuelo_t* vuelo_actual)
 		return false;
 	}
 
-	vuelo_actual -> resumen   = join(linea_separada,' ');
+	vuelo_actual -> resumen = join(linea_separada,' ');
 	
 	free(*linea);
 	free(linea);
@@ -380,39 +359,40 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 
 	if(strcmp(ordenes[2],NOTACION_ASCENDENTE) && strcmp(ordenes[2],NOTACION_DESCENDENTE)) return false;
 
-	struct vuelos_en_rango vuelos_en_rango;
+	lista_t* vuelos = lista_crear();
+	if(!vuelos) return false;
 
-	vuelos_en_rango.vuelos = lista_crear();
-	if(!vuelos_en_rango.vuelos) return false;
-
-	vuelos_en_rango.insertar = (!strcmp(ordenes[2],NOTACION_ASCENDENTE)) ? lista_insertar_ultimo : lista_insertar_primero;
-	vuelos_en_rango.fecha_min = ordenes[3];
-	vuelos_en_rango.fecha_max = ordenes[4];
+	bool (*insertar) (lista_t*, void*) = (!strcmp(ordenes[2],NOTACION_ASCENDENTE)) ? lista_insertar_ultimo : lista_insertar_primero;
+	char* fecha_min = ordenes[3];
+	char* fecha_max = ordenes[4];
 	
-	if(comparar_fechas(vuelos_en_rango.fecha_min,vuelos_en_rango.fecha_max) > 0)
+	if(comparar_fechas(fecha_min,fecha_max) > 0)
 	{
-		lista_destruir(vuelos_en_rango.vuelos,NULL);
+		lista_destruir(vuelos,NULL);
 		return false;
 	}
 
 	abb_iter_t* iter = abb_iter_in_crear(vuelos_x_fecha);
 
-	if (!iter){
-		lista_destruir(vuelos_en_rango.vuelos,NULL);
+	if (!iter)
+	{
+		lista_destruir(vuelos,NULL);
 		return false;
 	}
 
-	abb_iter_in_llegar_a(iter,vuelos_en_rango.fecha_min);
+	abb_iter_in_llegar_a(iter,fecha_min);
 
 	while(!abb_iter_in_al_final(iter)){
 		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
-		if (comparar_fechas(fecha_actual,vuelos_en_rango.fecha_min) <= 0){
+		if (comparar_fechas(fecha_actual,fecha_min) <= 0)
+		{
 			abb_iter_in_avanzar(iter);
 			continue;
 		}
-		if(comparar_fechas(fecha_actual,vuelos_en_rango.fecha_max) <= 0 ){
-			vuelos_en_rango.insertar(vuelos_en_rango.vuelos,abb_obtener(vuelos_x_fecha,fecha_actual));
-			vuelos_en_rango.fecha_min = fecha_actual;
+		if(comparar_fechas(fecha_actual,fecha_max) <= 0 )
+		{
+			insertar(vuelos,abb_obtener(vuelos_x_fecha,fecha_actual));
+			fecha_min = fecha_actual;
 			abb_iter_in_avanzar(iter);
 		}
 		else break;
@@ -423,9 +403,9 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 	heap_t* heap = heap_crear((!strcmp(ordenes[2],NOTACION_ASCENDENTE)) ? strcmp_min : strcmp_max);
 	vuelo_t* vuelo_actual;
 	
-	while(!lista_esta_vacia(vuelos_en_rango.vuelos) && contador > 0)
+	while(!lista_esta_vacia(vuelos) && contador > 0)
 	{
-		insertar_lista_en_heap(lista_borrar_primero(vuelos_en_rango.vuelos),heap);
+		insertar_lista_en_heap(lista_borrar_primero(vuelos),heap);
 
 		while(!heap_esta_vacio(heap))
 		{
@@ -436,46 +416,49 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 		contador--;
 	}
 
-	lista_destruir(vuelos_en_rango.vuelos,NULL);
+	lista_destruir(vuelos,NULL);
 	heap_destruir(heap,NULL);
 	return true;
 }
 
 bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 	if(hash_cantidad(vuelos_x_codigo) == 0) return true;
-	struct vuelos_en_rango vuelos_en_rango;
 
-	vuelos_en_rango.vuelos = lista_crear();
-	if(!vuelos_en_rango.vuelos) return false;
+	lista_t* vuelos = lista_crear();
+	if(!vuelos) return false;
 
-	vuelos_en_rango.insertar = lista_insertar_ultimo;
-	vuelos_en_rango.fecha_min = ordenes[1];
-	vuelos_en_rango.fecha_max = ordenes[2];
+	bool (*insertar) (lista_t*, void*) = lista_insertar_ultimo;
+	char* fecha_min = ordenes[1];
+	char* fecha_max = ordenes[2];
 	
-	if(comparar_fechas(vuelos_en_rango.fecha_min,vuelos_en_rango.fecha_max) > 0)
+	if(comparar_fechas(fecha_min,fecha_max) > 0)
 	{
-		lista_destruir(vuelos_en_rango.vuelos,NULL);
+		lista_destruir(vuelos,NULL);
 		return false;
 	}
 
 	abb_iter_t* iter = abb_iter_in_crear(vuelos_x_fecha);
 
-	if (!iter){
-		lista_destruir(vuelos_en_rango.vuelos,NULL);
+	if (!iter)
+	{
+		lista_destruir(vuelos,NULL);
 		return false;
 	}
 
-	abb_iter_in_llegar_a(iter,vuelos_en_rango.fecha_min);
+	abb_iter_in_llegar_a(iter,fecha_min);
 
-	while(!abb_iter_in_al_final(iter)){
+	while(!abb_iter_in_al_final(iter))
+	{
 		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
-		if (comparar_fechas(fecha_actual,vuelos_en_rango.fecha_min) <= 0){
+		if (comparar_fechas(fecha_actual,fecha_min) <= 0)
+		{
 			abb_iter_in_avanzar(iter);
 			continue;
 		}
-		if(comparar_fechas(fecha_actual,vuelos_en_rango.fecha_max) <= 0 ){
-			vuelos_en_rango.insertar(vuelos_en_rango.vuelos,abb_obtener(vuelos_x_fecha,fecha_actual));
-			vuelos_en_rango.fecha_min = fecha_actual;
+		if(comparar_fechas(fecha_actual,fecha_max) <= 0 )
+		{
+			insertar(vuelos,abb_obtener(vuelos_x_fecha,fecha_actual));
+			fecha_min = fecha_actual;
 			abb_iter_in_avanzar(iter);
 		}
 		else break;
@@ -487,10 +470,10 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 	char* codigo_actual;
 	char* fecha_actual;
 
-	while(!lista_esta_vacia(vuelos_en_rango.vuelos)) 
+	while(!lista_esta_vacia(vuelos)) 
 	{
 
-		codigos_asosiados = lista_borrar_primero(vuelos_en_rango.vuelos); 
+		codigos_asosiados = lista_borrar_primero(vuelos); 
 		codigo_actual     = lista_borrar_primero(codigos_asosiados); 
 		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha); 
 
@@ -507,7 +490,7 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 		free(fecha_actual);
 	}
 
-	lista_destruir(vuelos_en_rango.vuelos,NULL);
+	lista_destruir(vuelos,NULL);
 	return true;
 }
 
