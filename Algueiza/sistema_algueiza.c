@@ -412,6 +412,7 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 		}
 		if(comparar_fechas(fecha_actual,vuelos_en_rango.fecha_max) <= 0 ){
 			vuelos_en_rango.insertar(vuelos_en_rango.vuelos,abb_obtener(vuelos_x_fecha,fecha_actual));
+			vuelos_en_rango.fecha_min = fecha_actual;
 			abb_iter_in_avanzar(iter);
 		}
 		else break;
