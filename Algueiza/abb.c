@@ -47,22 +47,28 @@ bool abb_raiz_esta_vacia(abb_t* abb){
 	return (!abb -> raiz);
 }
 
-nodo_t* _abb_buscar(const nodo_t* nodo,const char* clave,abb_comparar_clave_t cmp){
+nodo_t* _abb_buscar(const nodo_t* nodo,const char* clave,abb_comparar_clave_t cmp,pila_t* pila){
 	if(!nodo) return NULL;
 
-	if( cmp(nodo -> clave,clave) == 0)
+	if (pila)
+		pila_apilar(pila,(void*) nodo);
+
+	if( cmp(nodo -> clave,clave) == 0){
+		if (pila)
+			pila_desapilar(pila);
 		return (nodo_t*) nodo;
+	}
 
 	if( cmp(nodo -> clave,clave) < 0)
-		return _abb_buscar(nodo -> der,clave, cmp);
+		return _abb_buscar(nodo -> der,clave, cmp,pila);
 
-	return _abb_buscar(nodo -> izq,clave, cmp);
+	return _abb_buscar(nodo -> izq,clave, cmp,pila);
 }
 
-nodo_t* abb_buscar (const abb_t* abb,const char* clave){
+nodo_t* abb_buscar (const abb_t* abb,const char* clave,pila_t* pila){
 	if(abb_raiz_esta_vacia((abb_t*)abb)) return NULL;
 
-	return _abb_buscar(abb -> raiz, clave,abb -> cmp);
+	return _abb_buscar(abb -> raiz, clave,abb -> cmp,pila);
 }
 
 
@@ -163,14 +169,14 @@ bool abb_guardar(abb_t* abb, const char *clave, void *dato){
 }
 
 void* abb_obtener(const abb_t* abb,const char* clave){
-	nodo_t* nodo = abb_buscar(abb,clave);
+	nodo_t* nodo = abb_buscar(abb,clave,NULL);
 	if (!nodo) return NULL;
 	return nodo -> dato;
 }
 
 
 bool abb_pertenece(const abb_t* abb,const char* clave){
-	nodo_t* nodo = abb_buscar(abb,clave);
+	nodo_t* nodo = abb_buscar(abb,clave,NULL);
 	return !(!nodo);
 }
 
@@ -256,7 +262,7 @@ void abb_borrar_dos_hijos(nodo_t* nodo,abb_t* abb){
 }
 
 void* abb_borrar(abb_t* abb,const char* clave){
-	nodo_t* nodo = abb_buscar(abb,clave);
+	nodo_t* nodo = abb_buscar(abb,clave,NULL);
 	if (!nodo) return NULL;
 	nodo_t* padre = abb_obtener_padre(abb,clave);
 	void* dato = nodo -> dato;
@@ -344,6 +350,12 @@ const char* abb_iter_in_ver_actual(const abb_iter_t *iter){
 	nodo_t* nodo = pila_ver_tope(iter -> pila);
 	if (!nodo) return NULL;
 	return nodo -> clave;
+}
+
+void abb_iter_in_llegar_a(abb_iter_t* iter,char* llegada){
+	nodo_t* a_llegar = abb_buscar(iter->abb,llegada,iter->pila);
+	if (a_llegar)
+		pila_apilar(iter->pila,a_llegar);
 }
 
 void abb_iter_in_destruir(abb_iter_t* iter){

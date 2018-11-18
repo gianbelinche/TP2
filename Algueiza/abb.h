@@ -77,4 +77,6 @@ bool abb_iter_in_al_final(const abb_iter_t *iter);
 //Post: Se elimina el iterador.
 void abb_iter_in_destruir(abb_iter_t* iter);
 
+void abb_iter_in_llegar_a(abb_iter_t* iter,char* llegada);
+
 #endif // ABB_H

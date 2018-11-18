@@ -395,7 +395,25 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 		return false;
 	}
 
-	abb_in_order(vuelos_x_fecha, obtener_vuelos_en_rango,&vuelos_en_rango);
+	abb_iter_t* iter = abb_iter_in_crear(vuelos_x_fecha);
+
+	if (!iter){
+		lista_destruir(vuelos_en_rango.vuelos,NULL);
+		return false;
+	}
+
+	abb_iter_in_llegar_a(iter,vuelos_en_rango.fecha_min);
+
+	while(!abb_iter_in_al_final(iter)){
+		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
+		if(comparar_fechas(fecha_actual,vuelos_en_rango.fecha_max) <= 0 ){
+			vuelos_en_rango.insertar(vuelos_en_rango.vuelos,abb_obtener(vuelos_x_fecha,fecha_actual));
+			abb_iter_in_avanzar(iter);
+		}
+		else break;
+	}
+
+	abb_iter_in_destruir(iter);
 	
 	heap_t* heap = heap_crear((!strcmp(ordenes[2],NOTACION_ASCENDENTE)) ? strcmp_min : strcmp_max);
 	vuelo_t* vuelo_actual;
