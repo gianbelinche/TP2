@@ -232,21 +232,21 @@ int obtener_cantidad_strv(char* strv[])
 
 void interpretar_comando(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char* ordenes[])
 {
-	for(size_t i = 0; i < COMANDOS_CANTIDAD; i++)
-		if(!strcmp(ordenes[0],COMANDOS_NOMBRES[i]))
-		{
-			if( obtener_cantidad_strv(ordenes) != COMANDOS_PARAMETROS[i] + 1)
-				break;
+    for(size_t i = 0; i < COMANDOS_CANTIDAD; i++)
+        if(!strcmp(ordenes[0],COMANDOS_NOMBRES[i]))
+        {
+            if( obtener_cantidad_strv(ordenes) != COMANDOS_PARAMETROS[i] + 1)
+                break;
 
-			if(COMANDOS_FUNCIONES[i](vuelos_x_fecha,vuelos_x_codigo,ordenes))
-				puts("OK");
-			else
-				fprintf(stderr,"Error en comando %s\n",COMANDOS_NOMBRES[i]);
+            if(COMANDOS_FUNCIONES[i](vuelos_x_fecha,vuelos_x_codigo,ordenes))
+                puts("OK");
+            else
+                fprintf(stderr,"Error en comando %s\n",COMANDOS_NOMBRES[i]);
 
-			return;
-		}
+            return;
+        }
 
-	fprintf(stderr,"Error en comando %s\n",ordenes[0]);
+    fprintf(stderr,"Error en comando %s\n",ordenes[0]);
 }
 
 int main()
@@ -458,14 +458,14 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 	char* codigo_actual;
 	char* fecha_actual;
 
-	while(!lista_esta_vacia(vuelos_en_rango.vuelos))
+	while(!lista_esta_vacia(vuelos_en_rango.vuelos)) //Esto tiene listas adento, por lo tanto no esta vacio
 	{
 
-		codigos_asosiados = lista_borrar_primero(vuelos_en_rango.vuelos);
-		codigo_actual     = lista_borrar_primero(codigos_asosiados);
-		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha);
+		codigos_asosiados = lista_borrar_primero(vuelos_en_rango.vuelos); // pero esta es una lista vacia
+		codigo_actual     = lista_borrar_primero(codigos_asosiados); // por lo que esto es NULL
+		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha); // sorpresa, core dumped
 
-		printf("%s\n",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual))->resumen);
+		printf("%s\n",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual))->resumen); //Se me ocurre que es por el hecho de que nos quedan fehcas sin vuelos en el arbol
 
 		destruir_vuelo(hash_borrar(vuelos_x_codigo,codigo_actual));
 		
