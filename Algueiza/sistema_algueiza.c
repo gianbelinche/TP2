@@ -421,6 +421,9 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 
 		codigos_asosiados = lista_borrar_primero(vuelos_en_rango.vuelos); // pero esta es una lista vacia
 		codigo_actual     = lista_borrar_primero(codigos_asosiados); // por lo que esto es NULL
+
+		if(!codigo_actual) continue;
+
 		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha); // sorpresa, core dumped
 
 		printf("%s\n",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual))->resumen); //Se me ocurre que es por el hecho de que nos quedan fehcas sin vuelos en el arbol
