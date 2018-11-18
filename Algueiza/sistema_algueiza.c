@@ -235,7 +235,7 @@ void interpretar_comando(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char* ord
 	for(size_t i = 0; i < COMANDOS_CANTIDAD; i++)
 		if(!strcmp(ordenes[0],COMANDOS_NOMBRES[i]))
 		{
-			if( obtener_cantidad_strv(ordenes) < COMANDOS_PARAMETROS[i] + 1)
+			if( obtener_cantidad_strv(ordenes) != COMANDOS_PARAMETROS[i] + 1)
 				break;
 
 			if(COMANDOS_FUNCIONES[i](vuelos_x_fecha,vuelos_x_codigo,ordenes))
@@ -440,14 +440,14 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 	char* codigo_actual;
 	char* fecha_actual;
 
-	while(!lista_esta_vacia(vuelos_en_rango.vuelos)) //Esto tiene listas adento, por lo tanto no esta vacio
+	while(!lista_esta_vacia(vuelos_en_rango.vuelos))
 	{
 
-		codigos_asosiados = lista_borrar_primero(vuelos_en_rango.vuelos); // pero esta es una lista vacia
-		codigo_actual     = lista_borrar_primero(codigos_asosiados); // por lo que esto es NULL
-		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha); // sorpresa, core dumped
+		codigos_asosiados = lista_borrar_primero(vuelos_en_rango.vuelos);
+		codigo_actual     = lista_borrar_primero(codigos_asosiados);
+		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha);
 
-		printf("%s\n",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual))->resumen); //Se me ocurre que es por el hecho de que nos quedan fehcas sin vuelos en el arbol
+		printf("%s\n",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual))->resumen);
 
 		destruir_vuelo(hash_borrar(vuelos_x_codigo,codigo_actual));
 		
