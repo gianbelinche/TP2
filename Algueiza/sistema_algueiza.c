@@ -531,6 +531,10 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 	}
 
 	size_t cantidad_a_mostrar = atoi(ordenes[1]);
+
+	if(cantidad_a_mostrar > hash_cantidad(vuelos_x_codigo))
+		cantidad_a_mostrar =  hash_cantidad(vuelos_x_codigo) - 1;
+
 	size_t contador = 0;
 
 	while (!hash_iter_al_final(iter) && contador < cantidad_a_mostrar)
@@ -568,7 +572,7 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 
 	for (;cantidad_a_mostrar > 0;cantidad_a_mostrar--)
 	{
-		vuelo_t* vuelo = vuelos_x_prioridad[cantidad_a_mostrar-1];
+		vuelo_t* vuelo = vuelos_x_prioridad[cantidad_a_mostrar - 1];
 		printf("%zd - %s\n",vuelo -> prioridad, vuelo -> codigo);
 	}
 
