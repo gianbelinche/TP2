@@ -152,9 +152,10 @@ void borrar_codigo_en_lista(lista_t* lista, char* codigo)
 	lista_iter_destruir(lista_iter);
 }
 
-void destruir_lista_fechas(void* lista)
+bool destruir_lista_fechas(const char * clave, void * dato, void * extra)
 {
-	lista_destruir(lista,NULL);
+	lista_destruir(dato,NULL);
+	return true;
 }
 
 bool leer_vuelo(FILE* archivo,vuelo_t* vuelo_actual)
@@ -250,7 +251,7 @@ void interpretar_comando(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char* ord
 
 int main()
 {
-	abb_t* vuelos_x_fecha = abb_crear(comparar_fechas,destruir_lista_fechas);
+	abb_t* vuelos_x_fecha = abb_crear(comparar_fechas,NULL);
 
 	if(!vuelos_x_fecha) return -1;
 
@@ -292,6 +293,8 @@ int main()
 
 	free(*entrada);
 	free(entrada);
+
+	abb_in_order(vuelos_x_fecha,destruir_lista_fechas,&tam);
 	abb_destruir(vuelos_x_fecha);
 	hash_destruir(vuelos_x_codigo);
 	return 0;
@@ -323,12 +326,13 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 		if(vuelo_previo)
 		{
 			codigos_asosiados = abb_obtener(vuelos_x_fecha,vuelo_previo -> fecha);
-			
-			if(lista_esta_vacia(codigos_asosiados))
-				abb_borrar(vuelos_x_fecha,vuelo_previo -> fecha);
-			else
-				borrar_codigo_en_lista(codigos_asosiados,vuelo_previo -> codigo);
+			borrar_codigo_en_lista(codigos_asosiados,vuelo_previo -> codigo);
 
+			if(lista_esta_vacia(codigos_asosiados))
+			{	
+				lista_destruir(abb_borrar(vuelos_x_fecha,vuelo_previo -> fecha),NULL);
+			}
+				
 			hash_borrar(vuelos_x_codigo,vuelo_previo -> codigo);
 			destruir_vuelo(vuelo_previo);
 		}
@@ -359,14 +363,14 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 			fclose(archivo);
 			return false;
 		}
+
+		codigos_asosiados = NULL;
 	}
 
 	free(vuelo_actual);
 	fclose(archivo);
 	return true;
 }
-
-
 
 bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 	if(hash_cantidad(vuelos_x_codigo) == 0) return true;
@@ -441,9 +445,6 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 
 		codigos_asosiados = lista_borrar_primero(vuelos_en_rango.vuelos); // pero esta es una lista vacia
 		codigo_actual     = lista_borrar_primero(codigos_asosiados); // por lo que esto es NULL
-
-		if(!codigo_actual) continue;
-
 		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha); // sorpresa, core dumped
 
 		printf("%s\n",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual))->resumen); //Se me ocurre que es por el hecho de que nos quedan fehcas sin vuelos en el arbol
@@ -455,7 +456,7 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes){
 			destruir_vuelo(hash_borrar(vuelos_x_codigo,lista_borrar_primero(codigos_asosiados)));
 		}
 		
-		abb_borrar(vuelos_x_fecha,fecha_actual);
+		lista_destruir(abb_borrar(vuelos_x_fecha,fecha_actual),NULL);
 		free(fecha_actual);
 	}
 
