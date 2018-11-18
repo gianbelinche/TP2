@@ -40,9 +40,10 @@ bool info_vuelo      (abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes);
 bool borrar          (abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes);
 
-const int       COMANDOS_CANTIDAD    = 5;
-const char*     COMANDOS_NOMBRES[]   = {"agregar_archivo","ver_tablero","info_vuelo","prioridad_vuelos","borrar"};
-const comando_t COMANDOS_FUNCIONES[] = {agregar_archivo  , ver_tablero , info_vuelo , prioridad_vuelos , borrar };
+const int       COMANDOS_CANTIDAD     = 5;
+const char*     COMANDOS_NOMBRES[]    = {"agregar_archivo","ver_tablero","info_vuelo","prioridad_vuelos","borrar"};
+const comando_t COMANDOS_FUNCIONES[]  = {agregar_archivo  , ver_tablero , info_vuelo , prioridad_vuelos , borrar };
+const int       COMANDOS_PARAMETROS[] = {        1        ,       4     ,      1     ,        1         ,    2   };
 
 #define NOTACION_ASCENDENTE "asc"
 #define NOTACION_DESCENDENTE "desc"
@@ -129,6 +130,8 @@ void insertar_lista_en_heap(lista_t* lista, heap_t* heap)
 
 void borrar_codigo_en_lista(lista_t* lista, char* codigo)
 {
+	if(!lista || lista_esta_vacia(lista)) return;
+
 	lista_iter_t* lista_iter  = lista_iter_crear(lista);
 	if(!lista_iter) return;
 
@@ -217,11 +220,23 @@ void destruir_vuelo(void* vuelo)
 
 // -_-_-_-_-_-_-_-_-_-_-   FUNCIONES  PRINCIPALES  -_-_-_-_-_-_-_-_-_-_- //
 
+int obtener_cantidad_strv(char* strv[])
+{
+	int i = 0;
+
+	while(strv[i] !=  NULL) i++;
+
+	return i;
+}
+
 void interpretar_comando(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char* ordenes[])
 {
 	for(size_t i = 0; i < COMANDOS_CANTIDAD; i++)
 		if(!strcmp(ordenes[0],COMANDOS_NOMBRES[i]))
 		{
+			if( obtener_cantidad_strv(ordenes) < COMANDOS_PARAMETROS[i] + 1)
+				break;
+
 			if(COMANDOS_FUNCIONES[i](vuelos_x_fecha,vuelos_x_codigo,ordenes))
 				puts("OK");
 			else
@@ -308,7 +323,12 @@ bool agregar_archivo(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordene
 		if(vuelo_previo)
 		{
 			codigos_asosiados = abb_obtener(vuelos_x_fecha,vuelo_previo -> fecha);
-			borrar_codigo_en_lista(codigos_asosiados,vuelo_previo -> codigo);
+			
+			if(lista_esta_vacia(codigos_asosiados))
+				abb_borrar(vuelos_x_fecha,vuelo_previo -> fecha);
+			else
+				borrar_codigo_en_lista(codigos_asosiados,vuelo_previo -> codigo);
+
 			hash_borrar(vuelos_x_codigo,vuelo_previo -> codigo);
 			destruir_vuelo(vuelo_previo);
 		}
