@@ -111,6 +111,35 @@ bool cadena_es_numero(char* cadena)
 	return true;
 }
 
+void listar_fechas_en_rango(abb_t* vuelos_x_fecha, lista_t* vuelos, abb_iter_t* iter, char* fecha_min, char* fecha_max,bool (*insertar) (lista_t*, void*))
+{
+	abb_iter_in_llegar_a(iter,fecha_min);
+	bool lado_izq = true;
+	while(!abb_iter_in_al_final(iter))
+	{
+		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
+		
+		if (comparar_fechas(fecha_actual,fecha_min) < 0 )
+		{
+			if (lado_izq)
+			{
+				abb_iter_in_avanzar(iter);
+				continue;
+			}
+			break;
+		}
+		
+		if(comparar_fechas(fecha_actual,fecha_max) <= 0)
+		{
+			lado_izq = false;
+			insertar(vuelos,abb_obtener(vuelos_x_fecha,fecha_actual));
+			fecha_min = fecha_actual;
+			abb_iter_in_avanzar(iter);
+		}
+		else break;
+	}
+}
+
 void insertar_lista_en_heap(lista_t* lista, heap_t* heap)
 {
 	lista_iter_t* lista_iter  = lista_iter_crear(lista);
@@ -302,6 +331,7 @@ int main()
 }
 
 
+
 // -_-_-_-_-_-_-_-_-_-_-_-_-_   COMANDOS   _-_-_-_-_-_-_-_-_-_-_-_-_- //
 
 
@@ -403,34 +433,11 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 		return false;
 	}
 
-	abb_iter_in_llegar_a(iter,fecha_min);
-	bool lado_izq = true;
-	while(!abb_iter_in_al_final(iter))
-	{
-		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
-		
-		if (comparar_fechas(fecha_actual,fecha_min) < 0 )
-		{
-			if (lado_izq)
-			{
-				abb_iter_in_avanzar(iter);
-				continue;
-			}
-			break;
-		}
-		
-		if(comparar_fechas(fecha_actual,fecha_max) <= 0)
-		{
-			lado_izq = false;
-			insertar(vuelos,abb_obtener(vuelos_x_fecha,fecha_actual));
-			fecha_min = fecha_actual;
-			abb_iter_in_avanzar(iter);
-		}
-		else break;
-	}
+
+	listar_fechas_en_rango(vuelos_x_fecha, vuelos, iter, fecha_min, fecha_max, insertar);
 
 	abb_iter_in_destruir(iter);
-	
+
 	heap_t* heap = heap_crear((!strcmp(ordenes[2],NOTACION_ASCENDENTE)) ? strcmp_min : strcmp_max);
 	vuelo_t* vuelo_actual;
 	
@@ -469,7 +476,7 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 		return false;
 	}
 
-	abb_iter_t* iter = abb_iter_in_crear(vuelos_x_fecha);
+		abb_iter_t* iter = abb_iter_in_crear(vuelos_x_fecha);
 
 	if (!iter)
 	{
@@ -477,31 +484,8 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 		return false;
 	}
 
-	abb_iter_in_llegar_a(iter,fecha_min);
-	bool lado_izq = true;
-	while(!abb_iter_in_al_final(iter))
-	{
-		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
-		
-		if (comparar_fechas(fecha_actual,fecha_min) < 0 )
-		{
-			if (lado_izq)
-			{
-				abb_iter_in_avanzar(iter);
-				continue;
-			}
-			break;
-		}
-		
-		if(comparar_fechas(fecha_actual,fecha_max) <= 0)
-		{
-			lado_izq = false;
-			insertar(vuelos,abb_obtener(vuelos_x_fecha,fecha_actual));
-			fecha_min = fecha_actual;
-			abb_iter_in_avanzar(iter);
-		}
-		else break;
-	}
+
+	listar_fechas_en_rango(vuelos_x_fecha, vuelos, iter, fecha_min, fecha_max, insertar);
 
 	abb_iter_in_destruir(iter);
 	
