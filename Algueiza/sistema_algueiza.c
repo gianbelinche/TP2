@@ -115,7 +115,7 @@ void listar_fechas_en_rango(abb_t* vuelos_x_fecha, lista_t* vuelos, abb_iter_t* 
 {
 	abb_iter_in_llegar_a(iter,fecha_min);
 	bool lado_izq = true;
-	
+
 	while(!abb_iter_in_al_final(iter))
 	{
 		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
@@ -407,8 +407,8 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 {
 	if(hash_cantidad(vuelos_x_codigo) == 0) return true;
 	
-	int contador = atoi(ordenes[1]);
-	if(contador <= 0) return false;
+	int cantidad_a_mostrar = atoi(ordenes[1]);
+	if(cantidad_a_mostrar <= 0) return false;
 
 	if(strcmp(ordenes[2],NOTACION_ASCENDENTE) && strcmp(ordenes[2],NOTACION_DESCENDENTE)) return false;
 
@@ -441,17 +441,19 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 	heap_t* heap = heap_crear((!strcmp(ordenes[2],NOTACION_ASCENDENTE)) ? strcmp_min : strcmp_max);
 	vuelo_t* vuelo_actual;
 	
-	while(!lista_esta_vacia(vuelos) && contador > 0)
+
+	int i = 0;
+
+	while(!lista_esta_vacia(vuelos) && i < cantidad_a_mostrar)
 	{
 		insertar_lista_en_heap(lista_borrar_primero(vuelos),heap);
 
-		while(!heap_esta_vacio(heap))
+		while(!heap_esta_vacio(heap) && i < cantidad_a_mostrar)
 		{
 			vuelo_actual = hash_obtener(vuelos_x_codigo, heap_desencolar(heap));
-			printf("%s - %s\n",vuelo_actual -> fecha,vuelo_actual -> codigo);	
+			printf("%s - %s\n",vuelo_actual -> fecha,vuelo_actual -> codigo);
+			i++;	
 		}
-
-		contador--;
 	}
 
 	lista_destruir(vuelos,NULL);
@@ -490,25 +492,22 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 	abb_iter_in_destruir(iter);
 	
 	lista_t* codigos_asosiados;
-	char* codigo_actual;
-	char* fecha_actual;
+	char* codigo_actual = NULL;
+	char* fecha_actual  = NULL;
 
 	while(!lista_esta_vacia(vuelos)) 
 	{
 
 		codigos_asosiados = lista_borrar_primero(vuelos); 
-		codigo_actual     = lista_borrar_primero(codigos_asosiados); 
-		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha); 
-
-		printf("%s",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual)) -> resumen); 
-
-		destruir_vuelo(hash_borrar(vuelos_x_codigo,codigo_actual));
 		
 		while(!lista_esta_vacia(codigos_asosiados))
 		{
-			destruir_vuelo(hash_borrar(vuelos_x_codigo,lista_borrar_primero(codigos_asosiados)));
+			codigo_actual = lista_borrar_primero(codigos_asosiados); 
+			printf("%s",((vuelo_t*) hash_obtener(vuelos_x_codigo,codigo_actual)) -> resumen); 
+			destruir_vuelo(hash_borrar(vuelos_x_codigo,codigo_actual));
 		}
 		
+		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha); 
 		lista_destruir(abb_borrar(vuelos_x_fecha,fecha_actual),NULL);
 		free(fecha_actual);
 	}
