@@ -236,6 +236,7 @@ bool leer_vuelo(FILE* archivo,vuelo_t* vuelo_actual)
 	}
 
 	vuelo_actual -> resumen = join(linea_separada,' ');
+	vuelo_actual -> resumen[strlen(vuelo_actual -> resumen - 1)] = '\0';
 	
 	free(*linea);
 	free(linea);
