@@ -476,12 +476,13 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 	while(!abb_iter_in_al_final(iter))
 	{
 		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
-		if (comparar_fechas(fecha_actual,fecha_min) <= 0)
+		
+		if (comparar_fechas(fecha_actual,fecha_min) < 0 && !lista_esta_vacia(vuelos))
 		{
-			abb_iter_in_avanzar(iter);
-			continue;
+			break;
 		}
-		if(comparar_fechas(fecha_actual,fecha_max) <= 0 )
+		
+		if(comparar_fechas(fecha_actual,fecha_max) <= 0)
 		{
 			insertar(vuelos,abb_obtener(vuelos_x_fecha,fecha_actual));
 			fecha_min = fecha_actual;

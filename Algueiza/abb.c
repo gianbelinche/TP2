@@ -318,12 +318,12 @@ abb_iter_t* abb_iter_in_crear(const abb_t *abb){
 	}
 
 	iter -> abb = abb;
-	/*
+	
 	if(!abb_raiz_esta_vacia((abb_t* )iter -> abb)){
 		pila_apilar(iter -> pila,(abb_t*) iter -> abb -> raiz);
 		apilar_hijos_izq(iter -> pila, iter -> abb -> raiz);
 	}
-	*/
+	
 
 	return iter;
 }
@@ -354,7 +354,10 @@ const char* abb_iter_in_ver_actual(const abb_iter_t *iter){
 }
 
 void abb_iter_in_llegar_a(abb_iter_t* iter,char* llegada){
-	abb_buscar(iter->abb,llegada,iter->pila);
+	pila_t* pila = pila_crear();
+	if (!pila) return;
+	abb_buscar(iter->abb,llegada,pila);
+	iter->pila = pila;
 }
 
 void abb_iter_in_destruir(abb_iter_t* iter){
