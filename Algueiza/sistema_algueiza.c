@@ -84,7 +84,7 @@ int cmp_prioridad_min(const void* dato1,const void* dato2)
 		return -1;
 	else if (vuelo1 -> prioridad < vuelo2 -> prioridad)
 		return 1;
-	return 0;
+	return strcmp(vuelo1->codigo,vuelo2->codigo);
 }
 
 int strcmp_min(const void* dato1,const void* dato2)
@@ -572,8 +572,13 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 		vuelo_tope    = heap_ver_max(heap_min);
 		vuelo_actual = hash_obtener(vuelos_x_codigo, (char*) hash_iter_ver_actual(iter));
 
-		if (vuelo_actual -> prioridad > vuelo_tope -> prioridad)
+		if (vuelo_actual -> prioridad >= vuelo_tope -> prioridad)
 		{
+			if (vuelo_actual -> prioridad == vuelo_tope -> prioridad && strcmp(vuelo_actual->codigo,vuelo_tope->codigo) > 0 )
+			{
+				hash_iter_avanzar(iter);
+				continue;
+			}
 			heap_desencolar(heap_min); 
 			heap_encolar(heap_min,vuelo_actual);
 		}
