@@ -553,7 +553,7 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 		vuelo_tope    = heap_ver_max(heap_min);
 		vuelo_actual = hash_obtener(vuelos_x_codigo, (char*) hash_iter_ver_actual(iter));
 
-		if (vuelo_actual -> prioridad < vuelo_tope -> prioridad)
+		if (vuelo_actual -> prioridad > vuelo_tope -> prioridad)
 		{
 			heap_desencolar(heap_min); 
 			heap_encolar(heap_min,vuelo_actual);
