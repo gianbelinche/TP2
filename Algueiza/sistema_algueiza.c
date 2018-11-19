@@ -497,8 +497,8 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 
 	while(!lista_esta_vacia(vuelos)) 
 	{
-
-		codigos_asosiados = lista_borrar_primero(vuelos); 
+		codigos_asosiados = lista_borrar_primero(vuelos);
+		fecha_actual = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,lista_ver_primero(codigos_asosiados))) -> fecha); 
 		
 		while(!lista_esta_vacia(codigos_asosiados))
 		{
@@ -507,7 +507,6 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 			destruir_vuelo(hash_borrar(vuelos_x_codigo,codigo_actual));
 		}
 		
-		fecha_actual      = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,codigo_actual)) -> fecha); 
 		lista_destruir(abb_borrar(vuelos_x_fecha,fecha_actual),NULL);
 		free(fecha_actual);
 	}
