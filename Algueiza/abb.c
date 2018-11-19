@@ -357,6 +357,7 @@ void abb_iter_in_llegar_a(abb_iter_t* iter,char* llegada){
 	pila_t* pila = pila_crear();
 	if (!pila) return;
 	abb_buscar(iter->abb,llegada,pila);
+	pila_destruir(iter->pila);
 	iter->pila = pila;
 }
 
