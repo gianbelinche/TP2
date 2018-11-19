@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
-
+#include <ctype.h>
 #include "lista.h"
 #include "hash.h"
 #include "abb.h"
@@ -75,10 +75,11 @@ int comparar_fechas(const char* fecha1,const char* fecha2)
 	return 0;
 }
 
-int cmp_min(const void* dato1,const void* dato2)
+int cmp_prioridad_min(const void* dato1,const void* dato2)
 {
 	vuelo_t* vuelo1 = (vuelo_t*) dato1;
 	vuelo_t* vuelo2 = (vuelo_t*) dato2;
+
 	if (vuelo1 -> prioridad > vuelo2 -> prioridad)
 		return -1;
 	else if (vuelo1 -> prioridad < vuelo2 -> prioridad)
@@ -94,6 +95,20 @@ int strcmp_min(const void* dato1,const void* dato2)
 int strcmp_max(const void* dato1,const void* dato2)
 {
 	return strcmp((char*) dato1,(char*) dato2);
+}
+
+bool cadena_es_numero(char* cadena)
+{
+	int i = 0;
+	while(cadena[i] != '\0')
+	{
+		if(!isdigit(cadena[i]))
+			return false;
+
+		i++;
+	}
+
+	return true;
 }
 
 void insertar_lista_en_heap(lista_t* lista, heap_t* heap)
@@ -519,7 +534,14 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 {
 	if(hash_cantidad(vuelos_x_codigo) == 0) return true;
 
-	heap_t* heap_min = heap_crear(cmp_min);
+	if(!cadena_es_numero(ordenes[1])) return false;
+
+	size_t cantidad_a_mostrar = atoi(ordenes[1]);
+
+	if(cantidad_a_mostrar > hash_cantidad(vuelos_x_codigo))
+		cantidad_a_mostrar =  hash_cantidad(vuelos_x_codigo) - 1;
+
+	heap_t* heap_min = heap_crear(cmp_prioridad_min);
 
 	if(!heap_min) return false;
 
@@ -530,11 +552,6 @@ bool prioridad_vuelos(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** orden
 		heap_destruir(heap_min,NULL);
 		return false;
 	}
-
-	size_t cantidad_a_mostrar = atoi(ordenes[1]);
-
-	if(cantidad_a_mostrar > hash_cantidad(vuelos_x_codigo))
-		cantidad_a_mostrar =  hash_cantidad(vuelos_x_codigo) - 1;
 
 	size_t contador = 0;
 
