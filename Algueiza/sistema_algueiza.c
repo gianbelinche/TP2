@@ -44,19 +44,33 @@ const int       COMANDOS_PARAMETROS[] = {        1        ,       4     ,      1
 
 time_t convertir_a_time(const char* fecha)
 {
+	int precision = strlen(fecha);
+
 	struct tm tiempo;
+
 	char ano[] = {fecha[0],fecha[1],fecha[2],fecha[3],'\0'};
 	tiempo.tm_year = atoi(ano) -1900;
 	char mes[] = {fecha[5],fecha[6],'\0'};
 	tiempo.tm_mon = atoi(mes) -1;
 	char dia[] = {fecha[8],fecha[9],'\0'};
 	tiempo.tm_mday = atoi(dia);
-	char hora[] = {fecha[11],fecha[12],'\0'};
-	tiempo.tm_hour = atoi(hora);
-	char minutos[] = {fecha[14],fecha[15],'\0'};
-	tiempo.tm_min = atoi(minutos);
-	char seg[] = {fecha[17],fecha[18],'\0'};
-	tiempo.tm_sec = atoi(seg);
+
+	if(precision >= 19)//Contiene especificaciones sobre horas-minutos-segundos
+	{
+		char hora[] = {fecha[11],fecha[12],'\0'};
+		tiempo.tm_hour = atoi(hora);
+		char minutos[] = {fecha[14],fecha[15],'\0'};
+		tiempo.tm_min = atoi(minutos);
+		char seg[] = {fecha[17],fecha[18],'\0'};
+		tiempo.tm_sec = atoi(seg);
+	}
+	else
+	{
+		tiempo.tm_hour = 0;
+		tiempo.tm_min = 0;
+		tiempo.tm_sec = 0;
+	}
+
 	tiempo.tm_wday = 0;
     tiempo.tm_yday = 0;
     tiempo.tm_isdst = 0;
@@ -236,7 +250,6 @@ bool leer_vuelo(FILE* archivo,vuelo_t* vuelo_actual)
 	}
 
 	vuelo_actual -> resumen = join(linea_separada,' ');
-	vuelo_actual -> resumen[strlen(vuelo_actual -> resumen)] = '\0';
 	
 	free(*linea);
 	free(linea);
@@ -434,7 +447,6 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 		return false;
 	}
 
-
 	listar_fechas_en_rango(vuelos_x_fecha, vuelos, iter, fecha_min, fecha_max, insertar);
 
 	abb_iter_in_destruir(iter);
@@ -479,7 +491,7 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 		return false;
 	}
 
-		abb_iter_t* iter = abb_iter_in_crear(vuelos_x_fecha);
+	abb_iter_t* iter = abb_iter_in_crear(vuelos_x_fecha);
 
 	if (!iter)
 	{
@@ -492,6 +504,7 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 
 	abb_iter_in_destruir(iter);
 	
+	heap_t* heap = heap_crear(strcmp_min);
 	lista_t* codigos_asosiados;
 	char* codigo_actual = NULL;
 	char* fecha_actual  = NULL;
@@ -500,7 +513,7 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 	{
 		codigos_asosiados = lista_borrar_primero(vuelos);
 		fecha_actual = strdup(((vuelo_t*)hash_obtener(vuelos_x_codigo,lista_ver_primero(codigos_asosiados))) -> fecha);
-		heap_t* heap = heap_crear(strcmp_min);
+		
 		while(!lista_esta_vacia(codigos_asosiados)){
 			heap_encolar(heap,lista_borrar_primero(codigos_asosiados));
 		} 
@@ -513,11 +526,11 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 		}
 		
 		lista_destruir(abb_borrar(vuelos_x_fecha,fecha_actual),NULL);
-		heap_destruir(heap,NULL);
 		free(fecha_actual);
 	}
 
 	lista_destruir(vuelos,NULL);
+	heap_destruir(heap,NULL);
 	return true;
 }
 
