@@ -115,18 +115,15 @@ void listar_fechas_en_rango(abb_t* vuelos_x_fecha, lista_t* vuelos, abb_iter_t* 
 {
 	abb_iter_in_llegar_a(iter,fecha_min);
 	bool lado_izq = true;
+	
 	while(!abb_iter_in_al_final(iter))
 	{
 		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
 		
-		if (comparar_fechas(fecha_actual,fecha_min) < 0 )
+		if (lado_izq && comparar_fechas(fecha_actual,fecha_min) < 0)
 		{
-			if (lado_izq)
-			{
 				abb_iter_in_avanzar(iter);
 				continue;
-			}
-			break;
 		}
 		
 		if(comparar_fechas(fecha_actual,fecha_max) <= 0)
@@ -136,7 +133,12 @@ void listar_fechas_en_rango(abb_t* vuelos_x_fecha, lista_t* vuelos, abb_iter_t* 
 			fecha_min = fecha_actual;
 			abb_iter_in_avanzar(iter);
 		}
-		else break;
+		else 
+		{
+			break;
+		}
+
+		if(comparar_fechas(fecha_actual,fecha_min) < 0) break;
 	}
 }
 
@@ -329,8 +331,6 @@ int main()
 	hash_destruir(vuelos_x_codigo);
 	return 0;
 }
-
-
 
 // -_-_-_-_-_-_-_-_-_-_-_-_-_   COMANDOS   _-_-_-_-_-_-_-_-_-_-_-_-_- //
 

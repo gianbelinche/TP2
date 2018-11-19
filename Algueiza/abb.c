@@ -50,10 +50,8 @@ bool abb_raiz_esta_vacia(abb_t* abb){
 nodo_t* _abb_buscar(const nodo_t* nodo,const char* clave,abb_comparar_clave_t cmp,pila_t* pila){
 	if(!nodo) return NULL;
 
-	if (pila)
-		pila_apilar(pila,(void*) nodo);
-
 	if( cmp(nodo -> clave,clave) == 0){
+		if (pila) pila_apilar(pila,(void*) nodo);
 		return (nodo_t*) nodo;
 	}
 
@@ -61,6 +59,7 @@ nodo_t* _abb_buscar(const nodo_t* nodo,const char* clave,abb_comparar_clave_t cm
 		return _abb_buscar(nodo -> der,clave, cmp,pila);
 	}
 
+	if (pila) pila_apilar(pila,(void*) nodo);
 	return _abb_buscar(nodo -> izq,clave, cmp,pila);
 }
 
@@ -172,7 +171,6 @@ void* abb_obtener(const abb_t* abb,const char* clave){
 	if (!nodo) return NULL;
 	return nodo -> dato;
 }
-
 
 bool abb_pertenece(const abb_t* abb,const char* clave){
 	nodo_t* nodo = abb_buscar(abb,clave,NULL);
@@ -356,6 +354,7 @@ const char* abb_iter_in_ver_actual(const abb_iter_t *iter){
 void abb_iter_in_llegar_a(abb_iter_t* iter,char* llegada){
 	pila_t* pila = pila_crear();
 	if (!pila) return;
+
 	abb_buscar(iter->abb,llegada,pila);
 	pila_destruir(iter->pila);
 	iter->pila = pila;
