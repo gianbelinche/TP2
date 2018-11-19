@@ -44,7 +44,7 @@ const int       COMANDOS_PARAMETROS[] = {        1        ,       4     ,      1
 
 time_t convertir_a_time(const char* fecha)
 {
-	int precision = strlen(fecha);
+	size_t precision = strlen(fecha);
 
 	struct tm tiempo;
 
