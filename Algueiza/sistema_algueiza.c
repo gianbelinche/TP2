@@ -478,18 +478,24 @@ bool borrar(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 	}
 
 	abb_iter_in_llegar_a(iter,fecha_min);
-
+	bool lado_izq = true;
 	while(!abb_iter_in_al_final(iter))
 	{
 		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
 		
-		if (comparar_fechas(fecha_actual,fecha_min) < 0 && !lista_esta_vacia(vuelos))
+		if (comparar_fechas(fecha_actual,fecha_min) < 0 )
 		{
+			if (lado_izq)
+			{
+				abb_iter_in_avanzar(iter);
+				continue;
+			}
 			break;
 		}
 		
 		if(comparar_fechas(fecha_actual,fecha_max) <= 0)
 		{
+			lado_izq = false;
 			insertar(vuelos,abb_obtener(vuelos_x_fecha,fecha_actual));
 			fecha_min = fecha_actual;
 			abb_iter_in_avanzar(iter);
