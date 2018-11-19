@@ -57,8 +57,9 @@ nodo_t* _abb_buscar(const nodo_t* nodo,const char* clave,abb_comparar_clave_t cm
 		return (nodo_t*) nodo;
 	}
 
-	if( cmp(nodo -> clave,clave) < 0)
+	if( cmp(nodo -> clave,clave) < 0){
 		return _abb_buscar(nodo -> der,clave, cmp,pila);
+	}
 
 	return _abb_buscar(nodo -> izq,clave, cmp,pila);
 }
@@ -317,11 +318,12 @@ abb_iter_t* abb_iter_in_crear(const abb_t *abb){
 	}
 
 	iter -> abb = abb;
-
+	/*
 	if(!abb_raiz_esta_vacia((abb_t* )iter -> abb)){
 		pila_apilar(iter -> pila,(abb_t*) iter -> abb -> raiz);
 		apilar_hijos_izq(iter -> pila, iter -> abb -> raiz);
 	}
+	*/
 
 	return iter;
 }
@@ -336,11 +338,12 @@ bool abb_iter_in_avanzar(abb_iter_t *iter){
 
 	nodo_t* desapilado = pila_desapilar(iter -> pila);
 
-	if(desapilado -> der && pila_ver_tope(iter -> pila) && ((nodo_t*)pila_ver_tope(iter -> pila)) -> der != desapilado){
+	if(desapilado -> der){ //&& pila_ver_tope(iter -> pila) && ((nodo_t*)pila_ver_tope(iter -> pila)) -> der != desapilado
 		pila_apilar(iter -> pila,desapilado -> der);
 		apilar_hijos_izq(iter -> pila,desapilado -> der);
 	}
 
+	
 	return true;
 }
 
@@ -351,10 +354,7 @@ const char* abb_iter_in_ver_actual(const abb_iter_t *iter){
 }
 
 void abb_iter_in_llegar_a(abb_iter_t* iter,char* llegada){
-	nodo_t* a_llegar = abb_buscar(iter->abb,llegada,iter->pila);
-	
-	if (a_llegar)
-		pila_apilar(iter->pila,a_llegar);
+	abb_buscar(iter->abb,llegada,iter->pila);
 }
 
 void abb_iter_in_destruir(abb_iter_t* iter){

@@ -46,7 +46,7 @@ time_t convertir_a_time(const char* fecha)
 {
 	struct tm tiempo;
 	char ano[] = {fecha[0],fecha[1],fecha[2],fecha[3],'\0'};
-	tiempo.tm_year = atoi(ano) - 1900;
+	tiempo.tm_year = atoi(ano) -1900;
 	char mes[] = {fecha[5],fecha[6],'\0'};
 	tiempo.tm_mon = atoi(mes) -1;
 	char dia[] = {fecha[8],fecha[9],'\0'};
@@ -393,12 +393,13 @@ bool ver_tablero(abb_t* vuelos_x_fecha,hash_t* vuelos_x_codigo,char** ordenes)
 	while(!abb_iter_in_al_final(iter))
 	{
 		char* fecha_actual = (char*) abb_iter_in_ver_actual(iter);
-		if (comparar_fechas(fecha_actual,fecha_min) <= 0)
+		
+		if (comparar_fechas(fecha_actual,fecha_min) < 0 && !lista_esta_vacia(vuelos))
 		{
-			abb_iter_in_avanzar(iter);
-			continue;
+			break;
 		}
-		if(comparar_fechas(fecha_actual,fecha_max) <= 0 )
+		
+		if(comparar_fechas(fecha_actual,fecha_max) <= 0)
 		{
 			insertar(vuelos,abb_obtener(vuelos_x_fecha,fecha_actual));
 			fecha_min = fecha_actual;
