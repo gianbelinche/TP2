@@ -1,3 +1,5 @@
+from random import randint
+
 class Grafo:
 
 	def __init__ (self):
@@ -48,6 +50,14 @@ class Grafo:
 		if v not in self.datos.keys or w not in self.datos.keys:
 			return None
 		return self.datos[v][w]
+
+	def __len__ (self):
+		return self.cantidad
+
+	def vertice_random(self):
+		i = randint(0,self.cantidad)
+		return list(self.datos.keys)[i]
+
 		
 	def __iter__ (self):
 		return _IterGrafo(self.cantidad,list(self.datos.keys))
