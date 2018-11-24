@@ -42,9 +42,8 @@ class Grafo:
 		return True
 
 	def adyacentes(self,v):
-		return list(self.datos.get(v,[])
+		return list(self.datos.get(v,[]))
 
-		
 	def ver_peso(self,v,w):
 		if v not in self.datos or w not in self.datos:
 			return None
