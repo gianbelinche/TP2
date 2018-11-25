@@ -146,19 +146,13 @@ def betweeness_centrality(grafo):
 	centralidad = {}
 
 	for v in grafo:
-		if w[1] == 0: #Me aseguro que no va a haber ciudades con centralidad
-			continue
 		centralidad[v] = 0
 
 	for v in grafo:
-		if v[1] == 0:
-			continue
 		padres,distancia = camino_minimo(grafo,v,2)
 		centralidad_auxiliar = {}
 
 		for w in grafo:
-			if v[1] == 0:
-				continue 
 			centralidad_auxiliar[w] = 0
 
 		filtrar_infinitos(distancia)
@@ -168,12 +162,10 @@ def betweeness_centrality(grafo):
 		vertices_ordenados = sorted(vertices,key = seg_elemento)
 
 		for w in vertices_ordenados:
-			if w[1] == 0:
-				continue
 			centralidad_auxiliar[padre[w]] += centralidad_auxiliar[w] + 1
 
 		for w in grafo:
-			if w == v or w[1] == 0: 
+			if w == v: 
 				continue
 			centralidad[w] += centralidad_auxiliar[w]
 
