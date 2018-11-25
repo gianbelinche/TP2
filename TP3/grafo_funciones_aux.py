@@ -17,7 +17,7 @@ def bfs(grafo, origen):
 
 	while not cola.empty():
 		v = cola.get()
-		for w in grafo:
+		for w in grafo.adyacentes(v):
 			if w not in visitados:
 				visitados.add(w)
 				padres[w] = v
@@ -94,7 +94,7 @@ def reconstuir_camino(padres,destino):
 
 	return recorrido
 
-def camino_minimo(grafo, origen):#, destino):
+def camino_minimo(grafo, origen,precio_tiempo):#, destino):
 	distancia = {}
 	padres = {}
 
@@ -112,9 +112,9 @@ def camino_minimo(grafo, origen):#, destino):
 		#if(v == destino): return reconstruir_camino(origen,destino,padre)
 
 		for w in grafo.adyacentes(v):
-			if distancia + grafo.ver_peso(v,w):
+			if distancia + grafo.ver_peso(v,w)[precio_tiempo]:
 				padres[w] = v
-				distancia[w] = distancia + grafo.ver_peso(v,w)
+				distancia[w] = distancia + grafo.ver_peso(v,w)[precio_tiempo]
 				heapq.heappush(heap,(w,distancia[w]))
 
 	return padres,distancia
@@ -158,15 +158,3 @@ def centralidad_intermediacion(grafo):
 
 	return centralidad
 
-
-grafo = Grafo()
-grafo.agregar_vertice(1)	
-grafo.agregar_vertice(2)
-grafo.agregar_vertice(3)
-grafo.agregar_arista(1,2,25)
-grafo.agregar_arista(1,3,20)
-grafo.agregar_arista(2,3,5)
-
-padres,distancia = camino_minimo(grafo,1)
-print(padres)
-print(distancia)

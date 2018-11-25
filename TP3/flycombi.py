@@ -3,7 +3,7 @@ from grafo_funciones_aux import *
 
 def crear_grafo(archivo1,archivo2):
 	grafo = Grafo()
-	with open(archivo1),open(archivo2) as aeropuertos,vuelos:
+	with open(archivo1) as aeropuertos, open(archivo2) as vuelos:
 		for linea in aeropuertos:
 			elementos = linea.rstrip("\n").split(",")
 			ciudad = (elementos[0],0) #0 para ciudad
@@ -24,23 +24,41 @@ def crear_grafo(archivo1,archivo2):
 	return grafo		
 
 def listar_operaciones():
-	print()
+	print("camino_escalas")
 	print()
 
-def main(cosas raras que no recuerdo como hacer):
-	grafo = crear_grafo(archivo1,archivo2)
+def camino_escalas(grafo,origen,destino): #!!!FUNCIONAAAAAAAA
+	padres,orden = bfs(grafo,origen)
+	camino = []
+	actual = destino
+	while actual:
+		if actual[1] == 1:
+			camino.append(actual[0])
+		actual = padres[actual]
+	s = ""	
+	for aeropuerto in camino[::-1]:
+		s += "{} -> ".format(aeropuerto)
+			
+	print(s[:-4])			
+
+def main(): #cosas raras que no recuerdo como hacer
+	grafo = crear_grafo("aeropuertos_inventados.csv","vuelos_inventados.csv") #archivo1,archivo2
 	while True:
 		comando = input()
 		parametros = comandos.rstrip("\n").split(" ")
 		if parametros[0] == "listar_operaciones":
 			listar_operaciones()
-		elif parametros[0] == "....":
-			if se cumplen los parametros:
-				llamar_funcion()
-		else:
-			error
+		elif parametros[0] == "camino_escalas":
+			origen,destino = parametos[1].split(",")
+			camino_escalas(grafo,(origen,0),(destino,0))	
+		#elif parametros[0] == "....":
+			#if se cumplen los parametros:
+			#	llamar_funcion()
+		#else:
+			#error
 
-		cuando mierda lo corto???	
+		#cuando mierda lo corto???	
 
+main()
 
 
