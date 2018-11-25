@@ -98,10 +98,17 @@ def camino_minimo(grafo, origen,precio_tiempo):#, destino):
 	distancia = {}
 	padres = {}
 
-	for v in grafo: 
-		distancia[v] = math.inf
+	if precio_tiempo == 2: #Quiero por cantidad de vuelos al año, cuantos mas, mejor
+		dist = math.inf
+		dist2 = 0
+	else:
+		dist = 0
+		dist2 = math.inf
 
-	distancia[origen] = 0
+	for v in grafo: 
+		distancia[v] = dist2
+
+	distancia[origen] = dist
 	padres[origen] = None
 	heap = []
 
@@ -112,7 +119,8 @@ def camino_minimo(grafo, origen,precio_tiempo):#, destino):
 		#if(v == destino): return reconstruir_camino(origen,destino,padre)
 
 		for w in grafo.adyacentes(v):
-			if distancia + grafo.ver_peso(v,w)[precio_tiempo]:
+			if (precio_tiempo == 2 and distancia + grafo.ver_peso(v,w)[precio_tiempo] > distancia[w]) \
+			or (precio_tiempo != 2 and distancia + grafo.ver_peso(v,w)[precio_tiempo] < distancia[w]):
 				padres[w] = v
 				distancia[w] = distancia + grafo.ver_peso(v,w)[precio_tiempo]
 				heapq.heappush(heap,(w,distancia[w]))
@@ -125,36 +133,49 @@ def camino_minimo(grafo, origen,precio_tiempo):#, destino):
 
 #Betweeness centrality (Forma supuestamente optimizada)
 
-def filtrar_infinitos(lista):
-	for w in lista:
-		if (lista[w] == math.inf):
-			lista.pop(w)
+def filtrar_infinitos(distancia):
+	for w in distancia:
+		if (distancia[w] == math.inf):
+			distancia.pop(w)
 
-def ordenar_vertices(grafo, distancia):
-	pass
+def seg_elemento(tupla):
+	return tupla[1]
+	
 
-def centralidad_intermediacion(grafo):
+def betweeness_centrality(grafo):
 	centralidad = {}
 
-	for v in grafo: centralidad[v] = 0
+	for v in grafo:
+		if w[1] == 0: #Me aseguro que no va a haber ciudades con centralidad
+			continue
+		centralidad[v] = 0
 
 	for v in grafo:
-		padres_distancia = camino_minimo(grafo,v)
+		if v[1] == 0:
+			continue
+		padres,distancia = camino_minimo(grafo,v,2)
 		centralidad_auxiliar = {}
 
-	for v in grafo: centralidad_auxiliar[v] = 0
-	filtrar_infinitos(distancia)
+		for w in grafo:
+			if v[1] == 0:
+				continue 
+			centralidad_auxiliar[w] = 0
+
+		filtrar_infinitos(distancia)
+
+		vertices = list(distancia.values())
 	
-	vertices_ordenados = ordenar_vertices(grafo, distancia) #???
+		vertices_ordenados = sorted(vertices,key = seg_elemento)
 
-	for w in vertices_ordenados:
-		if (w == v) : continue
-		centralidad_auxiliar[w] += 1
-		centralidad_auxiliar[padre[w]] += centralidad_auxiliar[w]
+		for w in vertices_ordenados:
+			if w[1] == 0:
+				continue
+			centralidad_auxiliar[padre[w]] += centralidad_auxiliar[w] + 1
 
-	for w in grafo:
-		if (w == v) : continue
-		centralidad[w] += centralidad_auxiliar[w]
+		for w in grafo:
+			if w == v or w[1] == 0: 
+				continue
+			centralidad[w] += centralidad_auxiliar[w]
 
 	return centralidad
 
