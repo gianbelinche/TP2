@@ -130,12 +130,24 @@ def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,d
 		rec.pop()
 	print(s[:-4])	
 			
+def separar_parametros(parametos):
+	para = []
+	comando = ""
+	for i in range(len(parametros)):
+		if parametros[i] == " ":
+			para.append(comando)
+			para.append(parametros[i+1:])	
+			break
+		comando += parametros[i]
+	return para	
+			
+
 
 def main(): #cosas raras que no recuerdo como hacer
 	grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos = crear_grafo("aeropuertos_inventados.csv","vuelos_inventados.csv") #archivo1,archivo2
 	while True:
 		comando = input()
-		parametros = comandos.rstrip("\n").split(" ")
+		parametros = separar_parametros(comandos.rstrip("\n"))
 		if parametros[0] == "listar_operaciones":
 			listar_operaciones()
 		elif parametros[0] == "camino_escalas":
@@ -148,11 +160,12 @@ def main(): #cosas raras que no recuerdo como hacer
 			origen = parametos[1]
 			recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen)
 		elif parametros[0] == "camino_mas":
+			para = parametros[1].split(",")
 			modo = 0
-			if parametros[1] == "barato":
+			if para[0] == "barato":
 				modo = 1
-			origen = parametros[2]
-			destino = parametros[3]
+			origen = parametros[1]
+			destino = parametros[2]
 			camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino)	
 
 		#else:
