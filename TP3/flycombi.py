@@ -16,12 +16,12 @@ def crear_grafo(archivo1,archivo2):
 
 		for linea in vuelos:
 			elementos = linea.rstrip("\n").split(",")
-			aeropuerto_i = (elementos[0],1)
-			aeropuerto_j = (elementos[1],1)
+			aeropuerto_i = elementos[0]
+			aeropuerto_j = elementos[1]
 			tiempo = elementos[2]
 			precio = elementos[3]
 			vuelos_x_año = elementos[4]
-			peso = (tiempo,precio,vuelos_x_año)
+			peso = (int(tiempo),int(precio),int(vuelos_x_año))
 			grafo.agregar_arista(aeropuerto_i,aeropuerto_j,peso)
 
 	return grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos		
@@ -41,7 +41,7 @@ def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,de
 			while actual:
 				camino.append(actual)
 				actual = padres[actual]
-				i++	
+				i += 1
 			caminos.append((camino,i))	
 	maxi = 0
 	cam = []		
@@ -56,7 +56,7 @@ def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,de
 			
 	print(s[:-4])			
 
-def centralidad(grafo,n):
+def centralidad(grafo,n): #no funciona, aun no entiendo bien la idea
 	centralidad = betweeness_centrality(grafo)
 	valores = centralidad.items()
 	valores.sort(key=seg_elemento)
@@ -65,7 +65,7 @@ def centralidad(grafo,n):
 		s += "{}, ".format(valores[i])
 	print(s[:-2])	
 
-def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen):
+def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen): #tampoco anda
 	recorridos = []
 	for aeropuerto in ciudades_a_aeropuertos[origen]:
 		camino = []
@@ -73,15 +73,18 @@ def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,ori
 		precio = 0
 		vuelos = len(grafo) 
 		camino.append(aeropuerto)
-		cantidad = 1
+		cantidad = 0
 		actual = aeropuerto
+		anterior = None
+		prox = None	
 		while cantidad != vuelos:
+			print(actual)
 			mini = math.inf
-			prox = None	
 			for ady in grafo.adyacentes(actual):
-				if prox == None or (grafo.ver_peso(grafo,actual,ady)[1] < mini and ady != actual):
-					mini = grafo.ver_peso(grafo,actual,prox)[1]
-					prox = ady		
+				if prox == None or (grafo.ver_peso(actual,ady)[1] < mini and ady != anterior):
+					mini = grafo.ver_peso(actual,ady)[1]
+					prox = ady
+			anterior = actual				
 			actual = prox
 			camino.append(actual)
 			precio += mini
@@ -107,6 +110,7 @@ def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,ori
 
 def main(): #cosas raras que no recuerdo como hacer
 	grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos = crear_grafo("aeropuertos_inventados.csv","vuelos_inventados.csv") #archivo1,archivo2
+	recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,"La Terminal")
 	while True:
 		comando = input()
 		parametros = comandos.rstrip("\n").split(" ")
