@@ -98,35 +98,32 @@ def camino_minimo(grafo, origen,precio_tiempo):#, destino):
 	distancias = {}
 	padres = {}
 
-	if precio_tiempo == 2: #Quiero por cantidad de vuelos al año, cuantos mas, mejor
-		dist = math.inf
-		dist2 = 0
-	else:
-		dist = 0
-		dist2 = math.inf
+	#if precio_tiempo == 2: #Quiero por cantidad de vuelos al año, cuantos mas, mejor
+	#	dist = math.inf
+	#	dist2 = 0
+	#else:
+	#	dist = 0
+	#	dist2 = math.inf
 
 	for v in grafo: 
-		distancias[v] = dist2
+		distancias[v] = math.inf
 
 	distancias[origen] = 0
 	padres[origen] = None
 	heap = []
 
-	heapq.heappush(heap,(origen,distancias[origen]))
-	heapq.heapify(heap)
+	heapq.heappush(heap,(distancias[origen],origen))
 
 	while len(heap) != 0:
-		v,distancia = heapq.heappop(heap)
-		heapq.heapify(heap)
+		distancia,v = heapq.heappop(heap)
 		#if(v == destino): return reconstruir_camino(origen,destino,padre)
-
+		print(v)
 		for w in grafo.adyacentes(v):
 			if (precio_tiempo == 2 and distancia + grafo.ver_peso(v,w)[precio_tiempo] > distancias[w]) \
 			or (precio_tiempo != 2 and distancia + grafo.ver_peso(v,w)[precio_tiempo] < distancias[w]):
 				padres[w] = v
 				distancias[w] = distancia + grafo.ver_peso(v,w)[precio_tiempo]
-				heapq.heappush(heap,(w,distancias[w]))
-				heapq.heapify(heap)
+				heapq.heappush(heap,(distancias[w],w))
 
 	return padres,distancias
 

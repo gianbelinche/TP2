@@ -78,7 +78,6 @@ def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,ori
 		anterior = None
 		prox = None	
 		while cantidad != vuelos:
-			print(actual)
 			mini = math.inf
 			for ady in grafo.adyacentes(actual):
 				if prox == None or (grafo.ver_peso(actual,ady)[1] < mini and ady != anterior):
@@ -106,11 +105,34 @@ def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,ori
 	print(s[:-4])
 	print("Costo: {}".format(minimo))
 
+def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino): #parece funcionar
+	recorridos = []
+	for aeropuerto in ciudades_a_aeropuertos[origen]:
+		padres,distancias = camino_minimo(grafo,aeropuerto,modo)
+		for aeropuerto_b in ciudades_a_aeropuertos[destino]:
+			camino = []
+			actual = aeropuerto_b
+			while actual:
+				camino.append(actual)
+				actual = padres[actual]
+			recorridos.append((camino,distancias[aeropuerto_b]))
 
+	mini = math.inf
+	rec = []
+	for camino in recorridos:
+		if camino[1] < mini:
+			mini = camino[1]
+			rec = camino[0]			
+			
+	s = ""	
+	while len(rec) != 0:
+		s += "{} -> ".format(rec[-1])
+		rec.pop()
+	print(s[:-4])	
+			
 
 def main(): #cosas raras que no recuerdo como hacer
 	grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos = crear_grafo("aeropuertos_inventados.csv","vuelos_inventados.csv") #archivo1,archivo2
-	recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,"La Terminal")
 	while True:
 		comando = input()
 		parametros = comandos.rstrip("\n").split(" ")
@@ -125,6 +147,14 @@ def main(): #cosas raras que no recuerdo como hacer
 		elif parametos[0] == "recorrer_mundo_aprox":
 			origen = parametos[1]
 			recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen)
+		elif parametros[0] == "camino_mas":
+			modo = 0
+			if parametros[1] == "barato":
+				modo = 1
+			origen = parametros[2]
+			destino = parametros[3]
+			camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino)	
+
 		#else:
 			#error
 
