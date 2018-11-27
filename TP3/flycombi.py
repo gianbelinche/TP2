@@ -21,7 +21,7 @@ def crear_grafo(archivo1,archivo2):
 			tiempo = elementos[2]
 			precio = elementos[3]
 			vuelos_x_año = elementos[4]
-			peso = (int(tiempo),int(precio),int(vuelos_x_año))
+			peso = (int(tiempo),int(precio),1/int(vuelos_x_año))
 			grafo.agregar_arista(aeropuerto_i,aeropuerto_j,peso)
 
 	return grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos		
@@ -56,13 +56,13 @@ def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,de
 			
 	print(s[:-4])			
 
-def centralidad(grafo,n): #no funciona, aun no entiendo bien la idea
+def centralidad(grafo,n): #Ya funciona
 	centralidad = betweeness_centrality(grafo)
-	valores = centralidad.items()
-	valores.sort(key=seg_elemento)
+	valores = list(centralidad.items())
+	valores.sort(key=seg_elemento,reverse=True)
 	s = ""
 	for i in range(n):
-		s += "{}, ".format(valores[i])
+		s += "{}, ".format(valores[i][0])
 	print(s[:-2])	
 
 def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen): #tampoco anda
@@ -130,7 +130,7 @@ def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,d
 		rec.pop()
 	print(s[:-4])	
 			
-def separar_parametros(parametos):
+def separar_parametros(parametros):
 	para = []
 	comando = ""
 	for i in range(len(parametros)):
@@ -139,6 +139,9 @@ def separar_parametros(parametos):
 			para.append(parametros[i+1:])	
 			break
 		comando += parametros[i]
+
+	if len(para) == 0:
+		para.append(comando)
 	return para	
 			
 
@@ -147,25 +150,25 @@ def main(): #cosas raras que no recuerdo como hacer
 	grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos = crear_grafo("aeropuertos_inventados.csv","vuelos_inventados.csv") #archivo1,archivo2
 	while True:
 		comando = input()
-		parametros = separar_parametros(comandos.rstrip("\n"))
+		parametros = separar_parametros(comando.rstrip("\n"))
 		if parametros[0] == "listar_operaciones":
 			listar_operaciones()
 		elif parametros[0] == "camino_escalas":
-			origen,destino = parametos[1].split(",")
+			origen,destino = parametros[1].split(",")
 			camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino)	
 		elif parametros[0] == "centralidad":
 			n = int(parametros[1])
 			centralidad(grafo,n)
-		elif parametos[0] == "recorrer_mundo_aprox":
-			origen = parametos[1]
+		elif parametros[0] == "recorrer_mundo_aprox":
+			origen = parametros[1]
 			recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen)
 		elif parametros[0] == "camino_mas":
 			para = parametros[1].split(",")
 			modo = 0
 			if para[0] == "barato":
 				modo = 1
-			origen = parametros[1]
-			destino = parametros[2]
+			origen = para[1]
+			destino = para[2]
 			camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino)	
 
 		#else:

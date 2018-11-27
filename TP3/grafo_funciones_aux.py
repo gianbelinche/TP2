@@ -94,16 +94,9 @@ def reconstuir_camino(padres,destino):
 
 	return recorrido
 
-def camino_minimo(grafo, origen,precio_tiempo):#, destino):
+def camino_minimo(grafo, origen,modo):#, destino):
 	distancias = {}
 	padres = {}
-
-	#if precio_tiempo == 2: #Quiero por cantidad de vuelos al año, cuantos mas, mejor
-	#	dist = math.inf
-	#	dist2 = 0
-	#else:
-	#	dist = 0
-	#	dist2 = math.inf
 
 	for v in grafo: 
 		distancias[v] = math.inf
@@ -117,12 +110,10 @@ def camino_minimo(grafo, origen,precio_tiempo):#, destino):
 	while len(heap) != 0:
 		distancia,v = heapq.heappop(heap)
 		#if(v == destino): return reconstruir_camino(origen,destino,padre)
-		print(v)
 		for w in grafo.adyacentes(v):
-			if (precio_tiempo == 2 and distancia + grafo.ver_peso(v,w)[precio_tiempo] > distancias[w]) \
-			or (precio_tiempo != 2 and distancia + grafo.ver_peso(v,w)[precio_tiempo] < distancias[w]):
+			if distancia + grafo.ver_peso(v,w)[modo] < distancias[w]:
 				padres[w] = v
-				distancias[w] = distancia + grafo.ver_peso(v,w)[precio_tiempo]
+				distancias[w] = distancia + grafo.ver_peso(v,w)[modo]
 				heapq.heappush(heap,(distancias[w],w))
 
 	return padres,distancias
@@ -157,12 +148,14 @@ def betweeness_centrality(grafo):
 
 		filtrar_infinitos(distancia)
 
-		vertices = list(distancia.values())
+		vertices = list(distancia.items())
 	
-		vertices_ordenados = sorted(vertices,key = seg_elemento)
-
-		for w in vertices_ordenados:
-			centralidad_auxiliar[padre[w]] += centralidad_auxiliar[w] + 1
+		vertices_ordenados = sorted(vertices,key = seg_elemento,reverse=True)
+		
+		for w,dist in vertices_ordenados:
+			if (padres[w]) == None:
+				continue
+			centralidad_auxiliar[padres[w]] += centralidad_auxiliar[w] + 1
 
 		for w in grafo:
 			if w == v: 
