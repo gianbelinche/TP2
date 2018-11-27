@@ -1,6 +1,10 @@
 from grafo import *
 from grafo_funciones_aux import *
 
+
+
+#................................  FUNCIONES AUXILIARES ................................#
+
 def crear_grafo(archivo1,archivo2):
 	grafo = Grafo()
 	aeropuertos_a_ciudades = {}
@@ -26,9 +30,36 @@ def crear_grafo(archivo1,archivo2):
 
 	return grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos		
 
+def mostrar_grafo(grafo):
+	for v in grafo:
+		for w in grafo.adyacentes(v):
+			print("{} - {} - {}".format(v,grafo.ver_peso(v,w),w)) 
+
 def listar_operaciones():
 	print("camino_escalas")
 	print()
+
+def crear_conjunto_disjunto(lista):
+	conjunto_disjunto = {}
+	for v in lista:
+		conjunto_disjunto[v] = v
+
+	return conjunto_disjunto
+
+def find(conjunto_disjunto,v)
+	if(conjunto_disjunto[v] == v):
+		return v
+	
+	w = _find(conjunto_disjunto,v)
+	conjunto_disjunto[v] = w
+	return w
+
+def union(conjunto_disjunto,v,w)
+	conjunto_disjunto[find(conjunto_disjunto, w)] = v
+
+#................................       COMANDOS        ................................#
+
+
 
 def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino): #!!!FUNCIONAAAAAAAA
 	caminos = []
@@ -130,6 +161,72 @@ def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,d
 		rec.pop()
 	print(s[:-4])	
 			
+
+
+def _viaje_n_lugares(grafo,distancia,visitados,padres,origen, v, escalas,escalas_restantes):
+	visitados.add(v)
+	print(v)
+
+	if (escalas_restantes > 0):
+		for w in grafo.adyacentes(v):
+			if (w not in visitados) and (escalas_restantes - distancia[w] >= 0):
+				padres[w] = v
+				resultado = _viaje_n_lugares(grafo,distancia,visitados,padres,origen,w,escalas,escalas_restantes - 1)
+				if(resultado != None): return resultado
+
+	elif (distancia[v] == 1): return v;
+
+	visitados.remove(v)
+	return None
+
+def calcular_distancia(grafo,origen,escalas):
+	visitados = set()
+	visitados.add(origen)
+	distancia = {}
+	distancia[origen] = 0
+	cola = Queue()
+	cola.put(origen)
+
+	while not cola.empty():
+		v = cola.get()
+		if(distancia[v] <= escalas/2):
+			for w in grafo.adyacentes(v):
+				if w not in visitados:
+					visitados.add(w)
+					distancia[w] = distancia[v] + 1
+					cola.put(w)
+	return distancia
+
+def viaje_n_lugares(grafo,origen,escalas):
+	visitados = set()
+	visitados.add(origen)
+	distancia = calcular_distancia(grafo,origen,escalas)
+	padres = {}
+	padres[origen] = None
+
+	final = _viaje_n_lugares(grafo,distancia,visitados,padres,origen,origen,escalas,escalas)
+
+	if (final == None):
+		print("No se encontro recorrido")
+	else:
+		print(reconstruir_camino(padres,final))
+
+
+def nueva_aerolinea(grafo,origen):
+	conjunto_disjunto = crear_conjunto_disjunto(grafo.obtener_vertices)
+	aristas = ordenar_aristas(grafo.obtener_aristas)
+
+	rutas_a_devolver = []
+
+	for arista in aristas
+		if(find(conjunto_disjunto, w) == find(conjunto_disjunto, v))
+			continue
+		rutas_a_devolver.append(arista)
+		union(conjunto_disjunto,w,v)
+
+#................................    FUNCION PRINCIPAL  ................................#
+
+
 def separar_parametros(parametros):
 	para = []
 	comando = ""

@@ -85,7 +85,8 @@ def orden_topologico(grafo):
 
 #Dijsktra
 
-def reconstuir_camino(padres,destino):
+def reconstruir_camino(padres,destino):
+	if (destino == None): return None
 	recorrido = [destino]
 	
 	while padres[destino] != None:
