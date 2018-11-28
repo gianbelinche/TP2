@@ -57,8 +57,8 @@ def find(conjunto_disjunto,v)
 def union(conjunto_disjunto,v,w)
 	conjunto_disjunto[find(conjunto_disjunto, w)] = v
 
-#................................       COMANDOS        ................................#
 
+#................................       COMANDOS        ................................#
 
 
 def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino): #!!!FUNCIONAAAAAAAA
@@ -224,6 +224,36 @@ def nueva_aerolinea(grafo,origen):
 		rutas_a_devolver.append(arista)
 		union(conjunto_disjunto,w,v)
 
+def exportar_KML(archivo, aeropuertos_a_ciudades, recorrido)
+	ciudades_registradas = {}
+	ciudad_previa = None
+	with open(archivo, "w") as salida:
+		salida.write( '<?xml version="1.0" encoding="UTF-8"?>')
+		salida.write(' <kml xmlns="http://www.opengis.net/kml/2.2">')
+		salida.write('     <Document>')
+		for v in recorrido
+			ciudad = aeropuertos_a_ciudades[v]
+			if (ciudad not in ciudades_registradas):
+				ciudades_registradas[ciudad] = True
+				salida.write('     <Placemark>')
+				salida.write('     	<name> {} </name>'.format(ciudad))
+				salida.write('     		<point>')
+				salida.write('  			<coordinates> {} </coordinates>'.format(ciudad.coordenadas))
+				salida.write('     		</point>')
+				salida.write('     </Placemark>')
+
+			if(ciudad_previa != None)
+				salida.write('     <Placemark>')
+				salida.write('     		<LineString>')
+				salida.write('  			<coordinates> {} {} </coordinates>'.format(ciudad_previa.coordenadas,ciudad.coordenadas))
+				salida.write('     		</LineString>')
+				salida.write('     </Placemark>')
+
+			ciudad_previa = ciudad
+
+		salida.write('     </Document>')
+		salida.write(' </kml>')
+		
 #................................    FUNCION PRINCIPAL  ................................#
 
 
