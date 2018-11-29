@@ -106,9 +106,11 @@ def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,de
 				
 	s = ""	
 	for aeropuerto in cam[::-1]:
-		s += "{} -> ".format(aeropuerto)
+		s += "{} -> ".format(aeropuerto)	
 			
 	print(s[:-4])			
+
+	return cam[::-1]
 
 def centralidad(grafo,n): #Ya funciona
 	centralidad = betweeness_centrality(grafo)
@@ -178,11 +180,14 @@ def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,d
 			mini = camino[1]
 			rec = camino[0]			
 			
-	s = ""	
+	s = ""
+	rec2 = []	
 	while len(rec) != 0:
 		s += "{} -> ".format(rec[-1])
-		rec.pop()
+		rec2.append(rec.pop())
 	print(s[:-4])	
+
+	return rec2
 			
 
 
