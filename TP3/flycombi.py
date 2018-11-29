@@ -58,25 +58,6 @@ def listar_operaciones():
 	print("camino_escalas")
 	print()
 
-def crear_conjunto_disjunto(lista):
-	conjunto_disjunto = {}
-	for v in lista:
-		conjunto_disjunto[v] = v
-
-	return conjunto_disjunto
-
-def find(conjunto_disjunto,v)
-	if(conjunto_disjunto[v] == v):
-		return v
-	
-	w = _find(conjunto_disjunto,v)
-	conjunto_disjunto[v] = w
-	return w
-
-def union(conjunto_disjunto,v,w)
-	conjunto_disjunto[find(conjunto_disjunto, w)] = v
-
-
 #................................       COMANDOS        ................................#
 
 
@@ -193,7 +174,7 @@ def _viaje_n_lugares(grafo,distancia,visitados,padres,origen, v, escalas,escalas
 				resultado = _viaje_n_lugares(grafo,distancia,visitados,padres,origen,w,escalas,escalas_restantes - 1)
 				if(resultado != None): return resultado
 
-	elif (distancia[v] == 1): return v;
+	elif (distancia[v] == 1): return v
 
 	visitados.remove(v)
 	return None
@@ -237,34 +218,34 @@ def nueva_aerolinea(grafo,origen):
 
 	rutas_a_devolver = []
 
-	for arista in aristas
-		if(find(conjunto_disjunto, w) == find(conjunto_disjunto, v))
+	for arista in aristas:
+		if(find(conjunto_disjunto, w) == find(conjunto_disjunto, v)):
 			continue
 		rutas_a_devolver.append(arista)
 		union(conjunto_disjunto,w,v)
 
-def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido)
+def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido):
 	ciudades_registradas = {}
 	ciudad_previa = None
 	with open(archivo, "w") as salida:
 		salida.write( '<?xml version="1.0" encoding="UTF-8"?>')
 		salida.write(' <kml xmlns="http://www.opengis.net/kml/2.2">')
 		salida.write('     <Document>')
-		for v in recorrido
+		for v in recorrido:
 			ciudad = aeropuertos_a_ciudades[v]
 			if (ciudad not in ciudades_registradas):
 				ciudades_registradas[ciudad] = True
 				salida.write('     <Placemark>')
 				salida.write('     	<name> {} </name>'.format(ciudad))
 				salida.write('     		<point>')
-				salida.write('  			<coordinates> {},{} </coordinates>'.format(coordenadas[ciudad][0],coordenadas[ciudad][1])
+				salida.write('  			<coordinates> {},{} </coordinates>'.format(coordenadas[ciudad][0],coordenadas[ciudad][1]))
 				salida.write('     		</point>')
 				salida.write('     </Placemark>')
 
-			if(ciudad_previa != None)
+			if(ciudad_previa != None):
 				salida.write('     <Placemark>')
 				salida.write('     		<LineString>')
-				salida.write('  			<coordinates> {},{} {},{} </coordinates>'.format(coordenadas[ciudad_previa][0],coordenadas[ciudad_previa][1],coordenadas[ciudad][0],coordenadas[ciudad][1])
+				salida.write('  			<coordinates> {},{} {},{} </coordinates>'.format(coordenadas[ciudad_previa][0],coordenadas[ciudad_previa][1],coordenadas[ciudad][0],coordenadas[ciudad][1]))
 				salida.write('     		</LineString>')
 				salida.write('     </Placemark>')
 
