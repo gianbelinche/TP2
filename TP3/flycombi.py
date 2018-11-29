@@ -9,6 +9,7 @@ def crear_grafo(archivo1,archivo2):
 	grafo = Grafo()
 	aeropuertos_a_ciudades = {}
 	ciudades_a_aeropuertos = {}
+	coordenadas = {}
 	with open(archivo1) as aeropuertos, open(archivo2) as vuelos:
 		for linea in aeropuertos:
 			elementos = linea.rstrip("\n").split(",")
@@ -17,6 +18,8 @@ def crear_grafo(archivo1,archivo2):
 			grafo.agregar_vertice(aeropuerto)
 			ciudades_a_aeropuertos[ciudad] = ciudades_a_aeropuertos.get(ciudad,[]) + [aeropuerto]
 			aeropuertos_a_ciudades[aeropuerto] = ciudad 
+			coornenada = (elementos[2],elementos[3])
+			coordenadas[ciudad] = coordenada
 
 		for linea in vuelos:
 			elementos = linea.rstrip("\n").split(",")
@@ -28,7 +31,7 @@ def crear_grafo(archivo1,archivo2):
 			peso = (int(tiempo),int(precio),1/int(vuelos_x_año))
 			grafo.agregar_arista(aeropuerto_i,aeropuerto_j,peso)
 
-	return grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos		
+	return grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,coordenadas		
 
 def mostrar_grafo(grafo):
 	for v in grafo:
@@ -274,7 +277,7 @@ def separar_parametros(parametros):
 
 
 def main(): #cosas raras que no recuerdo como hacer
-	grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos = crear_grafo("aeropuertos_inventados.csv","vuelos_inventados.csv") #archivo1,archivo2
+	grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,coordenadas = crear_grafo("aeropuertos_inventados.csv","vuelos_inventados.csv") #archivo1,archivo2
 	while True:
 		comando = input()
 		parametros = separar_parametros(comando.rstrip("\n"))
