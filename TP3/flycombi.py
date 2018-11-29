@@ -214,14 +214,15 @@ def calcular_distancia(grafo,origen,escalas):
 					cola.put(w)
 	return distancia
 
-def viaje_n_lugares(grafo,origen,escalas):
+def viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,escalas):
+	origenx = ciudades_a_aeropuertos(origen)
 	visitados = set()
-	visitados.add(origen)
-	distancia = calcular_distancia(grafo,origen,escalas) #Acota la cantidad de vertices a considerar
+	visitados.add(origenx)
+	distancia = calcular_distancia(grafo,origenx,escalas) #Acota la cantidad de vertices a considerar
 	padres = {}
-	padres[origen] = None
+	padres[origenx] = None
 
-	final = _viaje_n_lugares(grafo,distancia,visitados,padres,origen,origen,escalas,escalas)
+	final = _viaje_n_lugares(grafo,distancia,visitados,padres,origenx,origenx,escalas,escalas)
 
 	if (final == None):
 		print("No se encontro recorrido")
