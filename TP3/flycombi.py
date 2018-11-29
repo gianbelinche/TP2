@@ -193,7 +193,6 @@ def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,d
 
 def _viaje_n_lugares(grafo,distancia,visitados,padres,origen, v, escalas,escalas_restantes):
 	visitados.add(v)
-	print(v)
 
 	if (escalas_restantes > 0):
 		for w in grafo.adyacentes(v):
@@ -217,7 +216,7 @@ def calcular_distancia(grafo,origen,escalas):
 
 	while not cola.empty():
 		v = cola.get()
-		if(distancia[v] <= escalas/2):
+		if(distancia[v] <= escalas):
 			for w in grafo.adyacentes(v):
 				if w not in visitados:
 					visitados.add(w)
@@ -226,7 +225,7 @@ def calcular_distancia(grafo,origen,escalas):
 	return distancia
 
 def viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,escalas):
-	origenx = ciudades_a_aeropuertos(origen)
+	origenx = ciudades_a_aeropuertos[origen][0]
 	visitados = set()
 	visitados.add(origenx)
 	distancia = calcular_distancia(grafo,origenx,escalas) #Acota la cantidad de vertices a considerar
@@ -244,31 +243,35 @@ def viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,e
 
 		for aeropuerto in camino_aeropuertos:
 			if(ultima_ciudad != aeropuertos_a_ciudades[aeropuerto]):
-				ultima_ciudad = aeropuertos_a_ciudades[aeropuertos]
+				ultima_ciudad = aeropuertos_a_ciudades[aeropuerto]
 				camino_ciudades.append(ultima_ciudad)
 
 		print(camino_ciudades)
-		
 
 def nueva_aerolinea(archivo,grafo):
-	conjunto_disjunto = Conjunto_Disjunto(grafo.obtener_vertices)
+
+	lista = []
+	for v in grafo:
+		lista.append(v)
+
+	conjunto_disjunto = Conjunto_Disjunto(lista)
 	aristas = ordenar_aristas(obtener_aristas(grafo))
 
 	rutas_a_devolver = []
 
 	for arista in aristas:
-		v,w,peso = arsita
+		v,w,peso = arista
 
-		if(Conjunto_Disjunto.find(conjunto_disjunto, w) == Conjunto_Disjunto.find(conjunto_disjunto, v)):
-			continue
-
-		rutas_a_devolver.append(arista)
-		Conjunto_Disjunto.union(conjunto_disjunto, w, v)
+		if(Conjunto_Disjunto.find(conjunto_disjunto, w) != Conjunto_Disjunto.find(conjunto_disjunto, v)):
+			rutas_a_devolver.append(arista)
+			Conjunto_Disjunto.union(conjunto_disjunto, w, v)
 
 	with open(archivo, "w") as salida:
 		for ruta in rutas_a_devolver:
 			v,w,peso = arista
-			salida.write("{},{},{},{},{}".format(v,w,peso[0],peso[1], 1/peso[2]))
+			salida.write("{},{},{},{},{}\n".format(v,w,peso[0],peso[1], 1/peso[2]))
+
+	print("OK")
 
 
 def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido):
