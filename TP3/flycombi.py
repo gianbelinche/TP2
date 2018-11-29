@@ -243,7 +243,7 @@ def nueva_aerolinea(grafo,origen):
 		rutas_a_devolver.append(arista)
 		union(conjunto_disjunto,w,v)
 
-def exportar_KML(archivo, aeropuertos_a_ciudades, recorrido)
+def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido)
 	ciudades_registradas = {}
 	ciudad_previa = None
 	with open(archivo, "w") as salida:
@@ -257,14 +257,14 @@ def exportar_KML(archivo, aeropuertos_a_ciudades, recorrido)
 				salida.write('     <Placemark>')
 				salida.write('     	<name> {} </name>'.format(ciudad))
 				salida.write('     		<point>')
-				salida.write('  			<coordinates> {} </coordinates>'.format(ciudad.coordenadas))
+				salida.write('  			<coordinates> {},{} </coordinates>'.format(coordenadas[ciudad][0],coordenadas[ciudad][1])
 				salida.write('     		</point>')
 				salida.write('     </Placemark>')
 
 			if(ciudad_previa != None)
 				salida.write('     <Placemark>')
 				salida.write('     		<LineString>')
-				salida.write('  			<coordinates> {} {} </coordinates>'.format(ciudad_previa.coordenadas,ciudad.coordenadas))
+				salida.write('  			<coordinates> {},{} {},{} </coordinates>'.format(coordenadas[ciudad_previa][0],coordenadas[ciudad_previa][1],coordenadas[ciudad][0],coordenadas[ciudad][1])
 				salida.write('     		</LineString>')
 				salida.write('     </Placemark>')
 
