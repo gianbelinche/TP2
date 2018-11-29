@@ -58,6 +58,22 @@ def listar_operaciones():
 	print("camino_escalas")
 	print()
 
+def obtener_aristas(grafo):
+    aristas = {}
+    for v in grafo:
+        for w in grafo.adyacentes(v):
+            peso = grafo.ver_peso(v,w)
+            if (w,v,peso) not in aristas or (v,w,peso) not in aristas:
+                aristas[(v,w,peso)] = True
+
+    return aristas
+
+def ord_pesos(arista):
+    return arista[2][1]
+
+def ordenar_aristas(aristas):
+    return sorted(aristas.keys(),key=ord_pesos)
+
 #................................       COMANDOS        ................................#
 
 
@@ -219,29 +235,11 @@ def viaje_n_lugares(grafo,origen,escalas):
 				camino_ciudades.append(ultima_ciudad)
 
 		print(camino_ciudades)
-
-
-
-def obtener_aristas(grafo):
-    aristas = {}
-    for v in grafo:
-        for w in grafo.adyacentes(v):
-            peso = grafo.ver_peso(v,w)
-            if (w,v,peso) not in aristas or (v,w,peso) not in aristas:
-                aristas[(v,w,peso)] = True
-
-    return aristas
-
-def ord_pesos(arista):
-    return arista[2][1]
-
-def ordenar_aristas(aristas):
-    return sorted(aristas.keys(),key=ord_pesos)
 		
 
 def nueva_aerolinea(archivo,grafo,origen):
 	conjunto_disjunto = Conjunto_Disjunto(grafo.obtener_vertices)
-	aristas = ordenar_aristas(grafo.obtener_aristas)
+	aristas = ordenar_aristas(obtener_aristas(grafo))
 
 	rutas_a_devolver = []
 
@@ -312,7 +310,11 @@ def main():
     grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,coordenadas = crear_grafo(archivo1,archivo2)
     ultimo_comando = []
     while True:
-        comando = input()
+        try:
+            comando = input()
+        
+        except EOFError:
+            break
         parametros = separar_parametros(comando.rstrip("\n"))
         if parametros[0] == "listar_operaciones":
             listar_operaciones()
