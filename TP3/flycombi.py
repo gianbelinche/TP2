@@ -200,7 +200,7 @@ def calcular_distancia(grafo,origen,escalas):
 def viaje_n_lugares(grafo,origen,escalas):
 	visitados = set()
 	visitados.add(origen)
-	distancia = calcular_distancia(grafo,origen,escalas)
+	distancia = calcular_distancia(grafo,origen,escalas) #Acota la cantidad de vertices a considerar
 	padres = {}
 	padres[origen] = None
 
@@ -209,20 +209,56 @@ def viaje_n_lugares(grafo,origen,escalas):
 	if (final == None):
 		print("No se encontro recorrido")
 	else:
-		print(reconstruir_camino(padres,final))
+		camino_aeropuertos = reconstruir_camino(padres,final)
+		ultima_ciudad = None
+		camino_ciudades = []
+
+		for aeropuerto in camino_aeropuertos:
+			if(ultima_ciudad != aeropuertos_a_ciudades[aeropuerto]):
+				ultima_ciudad = aeropuertos_a_ciudades[aeropuertos]
+				camino_ciudades.append(ultima_ciudad)
+
+		print(camino_ciudades)
 
 
-def nueva_aerolinea(grafo,origen):
-	conjunto_disjunto = crear_conjunto_disjunto(grafo.obtener_vertices)
+
+def obtener_aristas(grafo):
+    aristas = {}
+    for v in grafo:
+        for w in grafo.adyacentes(v):
+            peso = grafo.ver_peso(v,w)
+            if (w,v,peso) not in aristas or (v,w,peso) not in aristas:
+                aristas[(v,w,peso)] = True
+
+    return aristas
+
+def ord_pesos(arista):
+    return arista[2][1]
+
+def ordenar_aristas(aristas):
+    return sorted(aristas.keys(),key=ord_pesos)
+		
+
+def nueva_aerolinea(archivo,grafo,origen):
+	conjunto_disjunto = Conjunto_Disjunto(grafo.obtener_vertices)
 	aristas = ordenar_aristas(grafo.obtener_aristas)
 
 	rutas_a_devolver = []
 
 	for arista in aristas:
-		if(find(conjunto_disjunto, w) == find(conjunto_disjunto, v)):
+		v,w,peso = arsita
+
+		if(Conjunto_Disjunto.find(conjunto_disjunto, w) == Conjunto_Disjunto.find(conjunto_disjunto, v)):
 			continue
+
 		rutas_a_devolver.append(arista)
-		union(conjunto_disjunto,w,v)
+		Conjunto_Disjunto.union(conjunto_disjunto, w, v)
+
+	with open(archivo, "w") as salida:
+		for ruta in rutas_a_devolver:
+			v,w,peso = arista
+			salida.write("{},{},{},{},{}".format(v,w,peso[0],peso[1], 1/peso[2]))
+
 
 def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido):
 	ciudades_registradas = {}
@@ -256,7 +292,6 @@ def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido):
 		
 #................................    FUNCION PRINCIPAL  ................................#
 
-
 def separar_parametros(parametros):
 	para = []
 	comando = ""
@@ -271,38 +306,45 @@ def separar_parametros(parametros):
 		para.append(comando)
 	return para	
 			
+def main():
+    archivo1 = sys.argv[1]
+    archivo2 = sys.argv[2]
+    grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,coordenadas = crear_grafo(archivo1,archivo2)
+    ultimo_comando = []
+    while True:
+        comando = input()
+        parametros = separar_parametros(comando.rstrip("\n"))
+        if parametros[0] == "listar_operaciones":
+            listar_operaciones()
+        elif parametros[0] == "camino_escalas":
+            origen,destino = parametros[1].split(",")
+            camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino)
+        elif parametros[0] == "centralidad":
+            n = int(parametros[1])
+            centralidad(grafo,n)
+        elif parametros[0] == "recorrer_mundo_aprox":
+            origen = parametros[1]
+            recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen)
+        elif parametros[0] == "camino_mas":
+            para = parametros[1].split(",")
+            modo = 0
+            if para[0] == "barato":
+                modo = 1
+            origen = para[1]
+            destino = para[2]
+            camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino)
+        elif parametros[0] == "exportar_kml":
+            archivo = parametros[1]
+            exportar_KML(archivo,aeropuertos_a_ciudades,coordenadas,ultimo_comando)
+        elif parametros[0] == "nueva_aerolinea":
+            archivo = parametros[1]
 
+        elif parametros[0] == "vacaciones":
+            para = parametros[1].split(",")
+            origen = para[0]
+            n = int(para[1])
+            viaje_n_lugares(grafo,origen,n)
 
-def main(): #cosas raras que no recuerdo como hacer
-	grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,coordenadas = crear_grafo("aeropuertos_inventados.csv","vuelos_inventados.csv") #archivo1,archivo2
-	while True:
-		comando = input()
-		parametros = separar_parametros(comando.rstrip("\n"))
-		if parametros[0] == "listar_operaciones":
-			listar_operaciones()
-		elif parametros[0] == "camino_escalas":
-			origen,destino = parametros[1].split(",")
-			camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino)	
-		elif parametros[0] == "centralidad":
-			n = int(parametros[1])
-			centralidad(grafo,n)
-		elif parametros[0] == "recorrer_mundo_aprox":
-			origen = parametros[1]
-			recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen)
-		elif parametros[0] == "camino_mas":
-			para = parametros[1].split(",")
-			modo = 0
-			if para[0] == "barato":
-				modo = 1
-			origen = para[1]
-			destino = para[2]
-			camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino)	
-
-		#else:
-			#error
-
-		#cuando mierda lo corto???	
-
-main()
+import sys
 
 
