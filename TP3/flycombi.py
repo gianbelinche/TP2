@@ -2,6 +2,22 @@ from grafo import *
 from grafo_funciones_aux import *
 
 
+#................................  CLASES ................................#
+class Conjunto_Disjunto:
+	def __init__(self,lista):
+		self.conjuntos = {}
+		for v in lista:
+			self.conjuntos[v] = v
+
+	def find(self,v):
+		if self.conjuntos[v] == v:
+			return v
+		w = self.find(self.conjuntos[v])
+		self.conjuntos[v] = w
+		return w
+
+	def union(self,v,w):
+		self.conjuntos[self.find(w)] = v
 
 #................................  FUNCIONES AUXILIARES ................................#
 
