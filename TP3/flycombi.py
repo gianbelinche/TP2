@@ -1,5 +1,6 @@
 from grafo import *
 from grafo_funciones_aux import *
+import sys
 
 
 #................................  CLASES ................................#
@@ -34,7 +35,7 @@ def crear_grafo(archivo1,archivo2):
 			grafo.agregar_vertice(aeropuerto)
 			ciudades_a_aeropuertos[ciudad] = ciudades_a_aeropuertos.get(ciudad,[]) + [aeropuerto]
 			aeropuertos_a_ciudades[aeropuerto] = ciudad 
-			coornenada = (elementos[2],elementos[3])
+			coordenada = (elementos[2],elementos[3])
 			coordenadas[ciudad] = coordenada
 
 		for linea in vuelos:
@@ -59,20 +60,20 @@ def listar_operaciones():
 	print()
 
 def obtener_aristas(grafo):
-    aristas = {}
-    for v in grafo:
-        for w in grafo.adyacentes(v):
-            peso = grafo.ver_peso(v,w)
-            if (w,v,peso) not in aristas or (v,w,peso) not in aristas:
-                aristas[(v,w,peso)] = True
+	aristas = {}
+	for v in grafo:
+		for w in grafo.adyacentes(v):
+			peso = grafo.ver_peso(v,w)
+			if (w,v,peso) not in aristas or (v,w,peso) not in aristas:
+				aristas[(v,w,peso)] = True
 
-    return aristas
+	return aristas
 
 def ord_pesos(arista):
-    return arista[2][1]
+	return arista[2][1]
 
 def ordenar_aristas(aristas):
-    return sorted(aristas.keys(),key=ord_pesos)
+	return sorted(aristas.keys(),key=ord_pesos)
 
 #................................       COMANDOS        ................................#
 
@@ -305,48 +306,48 @@ def separar_parametros(parametros):
 	return para	
 			
 def main():
-    archivo1 = sys.argv[1]
-    archivo2 = sys.argv[2]
-    grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,coordenadas = crear_grafo(archivo1,archivo2)
-    ultimo_comando = []
-    while True:
-        try:
-            comando = input()
-        
-        except EOFError:
-            break
-        parametros = separar_parametros(comando.rstrip("\n"))
-        if parametros[0] == "listar_operaciones":
-            listar_operaciones()
-        elif parametros[0] == "camino_escalas":
-            origen,destino = parametros[1].split(",")
-            camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino)
-        elif parametros[0] == "centralidad":
-            n = int(parametros[1])
-            centralidad(grafo,n)
-        elif parametros[0] == "recorrer_mundo_aprox":
-            origen = parametros[1]
-            recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen)
-        elif parametros[0] == "camino_mas":
-            para = parametros[1].split(",")
-            modo = 0
-            if para[0] == "barato":
-                modo = 1
-            origen = para[1]
-            destino = para[2]
-            camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino)
-        elif parametros[0] == "exportar_kml":
-            archivo = parametros[1]
-            exportar_KML(archivo,aeropuertos_a_ciudades,coordenadas,ultimo_comando)
-        elif parametros[0] == "nueva_aerolinea":
-            archivo = parametros[1]
+	archivo1 = sys.argv[1]
+	archivo2 = sys.argv[2]
+	grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,coordenadas = crear_grafo(archivo1,archivo2)
+	ultimo_comando = []
+	while True:
+		try:
+			comando = input()
+		except EOFError:
+			break	
 
-        elif parametros[0] == "vacaciones":
-            para = parametros[1].split(",")
-            origen = para[0]
-            n = int(para[1])
-            viaje_n_lugares(grafo,origen,n)
+		parametros = separar_parametros(comando.rstrip("\n"))
+		if parametros[0] == "listar_operaciones":
+			listar_operaciones()
+		elif parametros[0] == "camino_escalas":
+			origen,destino = parametros[1].split(",")
+			camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino)
+		elif parametros[0] == "centralidad":
+			n = int(parametros[1])
+			centralidad(grafo,n)
+		elif parametros[0] == "recorrer_mundo_aprox":
+			origen = parametros[1]
+			recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen)
+		elif parametros[0] == "camino_mas":
+			para = parametros[1].split(",")
+			modo = 0
+			if para[0] == "barato":
+				modo = 1
+			origen = para[1]
+			destino = para[2]
+			camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino)
+		elif parametros[0] == "exportar_kml":
+			archivo = parametros[1]
+			exportar_KML(archivo,aeropuertos_a_ciudades,coordenadas,ultimo_comando)
+		elif parametros[0] == "nueva_aerolinea":
+			archivo = parametros[1]
 
-import sys
+		elif parametros[0] == "vacaciones":
+			para = parametros[1].split(",")
+			origen = para[0]
+			n = int(para[1])
+			viaje_n_lugares(grafo,origen,n)
 
+
+main()
 
