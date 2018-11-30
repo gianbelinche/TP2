@@ -306,6 +306,63 @@ def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido):
 
 		salida.write('     </Document>')
 		salida.write(' </kml>')
+
+
+def es_camino_valido(recorrido,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
+	ciudades = list(ciudades_a_aeropuertos.keys())
+	for v in recorrido:
+		try:
+			ciudades.remove(aeropuertos_a_ciudades[v])
+		except:
+			pass
+	return len(ciudades) == 0			
+
+
+def falso_dfs(grafo,v,padres,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
+	for w in grafo.adyacentes(v):
+		if w not in padres[v]:
+			padres[w] = padres.get(w,[]) + [v]
+			recorrido.append(w)
+			if es_camino_valido(recorrido,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
+				rec_finales.append(recorrido[:])
+			else:
+				recorrido.pop()
+				falso_dfs(grafo,w,padres,recorrido,rec_finales)	
+
+
+def ver_costo_recorrido(recorrido,grafo):
+	costo = 0
+	anterior = recorrido[0]
+	for v in recorrido[1:]:
+		costo += grafo.ver_peso(anterior,v)[0]
+		anterior = v
+	return costo	
+
+def recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen):
+	rec_finales = []
+	for aeropuerto in ciudades_a_aeropuertos[origen]:
+		recorrido =  []
+		padres = {}
+		recorrido.append(aeropuerto)
+		falso_dfs(grafo,aeropuerto,padres,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos)
+
+	maxi = math.inf
+	rec =  []	
+
+	for recorrido in rec_finales:
+		costo = ver_costo_recorrido(recorrido,grafo)
+		if costo < maxi:
+			maxi = costo
+			rec = recorrido
+
+	s = ""
+	for aerop in rec:
+		s += "{} -> ".format(aerop)
+
+	print(s[:-4])
+	return rec			
+
+				
 		
 #................................    FUNCION PRINCIPAL  ................................#
 
@@ -366,6 +423,9 @@ def main():
 			origen = para[0]
 			n = int(para[1])
 			ultimo_comando = viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,n)
+		elif parametros[0] == "recorrer_mundo":
+			origen = parametros[1]
+			ultimo_comando = recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen)	
 
 
 main()
