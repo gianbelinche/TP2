@@ -127,24 +127,36 @@ def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,ori
 		camino = []
 		visitados = {}
 		precio = 0
-		vuelos = len(grafo) 
+		vuelos = len(ciudades_a_aeropuertos) 
 		camino.append(aeropuerto)
-		cantidad = 0
+		cantidad = 1
+		visitados[origen] = True
 		actual = aeropuerto
 		anterior = None
 		prox = None	
+		contiguos = {}
+		for v in grafo:
+			contiguos[v] = []
+
 		while cantidad != vuelos:
 			mini = math.inf
 			for ady in grafo.adyacentes(actual):
-				if prox == None or (grafo.ver_peso(actual,ady)[1] < mini and ady != anterior):
-					mini = grafo.ver_peso(actual,ady)[1]
+				if prox == None or (grafo.ver_peso(actual,ady)[0] < mini and ady != anterior and ady not in contiguos[actual]):
+					mini = grafo.ver_peso(actual,ady)[0]
 					prox = ady
+					
+			if prox not in grafo.adyacentes(actual):
+				for ady in grafo.adyacentes(actual):
+					if prox == None or (grafo.ver_peso(actual,ady)[0] < mini and ady != anterior):
+						mini = grafo.ver_peso(actual,ady)[0]
+						prox = ady
+			contiguos[actual] += [prox]		
 			anterior = actual				
 			actual = prox
 			camino.append(actual)
 			precio += mini
-			if actual not in visitados:
-				visitados[actual] = True
+			if aeropuertos_a_ciudades[actual] not in visitados:
+				visitados[aeropuertos_a_ciudades[actual]] = True
 				cantidad += 1
 		recorridos.append((camino,precio))	
 
@@ -318,18 +330,16 @@ def es_camino_valido(recorrido,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuert
 	return len(ciudades) == 0			
 
 
-def falso_dfs(grafo,v,padres,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
+def falso_dfs(grafo,v,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
 	print(v)
 	for w in grafo.adyacentes(v):
-		if w not in padres[v]:
-			padres[w] = padres.get(w,[]) + [v]
-			recorrido.append(w)
-			print(recorrido)
-			if es_camino_valido(recorrido,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
-				rec_finales.append(recorrido[:])
-			else:			
-				falso_dfs(grafo,w,padres,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos)
-				recorrido.pop()	
+		recorrido.append(w)
+		print(recorrido)
+		if es_camino_valido(recorrido,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
+			rec_finales.append(recorrido[:])
+		else:			
+			falso_dfs(grafo,w,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos)
+			recorrido.pop()	
 
 
 def ver_costo_recorrido(recorrido,grafo):
@@ -344,9 +354,8 @@ def recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen):
 	rec_finales = []
 	for aeropuerto in ciudades_a_aeropuertos[origen]:
 		recorrido =  []
-		padres = {aeropuerto:[]}
 		recorrido.append(aeropuerto)
-		falso_dfs(grafo,aeropuerto,padres,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos)
+		falso_dfs(grafo,aeropuerto,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos)
 
 	maxi = math.inf
 	rec =  []	
