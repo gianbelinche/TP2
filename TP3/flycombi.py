@@ -247,6 +247,8 @@ def viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,e
 				camino_ciudades.append(ultima_ciudad)
 
 		print(camino_ciudades)
+	
+	return camino_ciudades
 
 def nueva_aerolinea(archivo,grafo):
 
@@ -281,8 +283,9 @@ def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido):
 		salida.write( '<?xml version="1.0" encoding="UTF-8"?>')
 		salida.write(' <kml xmlns="http://www.opengis.net/kml/2.2">')
 		salida.write('     <Document>')
+
 		for v in recorrido:
-			ciudad = aeropuertos_a_ciudades[v]
+			ciudad = v#aeropuertos_a_ciudades[v]
 			if (ciudad not in ciudades_registradas):
 				ciudades_registradas[ciudad] = True
 				salida.write('     <Placemark>')
@@ -353,7 +356,7 @@ def main():
 			ultimo_comado = camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino)
 		elif parametros[0] == "exportar_kml":
 			archivo = parametros[1]
-			exportar_KML(archivo,aeropuertos_a_ciudades,coordenadas,ultimo_comando)
+			exportar_KML(archivo,aeropuertos_a_ciudades,coordenadas,ultimo_comado)
 		elif parametros[0] == "nueva_aerolinea":
 			archivo = parametros[1]
 			nueva_aerolinea(archivo,grafo)
