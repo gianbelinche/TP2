@@ -20,6 +20,7 @@ class Conjunto_Disjunto:
 	def union(self,v,w):
 		self.conjuntos[self.find(w)] = v
 
+
 #................................  FUNCIONES AUXILIARES ................................#
 
 def crear_grafo(archivo1,archivo2):
@@ -61,7 +62,7 @@ def obtener_aristas(grafo):
 	for v in grafo:
 		for w in grafo.adyacentes(v):
 			peso = grafo.ver_peso(v,w)
-			if (w,v,peso) not in aristas or (v,w,peso) not in aristas:
+			if (w,v,peso) not in aristas and (v,w,peso) not in aristas:
 				aristas[(v,w,peso)] = True
 
 	return aristas
@@ -271,6 +272,9 @@ def nueva_aerolinea(archivo,grafo):
 	conjunto_disjunto = Conjunto_Disjunto(lista)
 	aristas = ordenar_aristas(obtener_aristas(grafo))
 
+	print(conjunto_disjunto.conjuntos)
+	
+
 	rutas_a_devolver = []
 
 	for arista in aristas:
@@ -282,8 +286,8 @@ def nueva_aerolinea(archivo,grafo):
 
 	with open(archivo, "w") as salida:
 		for ruta in rutas_a_devolver:
-			v,w,peso = arista
-			salida.write("{},{},{},{},{}\n".format(v,w,peso[0],peso[1], 1/peso[2]))
+			v,w,peso = ruta
+			salida.write("{},{},{},{},{}\n".format(v,w,peso[0],peso[1], int(1/peso[2])))
 
 	print("OK")
 
