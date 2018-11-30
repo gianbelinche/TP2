@@ -339,13 +339,13 @@ def main():
 			listar_operaciones()
 		elif parametros[0] == "camino_escalas":
 			origen,destino = parametros[1].split(",")
-			ultimo_comado = camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino)
+			ultimo_comando = camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino)
 		elif parametros[0] == "centralidad":
 			n = int(parametros[1])
 			centralidad(grafo,n)
 		elif parametros[0] == "recorrer_mundo_aprox":
 			origen = parametros[1]
-			ultimo_comado = recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen)
+			ultimo_comando = recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen)
 		elif parametros[0] == "camino_mas":
 			para = parametros[1].split(",")
 			modo = 0
@@ -353,10 +353,10 @@ def main():
 				modo = 1
 			origen = para[1]
 			destino = para[2]
-			ultimo_comado = camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino)
+			ultimo_comando = camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino)
 		elif parametros[0] == "exportar_kml":
 			archivo = parametros[1]
-			exportar_KML(archivo,aeropuertos_a_ciudades,coordenadas,ultimo_comado)
+			exportar_KML(archivo,aeropuertos_a_ciudades,coordenadas,ultimo_comando)
 		elif parametros[0] == "nueva_aerolinea":
 			archivo = parametros[1]
 			nueva_aerolinea(archivo,grafo)
@@ -365,7 +365,7 @@ def main():
 			para = parametros[1].split(",")
 			origen = para[0]
 			n = int(para[1])
-			ultimo_comado = viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,n)
+			ultimo_comando = viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,n)
 
 
 main()
