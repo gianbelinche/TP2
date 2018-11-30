@@ -76,14 +76,19 @@ def ordenar_aristas(aristas):
 #................................       COMANDOS        ................................#
 
 def listar_operaciones():
-	print("camino_escalas")
-	print("camino_mas")
-	print("centralidad")
-	print("nueva_aerolinea")
-	print("recorrer_mundo_aprox")
-	print("vacaciones")
-	print("exportar_kml")
+	print("camino_escalas")       #1
+	print("camino_mas")           #1
+	print("centralidad")          #3
+	print("nueva_aerolinea")      #2
+	print("recorrer_mundo_aprox") #
+	print("vacaciones")           #3
+	print("exportar_kml")         #1
 
+def recorrido_esquematizar(recorrido):
+	s = ""
+	for punto in recorrido:
+		s += "{} -> ".format(punto)
+	return s[:-4]
 
 def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino): #!!!FUNCIONAAAAAAAA
 	caminos = []
@@ -98,6 +103,7 @@ def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,de
 				actual = padres[actual]
 				i += 1
 			caminos.append((camino,i))	
+
 	maxi = 0
 	cam = []		
 	for camino in caminos:
@@ -105,11 +111,7 @@ def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,de
 			maxi = camino[1]
 			cam = camino[0]			
 				
-	s = ""	
-	for aeropuerto in cam[::-1]:
-		s += "{} -> ".format(aeropuerto)	
-			
-	print(s[:-4])			
+	print(recorrido_esquematizar(cam[::-1]))			
 
 	return cam[::-1]
 
@@ -168,10 +170,7 @@ def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,ori
 			cam = camino[0]
 			minimo = camino[1]
 
-	s = ""
-	for aeropuerto in cam:
-		s += "{} -> ".format(aeropuerto)
-	print(s[:-4])
+	print(recorrido_esquematizar(cam))	
 	print("Costo: {}".format(minimo))
 
 def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino): #parece funcionar
@@ -192,13 +191,14 @@ def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,d
 		if camino[1] < mini:
 			mini = camino[1]
 			rec = camino[0]			
-			
-	s = ""
-	rec2 = []	
+	
+		rec2 = []	
+
 	while len(rec) != 0:
 		s += "{} -> ".format(rec[-1])
 		rec2.append(rec.pop())
-	print(s[:-4])	
+
+	print(mostrar_recorrido[:-4])
 
 	return rec2
 			
@@ -238,30 +238,29 @@ def calcular_distancia(grafo,origen,escalas):
 	return distancia
 
 def viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,escalas):
-	origenx = ciudades_a_aeropuertos[origen][0]
-	visitados = set()
-	visitados.add(origenx)
-	distancia = calcular_distancia(grafo,origenx,escalas) #Acota la cantidad de vertices a considerar
-	padres = {}
-	padres[origenx] = None
+	for origenx in ciudades_a_aeropuertos[origen]:
+		visitados = set()
+		visitados.add(origenx)
+		distancia = calcular_distancia(grafo,origenx,escalas) #Acota la cantidad de vertices a considerar
+		padres = {}
+		padres[origenx] = None
 
-	final = _viaje_n_lugares(grafo,distancia,visitados,padres,origenx,origenx,escalas,escalas)
+		final = _viaje_n_lugares(grafo,distancia,visitados,padres,origenx,origenx,escalas,escalas)
 
-	if (final == None):
-		print("No se encontro recorrido")
-	else:
-		camino_aeropuertos = reconstruir_camino(padres,final)
-		ultima_ciudad = None
-		camino_ciudades = []
+		if (final != None):
+			camino_aeropuertos = reconstruir_camino(padres,final)
+			ultima_ciudad = None
+			camino_ciudades = []
 
-		for aeropuerto in camino_aeropuertos:
-			if(ultima_ciudad != aeropuertos_a_ciudades[aeropuerto]):
-				ultima_ciudad = aeropuertos_a_ciudades[aeropuerto]
-				camino_ciudades.append(ultima_ciudad)
+			for aeropuerto in camino_aeropuertos:
+				if(ultima_ciudad != aeropuertos_a_ciudades[aeropuerto]):
+					ultima_ciudad = aeropuertos_a_ciudades[aeropuerto]
+					camino_ciudades.append(ultima_ciudad)
 
-		print(camino_ciudades)
+			print(recorrido_esquematizar(camino_ciudades))	
+			return camino_ciudades
 	
-	return camino_ciudades
+	print("No se encontro recorrido")
 
 def nueva_aerolinea(archivo,grafo):
 
@@ -271,9 +270,6 @@ def nueva_aerolinea(archivo,grafo):
 
 	conjunto_disjunto = Conjunto_Disjunto(lista)
 	aristas = ordenar_aristas(obtener_aristas(grafo))
-
-	print(conjunto_disjunto.conjuntos)
-	
 
 	rutas_a_devolver = []
 
@@ -322,6 +318,7 @@ def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido):
 
 		salida.write('     </Document>')
 		salida.write(' </kml>')
+		print("OK")
 
 
 def es_camino_valido(recorrido,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
