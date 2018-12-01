@@ -236,7 +236,7 @@ def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,ori
 
 	return cam,minimo
 
-def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino,imprimir): #parece funcionar
+def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino): #parece funcionar
 	recorridos = []
 	for aeropuerto in ciudades_a_aeropuertos[origen]:
 		padres,distancias = camino_minimo(grafo,aeropuerto,modo)
@@ -262,8 +262,8 @@ def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,d
 		s += "{} -> ".format(rec[-1])
 		rec2.append(rec.pop())
 
-	if imprimir: 
-		print(s[:-4])
+	
+	print(s[:-4])
 
 	return rec2,mini
 			
@@ -421,7 +421,7 @@ def falso_dfs(grafo,v,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_ae
 
 def recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen):
 	rec_finales = []
-	rec_parcial,minimo = recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,False)
+	rec_parcial,minimo = recorrer_mundo_aprox_2(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,False)
 	for aeropuerto in ciudades_a_aeropuertos[origen]:
 		recorrido =  []
 		recorrido.append(aeropuerto)
