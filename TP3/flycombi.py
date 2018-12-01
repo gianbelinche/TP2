@@ -72,22 +72,78 @@ def ord_pesos(arista):
 def ordenar_aristas(aristas):
 	return sorted(aristas.keys(),key=ord_pesos)
 
-#................................       COMANDOS        ................................#
 
-def listar_operaciones():
-	print("camino_escalas")       #1
-	print("camino_mas")           #1
-	print("centralidad")          #3
-	print("nueva_aerolinea")      #2
-	print("recorrer_mundo_aprox") #1
-	print("vacaciones")           #3
-	print("exportar_kml")         #1
+def es_camino_valido(recorrido,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
+	ciudades = list(ciudades_a_aeropuertos.keys())
+	for v in recorrido:
+		try:
+			ciudades.remove(aeropuertos_a_ciudades[v])
+		except:
+			pass
+	return len(ciudades) == 0	
 
-def recorrido_esquematizar(recorrido):
+def ver_costo_recorrido(recorrido,grafo):
+	costo = 0
+	anterior = recorrido[0]
+	for v in recorrido[1:]:
+		costo += grafo.ver_peso(anterior,v)[0]
+		anterior = v
+	return costo
+
+def me_conviene(recorrido,grafo,minimo):
+	costo = ver_costo_recorrido(recorrido,grafo)
+	return costo < minimo[0]
+
+
+def falso_dfs(grafo,v,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos,minimo):
+	for w in grafo.adyacentes(v):
+		recorrido.append(w)
+		if not me_conviene(recorrido,grafo,minimo):
+			recorrido.pop()	
+		elif es_camino_valido(recorrido,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
+			rec_finales.append(recorrido[:])
+			minimo[0] = ver_costo_recorrido(recorrido,grafo)
+			recorrido.pop()
+		else:			
+			falso_dfs(grafo,w,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos,minimo)
+			recorrido.pop()	
+
+def esquematizar_recorrido(recorrido):
 	s = ""
 	for punto in recorrido:
 		s += "{} -> ".format(punto)
 	return s[:-4]
+
+def calcular_distancia(grafo,origen,escalas):
+	visitados = set()
+	visitados.add(origen)
+	distancia = {}
+	distancia[origen] = 0
+	cola = Queue()
+	cola.put(origen)
+
+	while not cola.empty():
+		v = cola.get()
+		if(distancia[v] <= escalas):
+			for w in grafo.adyacentes(v):
+				if w not in visitados:
+					visitados.add(w)
+					distancia[w] = distancia[v] + 1
+					cola.put(w)
+	return distancia
+
+#................................       COMANDOS        ................................#
+
+def listar_operaciones():
+	print("camino_escalas")         #1
+	print("camino_mas")             #1
+	print("centralidad")            #3
+	print("centralidad_aproximada") #1
+	print("nueva_aerolinea")        #2
+	print("recorrer_mundo")         #1
+	print("recorrer_mundo_aprox")   #1
+	print("vacaciones")             #3
+	print("exportar_kml")           #1
 
 def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino):
 	caminos = []
@@ -110,9 +166,40 @@ def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,de
 			maxi = camino[1]
 			cam = camino[0]			
 				
-	print(recorrido_esquematizar(cam[::-1]))			
+	print(esquematizar_recorrido(cam[::-1]))			
 
 	return cam[::-1]
+
+def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino): #parece funcionar
+	recorridos = []
+	for aeropuerto in ciudades_a_aeropuertos[origen]:
+		padres,distancias = camino_minimo(grafo,aeropuerto,modo)
+		for aeropuerto_b in ciudades_a_aeropuertos[destino]:
+			camino = []
+			actual = aeropuerto_b
+			while actual:
+				camino.append(actual)
+				actual = padres[actual]
+			recorridos.append((camino,distancias[aeropuerto_b]))
+
+	mini = math.inf
+	rec = []
+	for camino in recorridos:
+		if camino[1] < mini:
+			mini = camino[1]
+			rec = camino[0]			
+	
+		rec2 = []	
+
+	s = ""	
+	while len(rec) != 0:
+		s += "{} -> ".format(rec[-1])
+		rec2.append(rec.pop())
+
+	
+	print(s[:-4])
+
+	return rec2,mini
 
 def centralidad(grafo,n):
 	centralidad = betweeness_centrality(grafo)
@@ -123,7 +210,72 @@ def centralidad(grafo,n):
 		s += "{}, ".format(valores[i][0])
 	print(s[:-2])	
 
-def recorrer_mundo_aprox_2(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,imprimir):
+
+
+def betweeness_centrality_aprox(grafo):
+	centralidad = {}
+
+	for v in grafo:
+			centralidad[v] = len(grafo.adyacentes(v))
+
+	return centralidad
+
+def centralidad_aprox(grafo,n):
+	centralidad = betweeness_centrality_aprox(grafo)
+	valores = list(centralidad.items())
+	valores.sort(key=seg_elemento,reverse=True)
+	s = ""
+	for i in range(n):
+		s += "{}, ".format(valores[i][0])
+	print(s[:-2])	
+
+def nueva_aerolinea(archivo,grafo):
+
+	lista = []
+	for v in grafo:
+		lista.append(v)
+
+	conjunto_disjunto = Conjunto_Disjunto(lista)
+	aristas = ordenar_aristas(obtener_aristas(grafo))
+
+	rutas_a_devolver = []
+
+	for arista in aristas:
+		v,w,peso = arista
+
+		if(Conjunto_Disjunto.find(conjunto_disjunto, w) != Conjunto_Disjunto.find(conjunto_disjunto, v)):
+			rutas_a_devolver.append(arista)
+			Conjunto_Disjunto.union(conjunto_disjunto, w, v)
+
+	with open(archivo, "w") as salida:
+		for ruta in rutas_a_devolver:
+			v,w,peso = ruta
+			salida.write("{},{},{},{},{}\n".format(v,w,peso[0],peso[1], int(1/peso[2])))
+
+	print("OK")
+
+def recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen):
+	rec_finales = []
+	rec_parcial,minimo = recorrer_mundo_aprox_2(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,False)
+	for aeropuerto in ciudades_a_aeropuertos[origen]:
+		recorrido =  []
+		recorrido.append(aeropuerto)
+		falso_dfs(grafo,aeropuerto,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos,[minimo])
+
+	maxi = math.inf
+	rec =  []	
+
+	for recorrido in rec_finales:
+		costo = ver_costo_recorrido(recorrido,grafo)
+		if costo < maxi:
+			maxi = costo
+			rec = recorrido
+
+	print(esquematizar_recorrido(rec))
+	print(maxi)
+	return rec	
+
+def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,imprimir):
 	recorridos = []
 	for aeropuerto in ciudades_a_aeropuertos[origen]:
 		recorrido = []
@@ -181,92 +333,12 @@ def recorrer_mundo_aprox_2(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,o
 			minimo = camino[1]
 
 	if imprimir:
-		print(recorrido_esquematizar(cam))	
+		print(esquematizar_recorrido(cam))	
 		print("Costo: {}".format(minimo))
 
 	return cam,minimo	
-					
 
-def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,imprimir): #tampoco anda
-	recorridos = []
-	for aeropuerto in ciudades_a_aeropuertos[origen]:
-		camino = []
-		visitados = {}
-		precio = 0
-		vuelos = len(ciudades_a_aeropuertos) 
-		camino.append(aeropuerto)
-		cantidad = 1
-		visitados[origen] = True
-		actual = aeropuerto
-		anterior = None
-		prox = None	
-		contiguos = {}
-		for v in grafo:
-			contiguos[v] = []
 
-		while cantidad != vuelos:
-			mini = math.inf
-			for ady in grafo.adyacentes(actual):
-				if prox == None or (grafo.ver_peso(actual,ady)[0] < mini and ady != anterior and ady not in contiguos[actual]) or len(grafo.adyacentes(actual)) == 1:
-					mini = grafo.ver_peso(actual,ady)[0]
-					prox = ady			
-			if prox not in grafo.adyacentes(actual):
-				prox = random.choice(grafo.adyacentes(actual))
-				mini = grafo.ver_peso(actual,prox)[0]
-			contiguos[actual] += [prox]		
-			anterior = actual				
-			actual = prox
-			camino.append(actual)
-			precio += mini
-			if aeropuertos_a_ciudades[actual] not in visitados:
-				visitados[aeropuertos_a_ciudades[actual]] = True
-				cantidad += 1				
-		recorridos.append((camino,precio))	
-	print(recorridos)
-	minimo = math.inf
-	cam = []
-	for camino in recorridos:
-		if camino[1] < minimo:
-			cam = camino[0]
-			minimo = camino[1]
-
-	if imprimir:
-		print(recorrido_esquematizar(cam))	
-		print("Costo: {}".format(minimo))
-
-	return cam,minimo
-
-def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino): #parece funcionar
-	recorridos = []
-	for aeropuerto in ciudades_a_aeropuertos[origen]:
-		padres,distancias = camino_minimo(grafo,aeropuerto,modo)
-		for aeropuerto_b in ciudades_a_aeropuertos[destino]:
-			camino = []
-			actual = aeropuerto_b
-			while actual:
-				camino.append(actual)
-				actual = padres[actual]
-			recorridos.append((camino,distancias[aeropuerto_b]))
-
-	mini = math.inf
-	rec = []
-	for camino in recorridos:
-		if camino[1] < mini:
-			mini = camino[1]
-			rec = camino[0]			
-	
-		rec2 = []	
-
-	s = ""	
-	while len(rec) != 0:
-		s += "{} -> ".format(rec[-1])
-		rec2.append(rec.pop())
-
-	
-	print(s[:-4])
-
-	return rec2,mini
-			
 def _viaje_n_lugares(grafo,distancia,visitados,padres,origen, v, escalas,escalas_restantes):
 	visitados.add(v)
 
@@ -282,23 +354,7 @@ def _viaje_n_lugares(grafo,distancia,visitados,padres,origen, v, escalas,escalas
 	visitados.remove(v)
 	return None
 
-def calcular_distancia(grafo,origen,escalas):
-	visitados = set()
-	visitados.add(origen)
-	distancia = {}
-	distancia[origen] = 0
-	cola = Queue()
-	cola.put(origen)
 
-	while not cola.empty():
-		v = cola.get()
-		if(distancia[v] <= escalas):
-			for w in grafo.adyacentes(v):
-				if w not in visitados:
-					visitados.add(w)
-					distancia[w] = distancia[v] + 1
-					cola.put(w)
-	return distancia
 
 def viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,escalas):
 	for origenx in ciudades_a_aeropuertos[origen]:
@@ -320,36 +376,10 @@ def viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,e
 					ultima_ciudad = aeropuertos_a_ciudades[aeropuerto]
 					camino_ciudades.append(ultima_ciudad)
 
-			print(recorrido_esquematizar(camino_ciudades))	
+			print(esquematizar_recorrido(camino_ciudades))	
 			return camino_ciudades
 	
 	print("No se encontro recorrido")
-
-def nueva_aerolinea(archivo,grafo):
-
-	lista = []
-	for v in grafo:
-		lista.append(v)
-
-	conjunto_disjunto = Conjunto_Disjunto(lista)
-	aristas = ordenar_aristas(obtener_aristas(grafo))
-
-	rutas_a_devolver = []
-
-	for arista in aristas:
-		v,w,peso = arista
-
-		if(Conjunto_Disjunto.find(conjunto_disjunto, w) != Conjunto_Disjunto.find(conjunto_disjunto, v)):
-			rutas_a_devolver.append(arista)
-			Conjunto_Disjunto.union(conjunto_disjunto, w, v)
-
-	with open(archivo, "w") as salida:
-		for ruta in rutas_a_devolver:
-			v,w,peso = ruta
-			salida.write("{},{},{},{},{}\n".format(v,w,peso[0],peso[1], int(1/peso[2])))
-
-	print("OK")
-
 
 def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido):
 	ciudades_registradas = {}
@@ -383,82 +413,6 @@ def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido):
 		salida.write(' </kml>')
 		print("OK")
 
-
-def es_camino_valido(recorrido,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
-	ciudades = list(ciudades_a_aeropuertos.keys())
-	for v in recorrido:
-		try:
-			ciudades.remove(aeropuertos_a_ciudades[v])
-		except:
-			pass
-	return len(ciudades) == 0	
-
-def ver_costo_recorrido(recorrido,grafo):
-	costo = 0
-	anterior = recorrido[0]
-	for v in recorrido[1:]:
-		costo += grafo.ver_peso(anterior,v)[0]
-		anterior = v
-	return costo
-
-def me_conviene(recorrido,grafo,minimo):
-	costo = ver_costo_recorrido(recorrido,grafo)
-	return costo < minimo[0]
-
-
-def falso_dfs(grafo,v,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos,minimo):
-	for w in grafo.adyacentes(v):
-		recorrido.append(w)
-		if not me_conviene(recorrido,grafo,minimo):
-			recorrido.pop()	
-		elif es_camino_valido(recorrido,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
-			rec_finales.append(recorrido[:])
-			minimo[0] = ver_costo_recorrido(recorrido,grafo)
-			recorrido.pop()
-		else:			
-			falso_dfs(grafo,w,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos,minimo)
-			recorrido.pop()	
-
-def recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen):
-	rec_finales = []
-	rec_parcial,minimo = recorrer_mundo_aprox_2(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,False)
-	for aeropuerto in ciudades_a_aeropuertos[origen]:
-		recorrido =  []
-		recorrido.append(aeropuerto)
-		falso_dfs(grafo,aeropuerto,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos,[minimo])
-
-	maxi = math.inf
-	rec =  []	
-
-	for recorrido in rec_finales:
-		costo = ver_costo_recorrido(recorrido,grafo)
-		if costo < maxi:
-			maxi = costo
-			rec = recorrido
-
-	print(recorrido_esquematizar(rec))
-	print(maxi)
-	return rec	
-			
-
-def betweeness_centrality_aprox(grafo):
-	centralidad = {}
-
-	for v in grafo:
-			centralidad[v] = len(grafo.adyacentes(v))
-
-	return centralidad
-
-def centralidad2(grafo,n):
-	centralidad = betweeness_centrality_aprox(grafo)
-	valores = list(centralidad.items())
-	valores.sort(key=seg_elemento,reverse=True)
-	s = ""
-	for i in range(n):
-		s += "{}, ".format(valores[i][0])
-	print(s[:-2])	
-
-
 #................................    FUNCION PRINCIPAL  ................................#
 
 def separar_parametros(parametros):
@@ -489,18 +443,11 @@ def main():
 		parametros = separar_parametros(comando.rstrip("\n"))
 		if parametros[0] == "listar_operaciones":
 			listar_operaciones()
+		
 		elif parametros[0] == "camino_escalas":
 			origen,destino = parametros[1].split(",")
 			ultimo_comando = camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino)
-		elif parametros[0] == "centralidad":
-			n = int(parametros[1])
-			centralidad(grafo,n)
-		elif parametros[0] == "centralidad2":
-			n = int(parametros[1])
-			centralidad2(grafo,n)
-		elif parametros[0] == "recorrer_mundo_aprox":
-			origen = parametros[1]
-			ultimo_comando,minimo = recorrer_mundo_aprox_2(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,True)
+		
 		elif parametros[0] == "camino_mas":
 			para = parametros[1].split(",")
 			modo = 0
@@ -509,9 +456,27 @@ def main():
 			origen = para[1]
 			destino = para[2]
 			ultimo_comando = camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino)
+
+		elif parametros[0] == "centralidad":
+			n = int(parametros[1])
+			centralidad(grafo,n)
+		
+		elif parametros[0] == "centralidad_aproximada":
+			n = int(parametros[1])
+			centralidad_aprox(grafo,n)
+
+		elif parametros[0] == "recorrer_mundo":
+			origen = parametros[1]
+			ultimo_comando = recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen)	
+
+		elif parametros[0] == "recorrer_mundo_aprox":
+			origen = parametros[1]
+			ultimo_comando,minimo = recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,True)
+		
 		elif parametros[0] == "exportar_kml":
 			archivo = parametros[1]
 			exportar_KML(archivo,aeropuertos_a_ciudades,coordenadas,ultimo_comando)
+		
 		elif parametros[0] == "nueva_aerolinea":
 			archivo = parametros[1]
 			nueva_aerolinea(archivo,grafo)
@@ -521,10 +486,6 @@ def main():
 			origen = para[0]
 			n = int(para[1])
 			ultimo_comando = viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,n)
-		elif parametros[0] == "recorrer_mundo":
-			origen = parametros[1]
-			ultimo_comando = recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen)	
-
 
 main()
 
