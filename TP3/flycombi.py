@@ -364,7 +364,16 @@ def recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen):
 		recorrido.append(aeropuerto)
 		falso_dfs(grafo,aeropuerto,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos,[minimo])
 
-	print(recorrido_esquematizar(rec_finales[-1]))
+	maxi = math.inf
+	rec =  []	
+
+	for recorrido in rec_finales:
+		costo = ver_costo_recorrido(recorrido,grafo)
+		if costo < maxi:
+			maxi = costo
+			rec = recorrido
+
+	print(recorrido_esquematizar(rec))
 	print(maxi)
 	return rec	
 			
@@ -390,6 +399,7 @@ def betweeness_centrality_aprox(grafo):
 	for v in grafo:
 		centralidad[v] = 0
 		total += 1
+	
 	for v in grafo:
 		if(len(grafo.adyacentes(v)) < 5):
 			calcular_ordenes(grafo,v,centralidad,total)
