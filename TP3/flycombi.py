@@ -20,7 +20,6 @@ class Conjunto_Disjunto:
 	def union(self,v,w):
 		self.conjuntos[self.find(w)] = v
 
-
 #................................  FUNCIONES AUXILIARES ................................#
 
 def crear_grafo(archivo1,archivo2):
@@ -80,7 +79,7 @@ def listar_operaciones():
 	print("camino_mas")           #1
 	print("centralidad")          #3
 	print("nueva_aerolinea")      #2
-	print("recorrer_mundo_aprox") #
+	print("recorrer_mundo_aprox") #1
 	print("vacaciones")           #3
 	print("exportar_kml")         #1
 
@@ -124,7 +123,7 @@ def centralidad(grafo,n):
 		s += "{}, ".format(valores[i][0])
 	print(s[:-2])	
 
-def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,imprimir): #tampoco anda
+def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,imprimir):
 	recorridos = []
 	for aeropuerto in ciudades_a_aeropuertos[origen]:
 		camino = []
@@ -176,7 +175,7 @@ def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,ori
 
 	return cam,minimo
 
-def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino): #parece funcionar
+def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,destino):
 	recorridos = []
 	for aeropuerto in ciudades_a_aeropuertos[origen]:
 		padres,distancias = camino_minimo(grafo,aeropuerto,modo)
@@ -377,8 +376,48 @@ def recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen):
 	print(recorrido_esquematizar(rec))
 	print(maxi)
 	return rec	
-				
-		
+			
+
+def calcular_ordenes(grafo,origen,ordenes,total):
+	visitados = set()
+	visitados.add(origen)
+	cola = Queue()
+	cola.put(origen)
+
+	while not cola.empty():
+		v = cola.get()
+		for w in grafo.adyacentes(v):
+			if w not in visitados:
+				visitados.add(w)
+				if(ordenes[v] + 1 < 5):
+					ordenes[w] += ordenes[v] + 1
+					cola.put(w)
+
+def betweeness_centrality_aprox(grafo):
+	centralidad = {}
+	total = 0
+	for v in grafo:
+		centralidad[v] = 0
+		total += 1
+	for v in grafo:
+		if(len(grafo.adyacentes(v)) < 5):
+			calcular_ordenes(grafo,v,centralidad,total)
+
+	for v in grafo:
+		centralidad[v] *= len(grafo.adyacentes(v))
+
+	return centralidad
+
+def centralidad2(grafo,n):
+	centralidad = betweeness_centrality_aprox(grafo)
+	valores = list(centralidad.items())
+	valores.sort(key=seg_elemento,reverse=True)
+	s = ""
+	for i in range(n):
+		s += "{}, ".format(valores[i][0])
+	print(s[:-2])	
+
+
 #................................    FUNCION PRINCIPAL  ................................#
 
 def separar_parametros(parametros):
@@ -415,6 +454,9 @@ def main():
 		elif parametros[0] == "centralidad":
 			n = int(parametros[1])
 			centralidad(grafo,n)
+		elif parametros[0] == "centralidad2":
+			n = int(parametros[1])
+			centralidad2(grafo,n)
 		elif parametros[0] == "recorrer_mundo_aprox":
 			origen = parametros[1]
 			ultimo_comando,minimo = recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,True)
