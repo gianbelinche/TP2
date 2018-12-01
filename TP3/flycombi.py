@@ -2,8 +2,8 @@ from grafo import *
 from grafo_funciones_aux import *
 import sys
 
-
 #................................  CLASES ................................#
+
 class Conjunto_Disjunto:
 	def __init__(self,lista):
 		self.conjuntos = {}
@@ -90,7 +90,7 @@ def recorrido_esquematizar(recorrido):
 		s += "{} -> ".format(punto)
 	return s[:-4]
 
-def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino): #!!!FUNCIONAAAAAAAA
+def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino):
 	caminos = []
 	for aeropuerto_a in ciudades_a_aeropuertos[origen]:
 		padres,orden = bfs(grafo,aeropuerto_a)
@@ -115,7 +115,7 @@ def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,de
 
 	return cam[::-1]
 
-def centralidad(grafo,n): #Ya funciona
+def centralidad(grafo,n):
 	centralidad = betweeness_centrality(grafo)
 	valores = list(centralidad.items())
 	valores.sort(key=seg_elemento,reverse=True)
@@ -205,8 +205,6 @@ def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,d
 
 	return rec2
 			
-
-
 def _viaje_n_lugares(grafo,distancia,visitados,padres,origen, v, escalas,escalas_restantes):
 	visitados.add(v)
 
@@ -359,9 +357,6 @@ def falso_dfs(grafo,v,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_ae
 			falso_dfs(grafo,w,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos,minimo)
 			recorrido.pop()	
 
-
-	
-
 def recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen):
 	rec_finales = []
 	rec_parcial,minimo = recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,False)
@@ -379,11 +374,7 @@ def recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen):
 			maxi = costo
 			rec = recorrido
 
-	s = ""
-	for aerop in rec:
-		s += "{} -> ".format(aerop)
-
-	print(s[:-4])
+	print(recorrido_esquematizar(rec))
 	print(maxi)
 	return rec	
 				
