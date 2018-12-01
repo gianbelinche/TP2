@@ -441,34 +441,11 @@ def recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen):
 	return rec	
 			
 
-def calcular_ordenes(grafo,origen,ordenes,total):
-	visitados = set()
-	visitados.add(origen)
-	cola = Queue()
-	cola.put(origen)
-
-	while not cola.empty():
-		v = cola.get()
-		for w in grafo.adyacentes(v):
-			if w not in visitados:
-				visitados.add(w)
-				if(ordenes[v] + 1 < 5):
-					ordenes[w] += ordenes[v] + 1
-					cola.put(w)
-
 def betweeness_centrality_aprox(grafo):
 	centralidad = {}
-	total = 0
-	for v in grafo:
-		centralidad[v] = 0
-		total += 1
-	
-	for v in grafo:
-		if(len(grafo.adyacentes(v)) < 5):
-			calcular_ordenes(grafo,v,centralidad,total)
 
 	for v in grafo:
-		centralidad[v] *= len(grafo.adyacentes(v))
+			centralidad[v] = len(grafo.adyacentes(v))
 
 	return centralidad
 
