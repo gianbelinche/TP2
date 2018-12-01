@@ -365,16 +365,7 @@ def recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen):
 		recorrido.append(aeropuerto)
 		falso_dfs(grafo,aeropuerto,recorrido,rec_finales,aeropuertos_a_ciudades,ciudades_a_aeropuertos,[minimo])
 
-	maxi = math.inf
-	rec =  []	
-
-	for recorrido in rec_finales:
-		costo = ver_costo_recorrido(recorrido,grafo)
-		if costo < maxi:
-			maxi = costo
-			rec = recorrido
-
-	print(recorrido_esquematizar(rec))
+	print(recorrido_esquematizar(rec_finales[-1]))
 	print(maxi)
 	return rec	
 				
