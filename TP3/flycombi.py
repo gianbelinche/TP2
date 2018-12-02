@@ -3,6 +3,7 @@ from grafo_funciones_aux import *
 import sys
 import copy
 import math
+import random
 #................................  CLASES ................................#
 
 class Conjunto_Disjunto:
@@ -273,11 +274,19 @@ def betweeness_centrality_aprox(grafo):
 	return centralidad
 
 
-def ha_convergido(centralidad,centralidad_pasada):
-	for v in centralidad:
-		if (abs(centralidad[v] - centralidad_pasada[v]) > 0.1):
-			return False
-	return True
+def ha_convergido(grafo,v_totales,centralidad,centralidad_pasada):
+	convergieron = 0
+
+	for v in grafo:
+		if (abs(centralidad[v] - centralidad_pasada[v]) <= 0.01):
+			convergieron += 1
+		else:
+			print( "{},{}".format(v,abs(centralidad[v] - centralidad_pasada[v])))
+
+	if(convergieron/v_totales >= 0.99):
+		return True
+	else:
+		return False
 
 def pagerank(grafo):
 	centralidad_pasada = {}
@@ -285,17 +294,25 @@ def pagerank(grafo):
 	v_totales = 0
 
 	for v in grafo:
-		centralidad_pasada[v] = 0.25
-		centralidad[v] = math.inf
+		centralidad[v] = 0.25
 		v_totales += 1
 	
-	while not ha_convergido(centralidad,centralidad_pasada):
+	for v in grafo:
+		centralidad[v] = (0.69/v_totales)
+		for w in grafo.adyacentes(v):
+			centralidad[v] += 0.31 *(centralidad[v]/len(grafo.adyacentes(w)))
+
+	while True:
+		centralidad_pasada = copy.deepcopy(centralidad)
 		for v in grafo:
 			centralidad[v] = (0.69/v_totales)
 			for w in grafo.adyacentes(v):
-				centralidad[v] += 0.69 *(centralidad_pasada[v]/len(grafo.adyacentes(w)))
+				centralidad[v] += 0.31 *(centralidad[v]/len(grafo.adyacentes(w)))
+		
+		if(ha_convergido(grafo,v_totales,centralidad,centralidad_pasada)):
+			break
 
-		centralidad_pasada = copy.deepcopy(centralidad)
+		
 
 	return centralidad
 

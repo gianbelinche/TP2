@@ -53,7 +53,7 @@ class Grafo:
 		return self.cantidad
 
 	def vertice_random(self):
-		i = randint(0,self.cantidad)
+		i = randint(0,self.cantidad - 1)
 		return list(self.datos)[i]
 
 		
