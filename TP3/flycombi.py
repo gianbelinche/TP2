@@ -261,29 +261,14 @@ def betweeness_centrality_aprox(grafo):
 	for v in grafo:
 		centralidad[v] = 0
 
-	for i in range(1,int(len(grafo)/5)):
+	for i in range(1,int(len(grafo))):
+		cantidad = int(len(grafo))
 		v = grafo.vertice_random()
-		padres,distancia = camino_minimo(grafo,v,2)
-		centralidad_auxiliar = {}
 
-		for w in grafo:
-			centralidad_auxiliar[w] = 0
-
-		filtrar_infinitos(distancia)
-
-		vertices = list(distancia.items())
-	
-		vertices_ordenados = sorted(vertices,key = seg_elemento,reverse=True)
-		
-		for w,dist in vertices_ordenados:
-			if (padres[w]) == None:
-				continue
-			centralidad_auxiliar[padres[w]] += centralidad_auxiliar[w] + 1
-
-		for w in grafo:
-			if w == v: 
-				continue
-			centralidad[w] += centralidad_auxiliar[w]
+		while cantidad > 0:
+			centralidad[v] += 1
+			v = random.choice(grafo.adyacentes(v))
+			cantidad -= 1
 
 	return centralidad
 
