@@ -475,16 +475,9 @@ def viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,e
 
 		if (final != None):
 			camino_aeropuertos = reconstruir_camino(padres,final)
-			ultima_ciudad = None
-			camino_ciudades = []
-
-			for aeropuerto in camino_aeropuertos:
-				if(ultima_ciudad != aeropuertos_a_ciudades[aeropuerto]):
-					ultima_ciudad = aeropuertos_a_ciudades[aeropuerto]
-					camino_ciudades.append(ultima_ciudad)
-
-			print(esquematizar_recorrido(camino_ciudades))	
-			return camino_ciudades
+			camino_aeropuertos.append(origenx)
+			print(esquematizar_recorrido(camino_aeropuertos))	
+			return camino_aeropuertos
 	
 	print("No se encontro recorrido")
 
