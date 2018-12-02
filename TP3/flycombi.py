@@ -1,7 +1,8 @@
 from grafo import *
 from grafo_funciones_aux import *
 import sys
-
+import copy
+import math
 #................................  CLASES ................................#
 
 class Conjunto_Disjunto:
@@ -62,10 +63,6 @@ class Grafo_Dir:
 
 	def __iter__ (self):
 		return _IterGrafo_Dir(self.cantidad,list(self.datos))
-
-		
-					
-
 
 #................................  FUNCIONES AUXILIARES ................................#
 
@@ -194,10 +191,12 @@ def listar_operaciones():
 	print("camino_mas")             #1
 	print("centralidad")            #3
 	print("centralidad_aproximada") #1
+	print("pagerank")               #2
 	print("nueva_aerolinea")        #2
 	print("recorrer_mundo")         #1
 	print("recorrer_mundo_aprox")   #1
 	print("vacaciones")             #3
+	print("itinerario")             #2
 	print("exportar_kml")           #1
 
 def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,destino):
@@ -256,27 +255,72 @@ def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,d
 
 	return rec2,mini
 
-def centralidad(grafo,n):
-	centralidad = betweeness_centrality(grafo)
-	valores = list(centralidad.items())
-	valores.sort(key=seg_elemento,reverse=True)
-	s = ""
-	for i in range(n):
-		s += "{}, ".format(valores[i][0])
-	print(s[:-2])	
-
-
-
 def betweeness_centrality_aprox(grafo):
 	centralidad = {}
 
 	for v in grafo:
-			centralidad[v] = len(grafo.adyacentes(v))
+		centralidad[v] = 0
+
+	for i in range(1,int(len(grafo)/5)):
+		v = grafo.vertice_random()
+		padres,distancia = camino_minimo(grafo,v,2)
+		centralidad_auxiliar = {}
+
+		for w in grafo:
+			centralidad_auxiliar[w] = 0
+
+		filtrar_infinitos(distancia)
+
+		vertices = list(distancia.items())
+	
+		vertices_ordenados = sorted(vertices,key = seg_elemento,reverse=True)
+		
+		for w,dist in vertices_ordenados:
+			if (padres[w]) == None:
+				continue
+			centralidad_auxiliar[padres[w]] += centralidad_auxiliar[w] + 1
+
+		for w in grafo:
+			if w == v: 
+				continue
+			centralidad[w] += centralidad_auxiliar[w]
 
 	return centralidad
 
-def centralidad_aprox(grafo,n):
-	centralidad = betweeness_centrality_aprox(grafo)
+
+def ha_convergido(centralidad,centralidad_pasada):
+	for v in centralidad:
+		if (abs(centralidad[v] - centralidad_pasada[v]) > 0.1):
+			return False
+	return True
+
+def pagerank(grafo):
+	centralidad_pasada = {}
+	centralidad = {}
+	v_totales = 0
+
+	for v in grafo:
+		centralidad_pasada[v] = 0.25
+		centralidad[v] = math.inf
+		v_totales += 1
+	
+	while not ha_convergido(centralidad,centralidad_pasada):
+		for v in grafo:
+			centralidad[v] = (0.69/v_totales)
+			for w in grafo.adyacentes(v):
+				centralidad[v] += 0.69 *(centralidad_pasada[v]/len(grafo.adyacentes(w)))
+
+		centralidad_pasada = copy.deepcopy(centralidad)
+
+	return centralidad
+
+def centralidad(grafo,n,modo):
+	modos = {
+		1:betweeness_centrality,
+		2:betweeness_centrality_aprox,
+		3:pagerank,
+	}
+	centralidad = modos.get(modo)(grafo)
 	valores = list(centralidad.items())
 	valores.sort(key=seg_elemento,reverse=True)
 	s = ""
@@ -536,12 +580,14 @@ def main():
 
 		elif parametros[0] == "centralidad":
 			n = int(parametros[1])
-			centralidad(grafo,n)
+			centralidad(grafo,n,1)
 		
 		elif parametros[0] == "centralidad_aproximada":
 			n = int(parametros[1])
-			centralidad_aprox(grafo,n)
-
+			centralidad(grafo,n,2)
+		elif parametros[0] == "pagerank":
+			n = int(parametros[1])
+			centralidad(grafo,n,3)
 		elif parametros[0] == "recorrer_mundo":
 			origen = parametros[1]
 			ultimo_comando = recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen)	
