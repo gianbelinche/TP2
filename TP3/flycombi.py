@@ -142,6 +142,14 @@ def ver_costo_recorrido(recorrido,grafo):
 		anterior = v
 	return costo
 
+def jajaja(recorrido,grafo):
+	anterior = recorrido[0]
+	for v in recorrido[1:]:
+		if not grafo.estan_conectados(anterior,v):
+			return False
+		anterior = v
+	return True		
+
 def me_conviene(recorrido,grafo,minimo):
 	costo = ver_costo_recorrido(recorrido,grafo)
 	return costo < minimo[0]
@@ -204,20 +212,20 @@ def camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,origen,de
 	caminos = []
 	for aeropuerto_a in ciudades_a_aeropuertos[origen]:
 		padres,orden = bfs(grafo,aeropuerto_a)
-		camino = []
 		for aeropuerto_b in ciudades_a_aeropuertos[destino]:
+			camino = []
 			actual = aeropuerto_b
 			i = 0
 			while actual:
 				camino.append(actual)
 				actual = padres[actual]
 				i += 1
-			caminos.append((camino,i))	
+			caminos.append((camino[:],i))	
 
-	maxi = 0
+	maxi = math.inf
 	cam = []		
 	for camino in caminos:
-		if camino[1] > maxi:
+		if camino[1] < maxi:
 			maxi = camino[1]
 			cam = camino[0]			
 				
@@ -253,7 +261,7 @@ def camino_mas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,modo,origen,d
 
 	
 	print(s[:-4])
-
+	
 	return rec2,mini
 
 def betweeness_centrality_aprox(grafo):
