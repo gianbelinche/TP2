@@ -496,8 +496,17 @@ def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido):
 		salida.write(' <kml xmlns="http://www.opengis.net/kml/2.2">')
 		salida.write('     <Document>')
 
+		es_ciudad = False
+		try: 
+			aeropuertos_a_ciudades[recorrido[0]]
+		except:
+			es_ciudad = True
+
 		for v in recorrido:
-			ciudad = v#aeropuertos_a_ciudades[v]
+			if es_ciudad:
+				ciudad = v
+			else:
+				ciudad = aeropuertos_a_ciudades[v]
 			if (ciudad not in ciudades_registradas):
 				ciudades_registradas[ciudad] = True
 				salida.write('     <Placemark>')
@@ -519,6 +528,7 @@ def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido):
 		salida.write('     </Document>')
 		salida.write(' </kml>')
 		print("OK")
+
 
 
 def crear_grafo_dir(archivo):
