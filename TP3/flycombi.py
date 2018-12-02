@@ -455,6 +455,7 @@ def _viaje_n_lugares(grafo,distancia,visitados,padres,origen, v, escalas,escalas
 				padres[w] = v
 				resultado = _viaje_n_lugares(grafo,distancia,visitados,padres,origen,w,escalas,escalas_restantes - 1)
 				if(resultado != None): return resultado
+				return None
 
 	elif (distancia[v] == 1): return v
 
