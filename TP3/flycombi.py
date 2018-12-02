@@ -20,6 +20,53 @@ class Conjunto_Disjunto:
 	def union(self,v,w):
 		self.conjuntos[self.find(w)] = v
 
+
+
+class _IterGrafo_Dir:
+	def __init__ (self,cantidad,lista):
+		self.cantidad = cantidad
+		self.pos = 0
+		self.lista = lista
+
+	def __next__(self):
+		if self.pos >= self.cantidad:
+			raise StopIteration()
+		self.pos += 1
+		return self.lista[self.pos-1]
+
+
+class Grafo_Dir:
+	
+	def __init__ (self):
+		self.datos = {}
+		self.cantidad = 0
+
+	def agregar_vertice(self,v):
+		if v in self.datos:
+			return False
+		self.datos[v] = {}
+		self.cantidad += 1
+		return True
+		
+	def agregar_arista(self,v,w):
+		if v not in self.datos or w not in self.datos:
+			return False
+		self.datos[v][w] = True
+		return True	
+
+	def adyacentes(self,v):
+		return list(self.datos.get(v,[]))
+	
+	def __len__ (self):
+		return self.cantidad
+
+	def __iter__ (self):
+		return _IterGrafo_Dir(self.cantidad,list(self.datos))
+
+		
+					
+
+
 #................................  FUNCIONES AUXILIARES ................................#
 
 def crear_grafo(archivo1,archivo2):
@@ -419,6 +466,30 @@ def exportar_KML(archivo, aeropuertos_a_ciudades,coordenadas, recorrido):
 		salida.write(' </kml>')
 		print("OK")
 
+
+def crear_grafo_dir(archivo):
+	grafo = Grafo_Dir()
+	with open(archivo) as archivo:
+		linea = archivo.readline()
+		ciudades = linea.rstrip("\n").split(",")
+		for ciudad in ciudades:
+			grafo.agregar_vertice(ciudad)
+		for linea in archivo:
+			elementos = linea.rstrip("\n").split(",")
+			grafo.agregar_arista(elementos[0],elementos[1])
+	return grafo
+	
+def itinerario_cultural(grafo_dir,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
+	orden = orden_topologico(grafo_dir)
+	for v in orden[:-1]:
+		print(v,",",end="")
+	print(orden[-1])	
+	actual = orden[0]
+	for v in orden[1:]:
+		camino_escalas(grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos,actual,v)
+		actual = v		
+
+
 #................................    FUNCION PRINCIPAL  ................................#
 
 def separar_parametros(parametros):
@@ -492,6 +563,12 @@ def main():
 			origen = para[0]
 			n = int(para[1])
 			ultimo_comando = viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,n)
+
+		elif parametros[0] == "itinerario_cultural":
+			archivo = parametros[1]
+			grafo_dir = crear_grafo_dir(archivo)
+			itinerario_cultural(grafo_dir,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos)
+				
 
 main()
 
