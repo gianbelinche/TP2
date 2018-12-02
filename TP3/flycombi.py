@@ -471,11 +471,11 @@ def viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,e
 		padres = {}
 		padres[origenx] = None
 
-		final = _viaje_n_lugares(grafo,distancia,visitados,padres,origenx,origenx,escalas,escalas)
+		final = _viaje_n_lugares(grafo,distancia,visitados,padres,origenx,origenx,escalas - 1,escalas - 1)
 
 		if (final != None):
 			camino_aeropuertos = reconstruir_camino(padres,final)
-			camino_aeropuertos.append(origenx)
+			camino_aeropuertos.insert(0,origenx)
 			print(esquematizar_recorrido(camino_aeropuertos))	
 			return camino_aeropuertos
 	
