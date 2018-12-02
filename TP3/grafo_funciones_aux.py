@@ -55,7 +55,7 @@ def dfs(grafo,origen):
 def orden_topologico(grafo):
 	grados = {}
 	for v in grafo: 
-		grado[v] = 0
+		grados[v] = 0
 
 	for v in grafo:
 		for w in grafo.adyacentes(v):
@@ -72,10 +72,10 @@ def orden_topologico(grafo):
 		v = cola.get()
 		orden_topologico.append(v)
 
-	for w in grafo.adyacentes(v):
-		grados[w] -= 1
-		if grado[w] == 0 : 
-			cola.put(w)
+		for w in grafo.adyacentes(v):
+			grados[w] -= 1
+			if grados[w] == 0 : 
+				cola.put(w)
 
 	if(len(orden_topologico) == len(grafo)):
 		return orden_topologico
