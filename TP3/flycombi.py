@@ -492,7 +492,8 @@ def crear_grafo_dir(archivo):
 def itinerario_cultural(grafo_dir,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos):
 	orden = orden_topologico(grafo_dir)
 	for v in orden[:-1]:
-		print(v,",",end="")
+		print(v,end="")
+		print(", ",end="")
 	print(orden[-1])	
 	actual = orden[0]
 	for v in orden[1:]:
