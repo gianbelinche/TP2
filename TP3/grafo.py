@@ -73,5 +73,33 @@ class _IterGrafo:
 		self.pos += 1
 		return self.lista[self.pos-1]		
 
+
+class Grafo_Dir:
+	
+	def __init__ (self):
+		self.datos = {}
+		self.cantidad = 0
+
+	def agregar_vertice(self,v):
+		if v in self.datos:
+			return False
+		self.datos[v] = {}
+		self.cantidad += 1
+		return True
+		
+	def agregar_arista(self,v,w):
+		if v not in self.datos or w not in self.datos:
+			return False
+		self.datos[v][w] = True
+		return True	
+
+	def adyacentes(self,v):
+		return list(self.datos.get(v,[]))
+	
+	def __len__ (self):
+		return self.cantidad
+
+	def __iter__ (self):
+		return _IterGrafo(self.cantidad,list(self.datos))
 				
 
