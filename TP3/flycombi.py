@@ -126,30 +126,12 @@ def esquematizar_recorrido(recorrido):
 		s += "{} -> ".format(punto)
 	return s[:-4]
 
-def calcular_distancia(grafo,origen,escalas):
-	visitados = set()
-	visitados.add(origen)
-	distancia = {}
-	distancia[origen] = 0
-	cola = Queue()
-	cola.put(origen)
-
-	while not cola.empty():
-		v = cola.get()
-		if(distancia[v] <= escalas):
-			for w in grafo.adyacentes(v):
-				if w not in visitados:
-					visitados.add(w)
-					distancia[w] = distancia[v] + 1
-					cola.put(w)
-	return distancia
-
 #................................       COMANDOS        ................................#
 
 def listar_operaciones():
 	print("camino_escalas")         #1
 	print("camino_mas")             #1
-	print("centralidad")            #3
+	#print("centralidad")            #3
 	print("centralidad_aproximada") #1
 	print("pagerank")               #2
 	print("nueva_aerolinea")        #2
@@ -400,18 +382,21 @@ def recorrer_mundo(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen):
 	print(maxi)
 	return rec	
 
-def _viaje_n_lugares(grafo,distancia,visitados,padres,origen, v, escalas,escalas_restantes):
+def _viaje_n_lugares(grafo,visitados,padres, v,escalas_restantes,origenes):
 	visitados.add(v)
 
 	if (escalas_restantes > 0):
 		for w in grafo.adyacentes(v):
-			if (w not in visitados) and (escalas_restantes - distancia[w] >= 0):
+			if (w not in visitados):
 				padres[w] = v
-				resultado = _viaje_n_lugares(grafo,distancia,visitados,padres,origen,w,escalas,escalas_restantes - 1)
+				resultado = _viaje_n_lugares(grafo,visitados,padres,w,escalas_restantes - 1,origenes)
 				if(resultado != None): return resultado
-				return None
+				#return None
 
-	elif (distancia[v] == 1): return v
+	else:
+		for w in grafo.adyacentes(v):
+			if(w in origenes):
+				return v
 
 	visitados.remove(v)
 	return None
@@ -422,11 +407,10 @@ def viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,e
 	for origenx in ciudades_a_aeropuertos[origen]:
 		visitados = set()
 		visitados.add(origenx)
-		distancia = calcular_distancia(grafo,origenx,escalas) #Acota la cantidad de vertices a considerar
 		padres = {}
 		padres[origenx] = None
 
-		final = _viaje_n_lugares(grafo,distancia,visitados,padres,origenx,origenx,escalas - 1,escalas - 1)
+		final = _viaje_n_lugares(grafo,visitados,padres,origenx,escalas + 1,ciudades_a_aeropuertos[origen])
 
 		if (final != None):
 			camino_aeropuertos = reconstruir_camino(padres,final)
