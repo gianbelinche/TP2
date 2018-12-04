@@ -103,7 +103,7 @@ def ver_costo_recorrido(recorrido,grafo):
 
 def me_conviene(recorrido,grafo,minimo):
 	costo = ver_costo_recorrido(recorrido,grafo)
-	return costo < minimo[0]
+	return costo <= minimo[0]
 	
 
 
@@ -326,6 +326,7 @@ def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,ori
 		no_visitadas.pop(aeropuertos_a_ciudades[aeropuerto])	
 		actual = aeropuerto
 		costo = 0
+		recorrido.append(aeropuerto)
 		while len(no_visitadas) != 0:
 			caminos = []
 			hay = False
@@ -352,6 +353,7 @@ def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,ori
 			minimo = min(caminos,key=seg_elemento)
 			actual = minimo[0][-1]
 			costo += minimo[1]
+			
 			for aero in minimo[0]:
 				if len(recorrido) > 0 and recorrido[-1] == aero:
 					continue
@@ -360,6 +362,7 @@ def recorrer_mundo_aprox(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,ori
 					no_visitadas.pop(aeropuertos_a_ciudades[aero])
 				except:
 					pass
+					
 		recorridos.append((recorrido,costo))
 
 	minimo = math.inf
