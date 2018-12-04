@@ -548,7 +548,7 @@ def main():
 			n = int(parametros[1])
 			centralidad(grafo,n,1)
 		
-		elif parametros[0] == "centralidad_aproximada":
+		elif parametros[0] == "centralidad_aprox":
 			n = int(parametros[1])
 			centralidad(grafo,n,2)
 		elif parametros[0] == "pagerank":
@@ -576,7 +576,7 @@ def main():
 			n = int(para[1])
 			ultimo_comando = viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,n)
 
-		elif parametros[0] == "itinerario_cultural":
+		elif parametros[0] == "itinerario":
 			archivo = parametros[1]
 			grafo_dir = crear_grafo_dir(archivo)
 			itinerario_cultural(grafo_dir,grafo,aeropuertos_a_ciudades,ciudades_a_aeropuertos)
