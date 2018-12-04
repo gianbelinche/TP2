@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from grafo import *
 from grafo_funciones_aux import *
 import sys
@@ -132,7 +134,7 @@ def listar_operaciones():
 	print("camino_escalas")         #1
 	print("camino_mas")             #1
 	#print("centralidad")            #3
-	print("centralidad_aproximada") #1
+	print("centralidad_aprox") #1
 	print("pagerank")               #2
 	print("nueva_aerolinea")        #2
 	print("recorrer_mundo")         #1
