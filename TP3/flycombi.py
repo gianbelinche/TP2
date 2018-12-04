@@ -141,14 +141,7 @@ def ver_costo_recorrido(recorrido,grafo):
 		costo += grafo.ver_peso(anterior,v)[0]
 		anterior = v
 	return costo
-
-def jajaja(recorrido,grafo):
-	anterior = recorrido[0]
-	for v in recorrido[1:]:
-		if not grafo.estan_conectados(anterior,v):
-			return False
-		anterior = v
-	return True		
+	
 
 def me_conviene(recorrido,grafo,minimo):
 	costo = ver_costo_recorrido(recorrido,grafo)
@@ -477,7 +470,8 @@ def viaje_n_lugares(grafo,ciudades_a_aeropuertos,aeropuertos_a_ciudades,origen,e
 		if (final != None):
 			camino_aeropuertos = reconstruir_camino(padres,final)
 			camino_aeropuertos.insert(0,origenx)
-			print(esquematizar_recorrido(camino_aeropuertos))	
+			print(esquematizar_recorrido(camino_aeropuertos))
+
 			return camino_aeropuertos
 	
 	print("No se encontro recorrido")
@@ -632,3 +626,65 @@ def main():
 
 main()
 
+
+"""
+
+
+                     *
+                       *
+                          *
+                           *
+                           *
+                          *
+                        *
+                       *
+                       *
+                        *
+                        *
+                       *
+                        *
+                       *
+                        *
+                          *
+                             *
+                                *
+                                 *
+                                *
+                             *
+                          *
+                        *
+                       *
+                        *
+                            *
+                                *
+                                     *
+                                          *
+                                             *
+                                              *
+                                              *
+                                             *
+                                           *
+                                         *
+                                       *
+                                   *
+                                *
+                              *              
+                              *            
+                               *          
+                                 *         
+                                  *         
+                                   *       
+                                   *          
+                                  *     (    
+                                *     ) (   
+                            __^__      (
+                           '--|--' o )
+                   )          =   ( o    (   
+                    (        | | o)     )            
+                    .I////////_\\\\\\\\I.
+                             \|/o
+                            --+--
+
+
+
+"""
