@@ -95,7 +95,7 @@ def reconstruir_camino(padres,destino):
 
 	return recorrido
 
-def camino_minimo(grafo, origen,modo):#, destino):
+def camino_minimo(grafo, origen,modo):
 	distancias = {}
 	padres = {}
 
@@ -110,7 +110,6 @@ def camino_minimo(grafo, origen,modo):#, destino):
 
 	while len(heap) != 0:
 		distancia,v = heapq.heappop(heap)
-		#if(v == destino): return reconstruir_camino(origen,destino,padre)
 		for w in grafo.adyacentes(v):
 			if distancia + grafo.ver_peso(v,w)[modo] < distancias[w]:
 				padres[w] = v
@@ -119,11 +118,7 @@ def camino_minimo(grafo, origen,modo):#, destino):
 
 	return padres,distancias
 
-
-
-#	A partir de aquí la cosa empieza a patinar feo	#
-
-#Betweeness centrality (Forma supuestamente optimizada)
+#Betweeness centrality
 
 def filtrar_infinitos(distancia):
 	for w in distancia:
